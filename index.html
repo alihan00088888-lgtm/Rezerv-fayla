@@ -1033,7 +1033,6 @@
       const payDay = payDateObj.getDate();
       const monthsCount = Number(contract.monthsCount) || 0;
       
-      // Используем дату покупки как точку отсчета
       let startDate = new Date(contract.buyDate || payDateStr);
       if (isNaN(startDate.getTime())) {
         startDate = new Date(payDateStr);
@@ -1043,10 +1042,8 @@
       const dates = [];
       for (let i = 1; i <= monthsCount; i++) {
         const paymentDate = new Date(startDate);
-        // Первый платеж - через 1 месяц (в следующем месяце)
         paymentDate.setMonth(paymentDate.getMonth() + i);
         
-        // Корректируем день на указанный в payDate, но не выходим за пределы месяца
         const lastDayOfMonth = new Date(paymentDate.getFullYear(), paymentDate.getMonth() + 1, 0);
         const lastDay = lastDayOfMonth.getDate();
         const targetDay = Math.min(payDay, lastDay);
@@ -1098,7 +1095,6 @@
       const paidPercentage = totalPayable > 0 ? (totalPaid / totalPayable) * 100 : 0;
       const isClosed = rest <= 0;
       
-      // Расчет просрочки с использованием новой логики дат
       let overdueSum = 0;
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -2064,7 +2060,6 @@
         guarantorPhone: document.getElementById('guarantorPhone').value || ''
       };
 
-      // Автоматическая установка shopPaid, если остаток 0
       const totalCost = formData.totalCost;
       const downPayment = formData.downPayment;
       const installments = editId ? (allContracts.find(c => c.id === editId)?.installments || {}) : {};
@@ -2119,7 +2114,6 @@
         date: inputDateVal 
       };
       
-      // Проверяем, закрыт ли договор
       const metrics = calculateContractMetrics(contract);
       if (metrics.isClosed) {
         contract.shopPaid = true;
@@ -2343,26 +2337,89 @@
       takenModal.classList.remove('hidden');
     }
 
+    // ================================================================
+    // ИСПРАВЛЕННАЯ ЛОГИКА ДЛЯ "ВЗЯЛИ / ПОЛОЖИЛИ"
+    // При добавлении записи - автоматически создается запись в учете
+    // ================================================================
+
     document.getElementById('takenForm').addEventListener('submit', (e) => {
       e.preventDefault();
       saveState();
 
       const editId = document.getElementById('takenEditId').value;
-      const formData = {
-        takenAmount: Number(document.getElementById('takenAmount').value) || 0,
-        takenDesc: document.getElementById('takenDesc').value || '',
-        putAmount: Number(document.getElementById('putAmount').value) || 0,
-        putDesc: document.getElementById('putDesc').value || '',
-        createdAt: editId ? (allTaken.find(t => t.id === editId)?.createdAt || Date.now()) : Date.now()
-      };
+      const takenAmount = Number(document.getElementById('takenAmount').value) || 0;
+      const takenDesc = document.getElementById('takenDesc').value || '';
+      const putAmount = Number(document.getElementById('putAmount').value) || 0;
+      const putDesc = document.getElementById('putDesc').value || '';
+      
+      const today = new Date().toISOString().slice(0, 10);
 
+      // Если это редактирование
       if (editId) {
-        const idx = allTaken.findIndex(t => t.id === editId);
-        if (idx !== -1) allTaken[idx] = { ...allTaken[idx], ...formData };
+        const oldItem = allTaken.find(t => t.id === editId);
+        if (oldItem) {
+          // Удаляем старые записи из учета
+          const oldTakenAmount = Number(oldItem.takenAmount) || 0;
+          const oldPutAmount = Number(oldItem.putAmount) || 0;
+          
+          if (oldTakenAmount > 0) {
+            allAccounting = allAccounting.filter(a => a._source !== editId || a.type !== 'taken');
+          }
+          if (oldPutAmount > 0) {
+            allAccounting = allAccounting.filter(a => a._source !== editId || a.type !== 'put');
+          }
+          
+          // Обновляем запись в taken
+          const idx = allTaken.findIndex(t => t.id === editId);
+          if (idx !== -1) {
+            allTaken[idx] = {
+              ...allTaken[idx],
+              takenAmount,
+              takenDesc,
+              putAmount,
+              putDesc,
+              updatedAt: Date.now()
+            };
+          }
+        }
       } else {
+        // Новая запись
         allTaken.push({
           id: 'taken_' + Date.now(),
-          ...formData
+          takenAmount,
+          takenDesc,
+          putAmount,
+          putDesc,
+          createdAt: Date.now()
+        });
+      }
+
+      // Добавляем записи в учет
+      if (takenAmount > 0) {
+        allAccounting.unshift({
+          id: 'acc_' + Date.now() + '_taken',
+          date: today,
+          income: 0,
+          expense: takenAmount,
+          note: `Взяли: ${takenDesc || 'без описания'}`,
+          account: 'N',
+          _source: editId || allTaken[allTaken.length - 1]?.id || 'taken_' + Date.now(),
+          type: 'taken',
+          createdAt: Date.now()
+        });
+      }
+
+      if (putAmount > 0) {
+        allAccounting.unshift({
+          id: 'acc_' + Date.now() + '_put',
+          date: today,
+          income: putAmount,
+          expense: 0,
+          note: `Положили: ${putDesc || 'без описания'}`,
+          account: 'N',
+          _source: editId || allTaken[allTaken.length - 1]?.id || 'taken_' + Date.now(),
+          type: 'put',
+          createdAt: Date.now()
         });
       }
 
@@ -2371,8 +2428,12 @@
     });
 
     function deleteTakenItem(id) {
-      if(confirm('Удалить эту строку?')) {
+      if (confirm('Удалить эту строку?')) {
         saveState();
+        
+        // Удаляем связанные записи из учета
+        allAccounting = allAccounting.filter(a => a._source !== id);
+        
         allTaken = allTaken.filter(t => t.id !== id);
         saveToStorage();
       }
@@ -2441,19 +2502,17 @@
       let totalCostPrice = 0;
 
       allContracts.forEach(c => {
-        // Учитываем только договоры с галочкой "Д" (shopPaid)
         if (c.shopPaid) {
           totalDownPayments += Number(c.downPayment || 0);
           totalCostPrice += Number(c.costPrice || 0);
         }
-        // Платежи по installments учитываем всегда (они уже оплачены)
         const insts = c.installments || {};
         Object.values(insts).forEach(p => {
           totalInstallments += Number(p.amount || 0);
         });
       });
 
-      // Касса = все оплаты (включая предоплаты с "Д") + платежи по installments - себестоимость (только с "Д") - взяли + положили
+      // Касса = все оплаты + платежи по installments - себестоимость (только с "Д") - взяли + положили
       let totalKassa = totalDownPayments + totalInstallments - totalCostPrice - sumTaken + sumPut;
       document.getElementById('kassaTotal').innerText = totalKassa.toLocaleString('ru-RU');
 
@@ -2496,7 +2555,6 @@
         });
         if (hasPaidToday) factTodayCount++;
 
-        // Проверяем, есть ли сегодня платеж по новому графику
         const paymentDates = calculatePaymentDates(c);
         for (const pd of paymentDates) {
           if (pd.dateStr === todayStr) {
