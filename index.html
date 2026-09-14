@@ -477,10 +477,8 @@
             <thead>
               <tr>
                 <th class="left-section">№ Договора</th>
-                <th class="left-section">N</th>
                 <th class="left-section">Доход</th>
                 <th class="left-section">% на себест.</th>
-                <th class="left-section">Итоговая стоимость</th>
                 <th class="left-section">% от итога</th>
                 <th class="left-section">Дата</th>
                 <th class="sep-col"></th>
@@ -493,10 +491,9 @@
             <tbody id="incomeTableBody"></tbody>
             <tfoot>
               <tr class="font-bold" style="background-color: #f8fafc;">
-                <td colspan="2" class="text-right">ИТОГО:</td>
+                <td class="text-right">ИТОГО:</td>
                 <td id="incomeFooterCost" class="text-teal-700">0</td>
                 <td id="incomeFooterPercentCost" class="text-teal-700">0%</td>
-                <td id="incomeFooterTotal" class="text-teal-700">0</td>
                 <td id="incomeFooterPercentTotal" class="text-teal-700">0%</td>
                 <td></td>
                 <td class="sep-col"></td>
@@ -1423,26 +1420,26 @@
       // Левая часть — из договоров
       const sortedContracts = [...allContracts].sort((a, b) => (b.contractNum || 0) - (a.contractNum || 0));
       
-      let totalCost = 0;          // общий доход (сумма себестоимости)
-      let totalFinal = 0;         // общая итоговая стоимость
-      let totalIncomePercent = 0; // общий процент
+      let totalIncome = 0;        // общий доход (итоговая − себестоимость)
+      let totalCost = 0;          // общая себестоимость (для процента)
+      let totalFinal = 0;         // общая итоговая стоимость (для процента)
       
-      const rowsLeft = sortedContracts.map((c, idx) => {
+      const rowsLeft = sortedContracts.map((c) => {
         const cost = Number(c.costPrice) || 0;
         const finalCost = Number(c.totalCost) || 0;
-        const percentOnCost = cost > 0 ? ((finalCost - cost) / cost) * 100 : 0;
-        const percentFromFinal = finalCost > 0 ? ((finalCost - cost) / finalCost) * 100 : 0;
+        const income = finalCost - cost;                          // ДОХОД = итоговая − себестоимость
+        const percentOnCost = cost > 0 ? (income / cost) * 100 : 0;      // % на себестоимость
+        const percentFromFinal = finalCost > 0 ? (income / finalCost) * 100 : 0; // % от итога
         
+        totalIncome += income;
         totalCost += cost;
         totalFinal += finalCost;
         
         return `
           <tr class="left-section">
             <td class="font-bold">${c.contractNum}</td>
-            <td class="font-bold text-teal-700">N</td>
-            <td class="font-bold">${cost.toLocaleString('ru-RU')}</td>
+            <td class="font-bold text-teal-700">${income.toLocaleString('ru-RU')}</td>
             <td class="font-bold ${percentOnCost > 0 ? 'text-emerald-700' : 'text-red-700'}">${percentOnCost.toFixed(1)}%</td>
-            <td class="font-bold">${finalCost.toLocaleString('ru-RU')}</td>
             <td class="font-bold ${percentFromFinal > 0 ? 'text-emerald-700' : 'text-red-700'}">${percentFromFinal.toFixed(1)}%</td>
             <td>${c.buyDate || '—'}</td>
           </tr>
@@ -1467,12 +1464,12 @@
         `;
       });
 
-      // Объединяем по индексу: левая часть длиннее — правая дополняется пустыми
+      // Объединяем по индексу
       const maxLen = Math.max(rowsLeft.length, rightRows.length);
       let html = '';
       for (let i = 0; i < maxLen; i++) {
         html += '<tr>';
-        html += rowsLeft[i] ? rowsLeft[i].replace('<tr class="left-section">', '').replace('</tr>', '') : '<td class="left-section"></td><td class="left-section"></td><td class="left-section"></td><td class="left-section"></td><td class="left-section"></td><td class="left-section"></td><td class="left-section"></td>';
+        html += rowsLeft[i] ? rowsLeft[i].replace('<tr class="left-section">', '').replace('</tr>', '') : '<td class="left-section"></td><td class="left-section"></td><td class="left-section"></td><td class="left-section"></td><td class="left-section"></td>';
         html += '<td class="sep-col"></td>';
         html += rightRows[i] ? rightRows[i].replace('<tr class="right-section">', '').replace('</tr>', '') : '<td class="right-section"></td><td class="right-section"></td><td class="right-section"></td><td class="right-section"></td>';
         html += '</tr>';
@@ -1480,18 +1477,17 @@
       tbody.innerHTML = html;
 
       // Итоги
-      const overallPercent = totalCost > 0 ? ((totalFinal - totalCost) / totalCost) * 100 : 0;
-      const overallPercentFromFinal = totalFinal > 0 ? ((totalFinal - totalCost) / totalFinal) * 100 : 0;
+      const overallPercent = totalCost > 0 ? (totalIncome / totalCost) * 100 : 0;
+      const overallPercentFromFinal = totalFinal > 0 ? (totalIncome / totalFinal) * 100 : 0;
 
-      document.getElementById('incomeFooterCost').innerText = totalCost.toLocaleString('ru-RU');
+      document.getElementById('incomeFooterCost').innerText = totalIncome.toLocaleString('ru-RU');
       document.getElementById('incomeFooterPercentCost').innerText = overallPercent.toFixed(1) + '%';
-      document.getElementById('incomeFooterTotal').innerText = totalFinal.toLocaleString('ru-RU');
       document.getElementById('incomeFooterPercentTotal').innerText = overallPercentFromFinal.toFixed(1) + '%';
       document.getElementById('incomeFooterExpense').innerText = totalExpense.toLocaleString('ru-RU');
 
-      document.getElementById('incomeTotalSum').innerText = totalFinal.toLocaleString('ru-RU') + ' ₽';
+      document.getElementById('incomeTotalSum').innerText = totalIncome.toLocaleString('ru-RU') + ' ₽';
       document.getElementById('incomeTotalExpense').innerText = totalExpense.toLocaleString('ru-RU') + ' ₽';
-      document.getElementById('incomeTotalResult').innerText = (totalFinal - totalExpense).toLocaleString('ru-RU') + ' ₽';
+      document.getElementById('incomeTotalResult').innerText = (totalIncome - totalExpense).toLocaleString('ru-RU') + ' ₽';
     }
 
     const incomeExpModal = document.getElementById('incomeExpModal');
@@ -2825,4 +2821,4 @@
     updateHistoryButtons();
   </script>
 </body>
-  </html>
+</html>
