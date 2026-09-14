@@ -151,27 +151,27 @@
     }
     .date-warning.show { display: block; }
 
-    /* Страница Доход — усиленная контрастность */
+    /* Страница Доход / Расход */
     .income-table { width: 100%; border-collapse: collapse; font-size: 12px; }
     .income-table th, .income-table td {
-      border: 1px solid #64748b;
-      padding: 7px 10px;
-      text-align: center;
-      color: #000000;
-      font-weight: 600;
+      border: 1px solid #94a3b8; padding: 8px 10px; text-align: center;
     }
     .income-table th {
-      background-color: #0f766e;
-      color: #ffffff;
-      font-weight: 800;
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      background-color: #0f766e; color: #ffffff;
+      font-weight: bold; font-size: 11px;
+      text-transform: uppercase; letter-spacing: 0.3px;
     }
-    .income-table .left-section { background-color: #f0fdfa; color: #0f172a; font-weight: 700; }
-    .income-table .right-section { background-color: #fef2f2; color: #7f1d1d; font-weight: 700; }
+    .income-table .left-section { background-color: #ccfbf1; color: #0f172a; }
+    .income-table .left-section td { color: #0f172a; font-weight: 600; }
+    .income-table .right-section { background-color: #fee2e2; color: #0f172a; }
+    .income-table .right-section td { color: #0f172a; font-weight: 600; }
     .income-table .sep-col { background-color: #0f172a !important; width: 5px; padding: 0; }
-    .income-table tfoot td { background-color: #e2e8f0; color: #0f172a; font-weight: 900; }
+    .income-table tbody tr:hover .left-section { background-color: #99f6e4; }
+    .income-table tbody tr:hover .right-section { background-color: #fecaca; }
+    .income-table tfoot td {
+      background-color: #1e293b; color: #ffffff !important;
+      font-weight: bold; font-size: 12px;
+    }
   </style>
 </head>
 <body class="bg-slate-100 text-gray-800 text-xs min-h-screen pb-20">
@@ -468,31 +468,26 @@
       <div class="bg-white shadow-xl rounded-xl p-6 border">
         <div class="flex justify-between items-center mb-4 flex-wrap gap-3">
           <h2 class="text-xl font-bold text-teal-700">💵 Доход / Расход</h2>
-          <div class="flex gap-4 flex-wrap">
-            <div class="bg-teal-50 border border-teal-200 rounded-lg px-4 py-2">
-              <div class="text-[9px] uppercase font-bold text-teal-600">Общий доход</div>
-              <div id="incomeTotalSum" class="text-base font-black text-teal-700">0 ₽</div>
-            </div>
-            <div class="bg-red-50 border border-red-200 rounded-lg px-4 py-2">
-              <div class="text-[9px] uppercase font-bold text-red-600">Общий расход</div>
-              <div id="incomeTotalExpense" class="text-base font-black text-red-700">0 ₽</div>
-            </div>
-            <div class="bg-slate-50 border border-slate-300 rounded-lg px-4 py-2">
-              <div class="text-[9px] uppercase font-bold text-slate-600">Итог</div>
-              <div id="incomeTotalResult" class="text-base font-black text-slate-800">0 ₽</div>
-            </div>
-          </div>
+          <button onclick="openIncomeExpModal()" class="bg-red-600 hover:bg-red-700 text-white font-bold px-3 py-1.5 rounded-lg shadow transition text-xs">
+            + Добавить расход
+          </button>
         </div>
 
         <div class="overflow-x-auto border rounded-lg">
           <table class="income-table">
             <thead>
               <tr>
+                <th class="left-section" colspan="6">ДОХОД</th>
+                <th class="sep-col"></th>
+                <th class="right-section" colspan="4">РАСХОД</th>
+              </tr>
+              <tr>
                 <th class="left-section">№ Договора</th>
                 <th class="left-section">Доход</th>
                 <th class="left-section">% на себест.</th>
                 <th class="left-section">% от итога</th>
                 <th class="left-section">Дата</th>
+                <th class="left-section"></th>
                 <th class="sep-col"></th>
                 <th class="right-section">Расход</th>
                 <th class="right-section">Дата</th>
@@ -502,14 +497,15 @@
             </thead>
             <tbody id="incomeTableBody"></tbody>
             <tfoot>
-              <tr class="font-bold">
-                <td colspan="1" class="text-right">ИТОГО:</td>
-                <td id="incomeFooterCost" class="text-teal-700">0</td>
-                <td id="incomeFooterPercentCost" class="text-teal-700">0%</td>
-                <td id="incomeFooterPercentTotal" class="text-teal-700">0%</td>
+              <tr>
+                <td class="text-right">ИТОГО:</td>
+                <td id="incomeFooterProfit">0</td>
+                <td id="incomeFooterPercentCost">0%</td>
+                <td id="incomeFooterPercentTotal">0%</td>
+                <td></td>
                 <td></td>
                 <td class="sep-col"></td>
-                <td id="incomeFooterExpense" class="text-red-700">0</td>
+                <td id="incomeFooterExpense">0</td>
                 <td colspan="3"></td>
               </tr>
             </tfoot>
@@ -1422,82 +1418,81 @@
     }
 
     // ================================================================
-    // СТРАНИЦА: ДОХОД / РАСХОД (с изменениями)
-    // Доход = Итоговая стоимость − Себестоимость
+    // СТРАНИЦА: ДОХОД / РАСХОД
     // ================================================================
 
     function renderIncomePage() {
       const tbody = document.getElementById('incomeTableBody');
       tbody.innerHTML = '';
 
+      // Левая часть — из договоров
       const sortedContracts = [...allContracts].sort((a, b) => (b.contractNum || 0) - (a.contractNum || 0));
       
-      let totalIncome = 0;        // сумма (итоговая − себестоимость)
-      let totalCostBase = 0;      // сумма себестоимости (для % )
-      let totalFinalCost = 0;     // сумма итоговой стоимости
+      let totalProfit = 0;        // сумма (итоговая - себестоимость)
+      let totalCost = 0;          // сумма себестоимости
+      let totalFinal = 0;         // сумма итоговой стоимости
       
       const rowsLeft = sortedContracts.map((c) => {
         const cost = Number(c.costPrice) || 0;
         const finalCost = Number(c.totalCost) || 0;
-        const income = finalCost - cost;                              // Доход = итоговая − себестоимость
-        const percentOnCost = cost > 0 ? (income / cost) * 100 : 0;   // % на себестоимость
-        const percentFromFinal = finalCost > 0 ? (income / finalCost) * 100 : 0; // % от итога
+        const profit = finalCost - cost;  // <-- Доход = итоговая - себестоимость
+        const percentOnCost = cost > 0 ? (profit / cost) * 100 : 0;
+        const percentFromFinal = finalCost > 0 ? (profit / finalCost) * 100 : 0;
         
-        totalIncome += income;
-        totalCostBase += cost;
-        totalFinalCost += finalCost;
+        totalProfit += profit;
+        totalCost += cost;
+        totalFinal += finalCost;
         
         return `
-          <tr>
-            <td class="left-section">№ ${c.contractNum}</td>
-            <td class="left-section" style="color: #047857;">${income.toLocaleString('ru-RU')} ₽</td>
-            <td class="left-section" style="color: ${percentOnCost > 0 ? '#047857' : '#b91c1c'};">${percentOnCost.toFixed(1)}%</td>
-            <td class="left-section" style="color: ${percentFromFinal > 0 ? '#047857' : '#b91c1c'};">${percentFromFinal.toFixed(1)}%</td>
-            <td class="left-section">${c.buyDate || '—'}</td>
+          <tr class="left-section">
+            <td>${c.contractNum}</td>
+            <td>${profit.toLocaleString('ru-RU')}</td>
+            <td>${percentOnCost.toFixed(1)}%</td>
+            <td>${percentFromFinal.toFixed(1)}%</td>
+            <td>${c.buyDate || '—'}</td>
+            <td></td>
           </tr>
         `;
       });
 
+      // Правая часть — ручные расходы
       let totalExpense = 0;
       const rightRows = allIncomeExpenses.map(e => {
         const amount = Number(e.amount) || 0;
         totalExpense += amount;
         return `
-          <tr>
-            <td class="right-section" style="color: #b91c1c;">${amount.toLocaleString('ru-RU')} ₽</td>
-            <td class="right-section">${e.date || '—'}</td>
-            <td class="right-section" style="text-align: left;">${e.note || '—'}</td>
-            <td class="right-section">
-              <button onclick="openEditIncomeExpModal('${e.id}')" style="color:#2563eb; font-weight:bold; padding:0 4px;">✏️</button>
-              <button onclick="deleteIncomeExpItem('${e.id}')" style="color:#dc2626; font-weight:bold; padding:0 4px;">🗑️</button>
+          <tr class="right-section">
+            <td>${amount.toLocaleString('ru-RU')}</td>
+            <td>${e.date || '—'}</td>
+            <td>${e.note || '—'}</td>
+            <td>
+              <button onclick="openEditIncomeExpModal('${e.id}')" class="text-blue-700 font-bold px-1">✏️</button>
+              <button onclick="deleteIncomeExpItem('${e.id}')" class="text-red-700 font-bold px-1">🗑️</button>
             </td>
           </tr>
         `;
       });
 
+      // Объединяем по индексу
       const maxLen = Math.max(rowsLeft.length, rightRows.length);
       let html = '';
       for (let i = 0; i < maxLen; i++) {
         html += '<tr>';
-        html += rowsLeft[i] || '<td class="left-section"></td><td class="left-section"></td><td class="left-section"></td><td class="left-section"></td><td class="left-section"></td>';
+        html += rowsLeft[i] ? rowsLeft[i].replace('<tr class="left-section">', '').replace('</tr>', '') : '<td class="left-section"></td><td class="left-section"></td><td class="left-section"></td><td class="left-section"></td><td class="left-section"></td><td class="left-section"></td>';
         html += '<td class="sep-col"></td>';
-        html += rightRows[i] || '<td class="right-section"></td><td class="right-section"></td><td class="right-section"></td><td class="right-section"></td>';
+        html += rightRows[i] ? rightRows[i].replace('<tr class="right-section">', '').replace('</tr>', '') : '<td class="right-section"></td><td class="right-section"></td><td class="right-section"></td><td class="right-section"></td>';
         html += '</tr>';
       }
       tbody.innerHTML = html;
 
       // Итоги
-      const overallPercentOnCost = totalCostBase > 0 ? (totalIncome / totalCostBase) * 100 : 0;
-      const overallPercentFromFinal = totalFinalCost > 0 ? (totalIncome / totalFinalCost) * 100 : 0;
+      const overallPercent = totalCost > 0 ? (totalProfit / totalCost) * 100 : 0;
+      const overallPercentFromFinal = totalFinal > 0 ? (totalProfit / totalFinal) * 100 : 0;
 
-      document.getElementById('incomeFooterCost').innerText = totalIncome.toLocaleString('ru-RU');
-      document.getElementById('incomeFooterPercentCost').innerText = overallPercentOnCost.toFixed(1) + '%';
+      document.getElementById('incomeFooterProfit').innerText = totalProfit.toLocaleString('ru-RU');
+      document.getElementById('incomeFooterPercentCost').innerText = overallPercent.toFixed(1) + '%';
       document.getElementById('incomeFooterPercentTotal').innerText = overallPercentFromFinal.toFixed(1) + '%';
       document.getElementById('incomeFooterExpense').innerText = totalExpense.toLocaleString('ru-RU');
-
-      document.getElementById('incomeTotalSum').innerText = totalIncome.toLocaleString('ru-RU') + ' ₽';
-      document.getElementById('incomeTotalExpense').innerText = totalExpense.toLocaleString('ru-RU') + ' ₽';
-      document.getElementById('incomeTotalResult').innerText = (totalIncome - totalExpense).toLocaleString('ru-RU') + ' ₽';
     }
 
     const incomeExpModal = document.getElementById('incomeExpModal');
@@ -2602,11 +2597,13 @@
         });
       });
 
+      // Расход из новой страницы "Доход" вычитается из Кассы
       let totalIncomeExpenses = 0;
       allIncomeExpenses.forEach(e => {
         totalIncomeExpenses += Number(e.amount || 0);
       });
 
+      // Касса = все оплаты + платежи по installments - себестоимость (только с "Д") - взяли + положили - расходы из "Доход"
       let totalKassa = totalDownPayments + totalInstallments - totalCostPrice - sumTaken + sumPut - totalIncomeExpenses;
       document.getElementById('kassaTotal').innerText = totalKassa.toLocaleString('ru-RU');
 
@@ -2748,7 +2745,7 @@
       } else if (activeTab === 'income') {
         const filtered = allIncomeExpenses.filter(e => (e.note && e.note.toLowerCase().includes(q)));
         if (filtered.length === 0 && q.length > 0) {
-          document.getElementById('incomeTableBody').innerHTML = '<tr><td colspan="10" class="text-center text-gray-500 py-4">Нет совпадений по расходам</td></tr>';
+          document.getElementById('incomeTableBody').innerHTML = '<tr><td colspan="12" class="text-center text-gray-500 py-4">Нет совпадений по расходам</td></tr>';
         } else {
           renderIncomePage();
         }
