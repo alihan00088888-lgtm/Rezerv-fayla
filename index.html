@@ -210,17 +210,19 @@
       background: rgba(255,255,255,0.25); padding: 4px 12px; border-radius: 6px;
       font-size: 13px; font-weight: 800;
     }
-    .investor-setup-row {
-      display: grid; grid-template-columns: 1fr 140px 140px 60px;
-      gap: 8px; align-items: center; padding: 6px 10px; border-bottom: 1px solid #e5e7eb;
+    .month-card-header .hdr-btn {
+      background: rgba(255,255,255,0.2); color: white; font-weight: 700;
+      padding: 3px 10px; border-radius: 5px; font-size: 11px; cursor: pointer; border: none;
     }
-    .investor-setup-row:last-child { border-bottom: none; }
-    .investor-setup-row input {
-      padding: 5px 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px;
-    }
-    .investor-setup-row .owner-badge {
-      background: #7c3aed; color: white; padding: 3px 8px; border-radius: 5px;
-      font-size: 10px; font-weight: 700;
+    .month-card-header .hdr-btn:hover { background: rgba(255,255,255,0.35); }
+    .month-card-header .hdr-btn.danger { background: rgba(220,38,38,0.8); }
+    .month-card-header .hdr-btn.danger:hover { background: rgba(220,38,38,1); }
+    .capital-negative { color: #dc2626 !important; font-weight: 800 !important; }
+    .fact-percent-positive { color: #059669; font-weight: 800; }
+    .fact-percent-zero { color: #94a3b8; font-weight: 600; }
+    .init-error-banner {
+      background: #fee2e2; color: #7f1d1d; border: 1px solid #ef4444;
+      padding: 10px 14px; border-radius: 8px; font-weight: 700; margin-bottom: 12px;
     }
   </style>
 </head>
@@ -566,16 +568,22 @@
 
     <!-- ================= Лист 10: Инициализация ================= -->
     <div id="initTabContent" class="hidden space-y-4">
+      <div id="initErrorBanner" class="init-error-banner hidden"></div>
+
       <!-- Блок настройки инвесторов -->
       <div class="bg-white shadow-xl rounded-xl p-6 border-2 border-purple-300">
         <h2 class="text-xl font-bold text-purple-700 mb-4">🏛️ Настройка инвесторов</h2>
         <div class="overflow-x-auto">
-          <table class="init-table" style="max-width: 800px;">
+          <table class="init-table" style="max-width: 1000px;">
             <thead>
               <tr>
                 <th>Имя инвестора</th>
                 <th>% прибыли инвестору</th>
                 <th>% владельцу (авто)</th>
+                <th>Вложено всего</th>
+                <th>Заработал всего</th>
+                <th>Дивидендов получено</th>
+                <th>Капитал сейчас</th>
                 <th>Действие</th>
               </tr>
             </thead>
@@ -585,6 +593,30 @@
         <button onclick="addInvestorSetup()" class="mt-3 bg-purple-600 hover:bg-purple-700 text-white font-bold px-4 py-2 rounded-lg text-xs shadow transition">
           + Добавить инвестора
         </button>
+      </div>
+
+      <!-- Панель управления месяцами -->
+      <div class="bg-white shadow-xl rounded-xl p-4 border-2 border-purple-200 flex flex-wrap items-center gap-3">
+        <span class="font-bold text-purple-700 text-sm">📅 Управление месяцами:</span>
+        <select id="newMonthYear" class="p-2 border rounded text-xs font-bold"></select>
+        <select id="newMonthMonth" class="p-2 border rounded text-xs font-bold">
+          <option value="1">Январь</option>
+          <option value="2">Февраль</option>
+          <option value="3">Март</option>
+          <option value="4">Апрель</option>
+          <option value="5">Май</option>
+          <option value="6">Июнь</option>
+          <option value="7">Июль</option>
+          <option value="8">Август</option>
+          <option value="9">Сентябрь</option>
+          <option value="10">Октябрь</option>
+          <option value="11">Ноябрь</option>
+          <option value="12">Декабрь</option>
+        </select>
+        <button onclick="createMonthFromSelects()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-4 py-2 rounded-lg text-xs shadow transition">
+          + Создать месяц
+        </button>
+        <span id="initDebug" class="text-[10px] text-gray-400"></span>
       </div>
 
       <!-- Ежемесячный учет -->
@@ -854,18 +886,22 @@
     let allIncomeExpenses = JSON.parse(localStorage.getItem('income_expenses_db') || '[]');
     let customAccounts = JSON.parse(localStorage.getItem('accounts_db') || 'null');
 
-    // ===== НОВЫЕ ДАННЫЕ ДЛЯ ИНИЦИАЛИЗАЦИИ =====
+    // ===== ДАННЫЕ ДЛЯ ИНИЦИАЛИЗАЦИИ =====
     let initInvestors = JSON.parse(localStorage.getItem('investors_db') || 'null');
     let initMonthlyReports = JSON.parse(localStorage.getItem('monthly_reports_db') || 'null');
 
-    if (!initInvestors) {
+    if (!initInvestors || !Array.isArray(initInvestors) || initInvestors.length === 0) {
       initInvestors = [
         { id: 'owner', name: 'Владелец', percent: 100, isOwner: true },
         { id: 'inv_' + Date.now(), name: 'Инвестор 1', percent: 50, isOwner: false }
       ];
     }
+    // Гарантируем наличие владельца
+    if (!initInvestors.some(i => i.isOwner)) {
+      initInvestors.unshift({ id: 'owner', name: 'Владелец', percent: 100, isOwner: true });
+    }
 
-    if (!initMonthlyReports) {
+    if (!initMonthlyReports || typeof initMonthlyReports !== 'object') {
       initMonthlyReports = {};
     }
 
@@ -887,7 +923,7 @@
     let redoStack = [];
 
     // ================================================================
-    // ФУНКЦИИ ПЕРЕКЛЮЧЕНИЯ ВКЛАДОК И ИСТОРИИ
+    // ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК
     // ================================================================
 
     function switchTab(tab) {
@@ -1116,7 +1152,7 @@
     }
 
     // ================================================================
-    // ВСЕ ОСТАЛЬНЫЕ ИСХОДНЫЕ ФУНКЦИИ (БЕЗ ИЗМЕНЕНИЙ)
+    // ФУНКЦИИ ДЛЯ ДОГОВОРОВ (БЕЗ ИЗМЕНЕНИЙ)
     // ================================================================
     
     function calculatePaymentDates(contract) {
@@ -2846,8 +2882,6 @@
         } else {
           renderIncomePage();
         }
-      } else if (activeTab === 'init') {
-        renderInitPage();
       }
     }
 
@@ -2924,7 +2958,7 @@
     });
 
     // ================================================================
-    // ЛОГИКА СТРАНИЦЫ «ИНИЦИАЛИЗАЦИЯ»
+    // СТРАНИЦА «ИНИЦИАЛИЗАЦИЯ» — ЧИСТАЯ ЛОГИКА
     // ================================================================
 
     function saveInitData() {
@@ -2932,6 +2966,7 @@
       localStorage.setItem('monthly_reports_db', JSON.stringify(initMonthlyReports));
     }
 
+    // ---- Настройка инвесторов ----
     function addInvestorSetup() {
       saveState();
       initInvestors.push({
@@ -2952,7 +2987,10 @@
     }
 
     function updateInvestorPercent(idx, value) {
+      if (initInvestors[idx].isOwner) return;
       initInvestors[idx].percent = Math.min(100, Math.max(0, Number(value) || 0));
+      saveInitData();
+      recalculateInit();
       saveInitData();
       renderInitPage();
     }
@@ -2964,23 +3002,47 @@
       }
       if (!confirm(`Удалить инвестора "${initInvestors[idx].name}"?`)) return;
       saveState();
+      const removedId = initInvestors[idx].id;
       initInvestors.splice(idx, 1);
-      saveInitData();
-      renderInitPage();
+      allAccounting = allAccounting.filter(a => a._investorId !== removedId);
+      // Убираем из отчётов
+      Object.keys(initMonthlyReports).forEach(k => {
+        delete initMonthlyReports[k].entries[removedId];
+      });
+      saveToStorage();
     }
 
     function renderInvestorSetup() {
       const tbody = document.getElementById('investorSetupBody');
       tbody.innerHTML = '';
+      
       initInvestors.forEach((inv, idx) => {
         const tr = document.createElement('tr');
-        if (inv.isOwner) tr.className = 'owner-row';
-        else tr.className = 'investor-row';
+        tr.className = inv.isOwner ? 'owner-row' : 'investor-row';
         
-        const ownerPercent = inv.isOwner ? 100 : (100 - inv.percent);
-        
+        const ownerPercent = inv.isOwner ? 100 : (100 - (Number(inv.percent) || 0));
+
+        // Сводка
+        let totalInvested = 0, totalEarned = 0, totalDividends = 0, currentCapital = 0;
+        const keys = Object.keys(initMonthlyReports).sort();
+        keys.forEach(k => {
+          const rep = initMonthlyReports[k];
+          if (rep.entries && rep.entries[inv.id]) {
+            const e = rep.entries[inv.id];
+            totalInvested += Number(e.invested || 0);
+            totalEarned += Number(e.profitActual || 0);
+            totalDividends += Number(e.dividends || 0);
+          }
+        });
+        if (keys.length > 0) {
+          const lastRep = initMonthlyReports[keys[keys.length - 1]];
+          if (lastRep.entries && lastRep.entries[inv.id]) {
+            currentCapital = Number(lastRep.entries[inv.id].capital || 0);
+          }
+        }
+
         tr.innerHTML = `
-          <td>
+          <td style="text-align:left;">
             ${inv.isOwner 
               ? `<span class="font-bold">${inv.name}</span> <span class="owner-badge">Владелец</span>`
               : `<input type="text" value="${inv.name}" onchange="updateInvestorName(${idx}, this.value)" style="width:100%;">`
@@ -2993,6 +3055,10 @@
             }
           </td>
           <td><span class="font-bold text-gray-700">${ownerPercent}%</span></td>
+          <td class="text-emerald-700 font-bold">${totalInvested.toLocaleString('ru-RU')} ₽</td>
+          <td class="text-green-700 font-bold">${totalEarned.toLocaleString('ru-RU')} ₽</td>
+          <td class="text-amber-700 font-bold">${totalDividends.toLocaleString('ru-RU')} ₽</td>
+          <td class="${currentCapital < 0 ? 'capital-negative' : 'font-bold text-purple-700'}">${currentCapital.toLocaleString('ru-RU')} ₽</td>
           <td>
             ${inv.isOwner 
               ? '<span class="text-gray-400">—</span>'
@@ -3004,6 +3070,7 @@
       });
     }
 
+    // ---- Месяц ----
     function getMonthlyReport(year, month) {
       const key = `${year}-${String(month).padStart(2, '0')}`;
       if (!initMonthlyReports[key]) {
@@ -3011,277 +3078,279 @@
           year, month,
           entries: {},
           stopped: false,
-          overallProfitPercent: null
+          overallProfitPercent: 0,
+          startingCapital: {}
         };
-        // Инициализируем записи для каждого инвестора
-        initInvestors.forEach(inv => {
-          if (!initMonthlyReports[key].entries[inv.id]) {
-            initMonthlyReports[key].entries[inv.id] = {
-              invested: 0,
-              dividends: 0,
-              withdrawn: 0,
-              profitActual: 0,
-              factPercent: 0,
-              stopValue: null,
-              addedPercent: 0,
-              capital: 0
-            };
-          }
-        });
       }
-      // На всякий случай добавляем новых инвесторов
+      // Гарантируем наличие entries для всех инвесторов
       initInvestors.forEach(inv => {
         if (!initMonthlyReports[key].entries[inv.id]) {
           initMonthlyReports[key].entries[inv.id] = {
             invested: 0, dividends: 0, withdrawn: 0,
             profitActual: 0, factPercent: 0, stopValue: null,
-            addedPercent: 0, capital: 0
+            addedPercent: 0, capital: 0, capitalStart: 0
           };
         }
       });
       return initMonthlyReports[key];
     }
 
-    function getPreviousMonthReport(year, month) {
-      let prevMonth = month - 1;
-      let prevYear = year;
-      if (prevMonth < 1) {
-        prevMonth = 12;
-        prevYear = year - 1;
+    function createMonthFromSelects() {
+      const yearEl = document.getElementById('newMonthYear');
+      const monthEl = document.getElementById('newMonthMonth');
+      if (!yearEl || !monthEl) return;
+      const year = Number(yearEl.value);
+      const month = Number(monthEl.value);
+      const key = `${year}-${String(month).padStart(2, '0')}`;
+      if (initMonthlyReports[key]) {
+        alert('Этот месяц уже существует');
+        return;
       }
-      const key = `${prevYear}-${String(prevMonth).padStart(2, '0')}`;
-      return initMonthlyReports[key] || null;
+      saveState();
+      getMonthlyReport(year, month);
+      recalculateInit();
+      saveInitData();
+      renderInitPage();
     }
 
-    function getTotalProfitFromContracts() {
-      // Общая прибыль от договоров = сумма (итоговая стоимость - себестоимость) по всем договорам
+    function deleteMonth(year, month) {
+      const key = `${year}-${String(month).padStart(2, '0')}`;
+      if (!confirm(`Удалить месяц ${month}/${year}? Связанные записи учёта будут удалены.`)) return;
+      saveState();
+      allAccounting = allAccounting.filter(a => a._investMonth !== key);
+      delete initMonthlyReports[key];
+      recalculateInit();
+      saveInitData();
+      renderInitPage();
+    }
+
+    // ---- Прибыль по месяцам ----
+    // Прибыль одного взноса = monthlyPay - (себестоимость / monthsCount)
+    // Привязка к месяцу даты взноса (по installment.date)
+    function getProfitByMonth(year, month) {
       let totalProfit = 0;
       allContracts.forEach(c => {
+        const monthsCount = Number(c.monthsCount) || 0;
         const cost = Number(c.costPrice) || 0;
-        const finalCost = Number(c.totalCost) || 0;
-        totalProfit += (finalCost - cost);
+        const monthlyPay = Number(c.monthlyPay) || 0;
+        if (monthsCount <= 0 || monthlyPay <= 0) return;
+        const profitPerPayment = monthlyPay - (cost / monthsCount);
+        
+        const installments = c.installments || {};
+        Object.values(installments).forEach(p => {
+          if (!p || !p.date) return;
+          const parts = String(p.date).split('-');
+          if (parts.length < 2) return;
+          const py = Number(parts[0]);
+          const pm = Number(parts[1]);
+          if (py === year && pm === month) {
+            totalProfit += profitPerPayment;
+          }
+        });
       });
       return totalProfit;
     }
 
+    // ---- Пересчёт ----
     function recalculateInit() {
-      // Проходим по всем месяцам в хронологическом порядке и пересчитываем
       const keys = Object.keys(initMonthlyReports).sort();
+      let previousCapitais = {};
       
-      // Сброс флагов первого месяца
-      let previousCapitais = {}; // id -> капитал на конец прошлого месяца
-      
-      // Сначала инициализируем капитал владельца и инвесторов нулями, если нет данных
-      const firstKey = keys.length > 0 ? keys[0] : null;
-      
-      keys.forEach((key, keyIndex) => {
+      keys.forEach((key) => {
         const report = initMonthlyReports[key];
+        if (!report || !report.year || !report.month) return;
         const year = report.year;
         const month = report.month;
         
-        // === 1. Расчет капитала на начало месяца ===
+        // Гарантируем entries для всех инвесторов
         initInvestors.forEach(inv => {
           if (!report.entries[inv.id]) {
             report.entries[inv.id] = {
               invested: 0, dividends: 0, withdrawn: 0,
               profitActual: 0, factPercent: 0, stopValue: null,
-              addedPercent: 0, capital: 0
+              addedPercent: 0, capital: 0, capitalStart: 0
             };
           }
-          const entry = report.entries[inv.id];
-          
-          // Капитал на начало = капитал на конец прошлого месяца
-          const prevCapital = previousCapitais[inv.id] || 0;
-          
-          // Если это первый месяц, капитал на начало = 0 (или можно задать вручную)
-          entry.capitalStart = prevCapital;
         });
         
-        // === 2. Распределение прибыли от договоров ===
-        // Считаем общий капитал всех участников (после вложений/изъятий, но до прибыли)
-        // Для распределения прибыли используем капитал на начало месяца + вложил - снял
+        // 1. Капитал на начало
+        initInvestors.forEach(inv => {
+          const entry = report.entries[inv.id];
+          // Для первого месяца может быть ручной стартовый капитал
+          const manualStart = report.startingCapital && report.startingCapital[inv.id] !== undefined 
+            ? Number(report.startingCapital[inv.id]) || 0 
+            : null;
+          if (manualStart !== null && Object.keys(previousCapitais).length === 0) {
+            entry.capitalStart = manualStart;
+          } else {
+            entry.capitalStart = previousCapitais[inv.id] || 0;
+          }
+        });
+        
+        // 2. Общая прибыль за месяц
+        const totalProfitMonth = getProfitByMonth(year, month);
+        
+        // Капитал для распределения
         let totalCapitalForProfit = 0;
         initInvestors.forEach(inv => {
           const entry = report.entries[inv.id];
-          const capitalForShare = Math.max(0, (entry.capitalStart || 0) + Number(entry.invested || 0) - Number(entry.withdrawn || 0));
-          totalCapitalForProfit += capitalForShare;
+          const cfs = Math.max(0, (entry.capitalStart || 0) + Number(entry.invested || 0) - Number(entry.withdrawn || 0));
+          totalCapitalForProfit += cfs;
         });
         
-        // Общая прибыль от договоров за этот месяц (упрощенно: берем всю прибыль)
-        // В реальной системе нужно привязывать к датам, но для простоты распределим общую прибыль
-        const totalProfitAll = getTotalProfitFromContracts();
-        
-        // Прибыль распределяется по капиталу
-        let totalOwnerProfit = 0;
-        let totalInvestorProfit = 0;
+        // Распределяем
+        let ownerProfitFromInvestors = 0;
+        let ownerId = initInvestors.find(i => i.isOwner)?.id;
         
         initInvestors.forEach(inv => {
           const entry = report.entries[inv.id];
-          const capitalForShare = Math.max(0, (entry.capitalStart || 0) + Number(entry.invested || 0) - Number(entry.withdrawn || 0));
-          const share = totalCapitalForProfit > 0 ? (capitalForShare / totalCapitalForProfit) : 0;
+          const cfs = Math.max(0, (entry.capitalStart || 0) + Number(entry.invested || 0) - Number(entry.withdrawn || 0));
+          const share = totalCapitalForProfit > 0 ? (cfs / totalCapitalForProfit) : 0;
+          const profitBase = totalProfitMonth * share;
           
-          let profitForInvestor = 0;
           if (inv.isOwner) {
-            // Владелец получает свою долю прибыли + процент от прибыли инвесторов
-            // Сначала считаем прибыль инвесторов
-            // (это будет сделано ниже, сначала соберем доли)
-            profitForInvestor = totalProfitAll * share; // временно, потом пересчитаем
+            entry._baseProfit = profitBase;
           } else {
-            const investorShare = totalProfitAll * share; // прибыль от его капитала
-            const investorPercent = Number(inv.percent) || 0;
-            profitForInvestor = investorShare * (investorPercent / 100);
-            totalInvestorProfit += profitForInvestor;
-          }
-          entry._shareOfCapital = share;
-          entry._profitBase = totalProfitAll * share;
-          entry._profitInvestor = inv.isOwner ? 0 : entry._profitBase * (Number(inv.percent) / 100);
-        });
-        
-        // Теперь владелец получает: свою долю + (100% - процент инвестора) от прибыли инвесторов
-        initInvestors.forEach(inv => {
-          const entry = report.entries[inv.id];
-          if (inv.isOwner) {
-            let ownerProfitFromOwn = entry._profitBase;
-            let ownerProfitFromInvestors = 0;
-            initInvestors.forEach(inv2 => {
-              if (!inv2.isOwner) {
-                const e2 = report.entries[inv2.id];
-                const investorPercent = Number(inv2.percent) || 0;
-                ownerProfitFromInvestors += e2._profitBase * ((100 - investorPercent) / 100);
-              }
-            });
-            entry._profitInvestor = ownerProfitFromOwn + ownerProfitFromInvestors;
+            const p = Number(inv.percent) || 0;
+            const invProfit = profitBase * (p / 100);
+            const ownerCut = profitBase * ((100 - p) / 100);
+            entry._baseProfit = invProfit;
+            ownerProfitFromInvestors += ownerCut;
           }
         });
         
-        // Записываем прибыль в profitActual (если не зафиксировано стопом)
+        // Владельцу — своя доля + отчисления инвесторов
+        if (ownerId && report.entries[ownerId]) {
+          report.entries[ownerId]._baseProfit = (report.entries[ownerId]._baseProfit || 0) + ownerProfitFromInvestors;
+        }
+        
+        // Записываем profitActual (если не застопорено)
         initInvestors.forEach(inv => {
           const entry = report.entries[inv.id];
           if (!report.stopped) {
-            entry.profitActual = entry._profitInvestor || 0;
-            // Факт % = прибыль / капитал на начало (или на конец?) по ТЗ: (Прибыль инвестора / Его Капитал) * 100%
-            const capitalBase = Math.max(1, (entry.capitalStart || 0) + Number(entry.invested || 0) - Number(entry.withdrawn || 0));
-            entry.factPercent = (entry.profitActual / capitalBase) * 100;
+            entry.profitActual = entry._baseProfit || 0;
+            const cfs = Math.max(1, (entry.capitalStart || 0) + Number(entry.invested || 0) - Number(entry.withdrawn || 0));
+            entry.factPercent = (entry.profitActual / cfs) * 100;
           }
         });
         
-        // === 3. Расчет капитала на конец месяца ===
+        // 3. Применяем добавленный % (только для не-владельцев)
+        if (ownerId && report.entries[ownerId]) {
+          const ownerEntry = report.entries[ownerId];
+          initInvestors.forEach(inv => {
+            if (inv.isOwner) return;
+            const entry = report.entries[inv.id];
+            const added = Number(entry.addedPercent) || 0;
+            if (added === 0) return;
+            const cfs = Math.max(0, (entry.capitalStart || 0) + Number(entry.invested || 0) - Number(entry.withdrawn || 0));
+            const newProfit = cfs * (added / 100);
+            const diff = newProfit - (entry._baseProfit || 0);
+            entry.profitActual = newProfit;
+            entry.factPercent = added;
+            ownerEntry.profitActual = (ownerEntry.profitActual || 0) - diff;
+          });
+        }
+        
+        // 4. Капитал на конец
         initInvestors.forEach(inv => {
           const entry = report.entries[inv.id];
-          const capitalStart = entry.capitalStart || 0;
+          const cs = entry.capitalStart || 0;
           const invested = Number(entry.invested || 0);
           const dividends = Number(entry.dividends || 0);
           const withdrawn = Number(entry.withdrawn || 0);
-          
-          // Прибыль, которая идет в капитал: если дивиденды не забраны, прибыль остается
-          // По ТЗ: Капитал = Капитал прошлого месяца + Вложил + Невзятые дивиденды - Снял с вклада
-          // Невзятые дивиденды = profitActual - dividends (если dividends < profitActual)
           const unpaidDividends = Math.max(0, (entry.profitActual || 0) - dividends);
-          
-          entry.capital = capitalStart + invested + unpaidDividends - withdrawn;
-          if (entry.capital < 0) entry.capital = 0;
+          entry.capital = cs + invested + unpaidDividends - withdrawn;
         });
         
-        // Сохраняем капиталы для следующего месяца
+        // Запоминаем для следующего месяца
         previousCapitais = {};
         initInvestors.forEach(inv => {
           previousCapitais[inv.id] = report.entries[inv.id].capital || 0;
         });
         
-        // === 4. Общий % прибыли ===
-        let totalCapitalEnd = 0;
-        let totalProfitMonth = 0;
+        // 5. Общий % прибыли
+        let totalCapitalEnd = 0, totalProfitEnd = 0;
         initInvestors.forEach(inv => {
           totalCapitalEnd += report.entries[inv.id].capital || 0;
-          totalProfitMonth += report.entries[inv.id].profitActual || 0;
+          totalProfitEnd += report.entries[inv.id].profitActual || 0;
         });
-        report.overallProfitPercent = totalCapitalEnd > 0 ? (totalProfitMonth / totalCapitalEnd) * 100 : 0;
+        report.overallProfitPercent = totalCapitalEnd > 0 ? (totalProfitEnd / totalCapitalEnd) * 100 : 0;
       });
       
       saveInitData();
     }
 
+    // ---- Обновление полей ----
     function updateMonthlyEntry(year, month, investorId, field, value) {
       const report = getMonthlyReport(year, month);
       if (!report.entries[investorId]) {
-        report.entries[investorId] = { invested: 0, dividends: 0, withdrawn: 0, profitActual: 0, factPercent: 0, stopValue: null, addedPercent: 0, capital: 0 };
+        report.entries[investorId] = { invested: 0, dividends: 0, withdrawn: 0, profitActual: 0, factPercent: 0, stopValue: null, addedPercent: 0, capital: 0, capitalStart: 0 };
       }
       const numVal = Number(value) || 0;
       report.entries[investorId][field] = numVal;
       
-      // Автоматическая синхронизация с учетом
       syncInvestorOperationsWithAccounting(year, month, investorId, field, numVal);
       
       recalculateInit();
+      saveInitData();
       renderInitPage();
     }
 
+    function updateStartingCapital(year, month, investorId, value) {
+      const report = getMonthlyReport(year, month);
+      if (!report.startingCapital) report.startingCapital = {};
+      report.startingCapital[investorId] = Number(value) || 0;
+      recalculateInit();
+      saveInitData();
+      renderInitPage();
+    }
+
+    // ---- Синхронизация с учётом ----
     function syncInvestorOperationsWithAccounting(year, month, investorId, field, value) {
       const dateStr = `${year}-${String(month).padStart(2, '0')}-01`;
+      const investMonth = `${year}-${String(month).padStart(2, '0')}`;
       const investor = initInvestors.find(i => i.id === investorId);
       if (!investor) return;
       
-      // Удаляем старые записи для этого инвестора и этого месяца
-      allAccounting = allAccounting.filter(a => !(a._investorId === investorId && a._investMonth === `${year}-${String(month).padStart(2, '0')}`));
+      // Удаляем записи именно этого типа для этого инвестора/месяца
+      const typeMap = { invested: 'invest', dividends: 'dividend', withdrawn: 'withdraw_invest' };
+      const type = typeMap[field];
+      if (!type) return;
       
-      if (field === 'invested' && value > 0) {
-        // Вложил -> расход из кассы
-        allAccounting.unshift({
-          id: 'acc_inv_' + Date.now() + '_' + investorId,
-          date: dateStr,
-          income: 0,
-          expense: value,
-          note: `Инвестиция: ${investor.name} (${month}/${year})`,
-          account: 'N',
-          _investorId: investorId,
-          _investMonth: `${year}-${String(month).padStart(2, '0')}`,
-          type: 'invest',
-          createdAt: Date.now()
-        });
-      }
+      allAccounting = allAccounting.filter(a => 
+        !(a._investorId === investorId && a._investMonth === investMonth && a.type === type)
+      );
       
-      if (field === 'dividends' && value > 0) {
-        // Дивиденды -> расход из кассы
-        allAccounting.unshift({
-          id: 'acc_div_' + Date.now() + '_' + investorId,
-          date: dateStr,
-          income: 0,
-          expense: value,
-          note: `Дивиденды: ${investor.name} (${month}/${year})`,
-          account: 'N',
-          _investorId: investorId,
-          _investMonth: `${year}-${String(month).padStart(2, '0')}`,
-          type: 'dividend',
-          createdAt: Date.now()
-        });
-      }
+      if (value <= 0) return;
       
-      if (field === 'withdrawn' && value > 0) {
-        // Снял с вклада -> расход из кассы
-        allAccounting.unshift({
-          id: 'acc_wd_' + Date.now() + '_' + investorId,
-          date: dateStr,
-          income: 0,
-          expense: value,
-          note: `Снятие вклада: ${investor.name} (${month}/${year})`,
-          account: 'N',
-          _investorId: investorId,
-          _investMonth: `${year}-${String(month).padStart(2, '0')}`,
-          type: 'withdraw_invest',
-          createdAt: Date.now()
-        });
-      }
+      const noteMap = {
+        invest: `Инвестиция: ${investor.name} (${month}/${year})`,
+        dividend: `Дивиденды: ${investor.name} (${month}/${year})`,
+        withdraw_invest: `Снятие вклада: ${investor.name} (${month}/${year})`
+      };
+      
+      allAccounting.unshift({
+        id: 'acc_' + type + '_' + Date.now() + '_' + investorId,
+        date: dateStr,
+        income: 0,
+        expense: value,
+        note: noteMap[type],
+        account: 'N',
+        _investorId: investorId,
+        _investMonth: investMonth,
+        type: type,
+        createdAt: Date.now()
+      });
     }
 
+    // ---- Стоп / Разблокировка ----
     function stopMonth(year, month) {
       const report = getMonthlyReport(year, month);
       saveState();
       report.stopped = true;
       initInvestors.forEach(inv => {
         const entry = report.entries[inv.id];
-        if (entry) {
-          entry.stopValue = entry.factPercent;
-        }
+        if (entry) entry.stopValue = entry.factPercent;
       });
       saveInitData();
       renderInitPage();
@@ -3295,148 +3364,148 @@
         const entry = report.entries[inv.id];
         if (entry) entry.stopValue = null;
       });
-      saveInitData();
       recalculateInit();
+      saveInitData();
       renderInitPage();
     }
 
+    // ---- Добавить % ----
     function applyAddedPercent(year, month, investorId, value) {
       const report = getMonthlyReport(year, month);
       if (!report.entries[investorId]) return;
-      const numVal = Number(value) || 0;
-      report.entries[investorId].addedPercent = numVal;
-      
-      // Пересчет прибыли: если добавленный % больше факта, то инвестор получает больше,
-      // разница вычитается из прибыли владельца
-      const entry = report.entries[investorId];
-      const capitalBase = Math.max(1, (entry.capitalStart || 0) + Number(entry.invested || 0) - Number(entry.withdrawn || 0));
-      
-      // Новая прибыль инвестора = капитал * (addedPercent / 100)
-      const newProfit = capitalBase * (numVal / 100);
-      const oldProfit = entry.profitActual || 0;
-      const diff = newProfit - oldProfit;
-      
-      // Корректируем прибыль владельца на -diff
-      const owner = initInvestors.find(i => i.isOwner);
-      if (owner && report.entries[owner.id]) {
-        report.entries[owner.id].profitActual = (report.entries[owner.id].profitActual || 0) - diff;
-      }
-      
-      entry.profitActual = newProfit;
-      entry.factPercent = numVal;
-      
-      saveInitData();
+      report.entries[investorId].addedPercent = Number(value) || 0;
       recalculateInit();
+      saveInitData();
       renderInitPage();
     }
 
+    // ---- Копировать отчёт месяца ----
+    function copyMonthReport(year, month) {
+      const report = getMonthlyReport(year, month);
+      const monthNames = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+      let txt = `📅 ${monthNames[month-1]} ${year}\n`;
+      txt += `━━━━━━━━━━━━━━━━━━━━━━\n`;
+      txt += `Общий % прибыли: ${(report.overallProfitPercent || 0).toFixed(2)}%\n\n`;
+      initInvestors.forEach(inv => {
+        const e = report.entries[inv.id] || {};
+        txt += `${inv.name}${inv.isOwner ? ' (Вы)' : ''}:\n`;
+        txt += `  Капитал: ${Number(e.capital || 0).toLocaleString('ru-RU')} ₽\n`;
+        txt += `  Вложил: ${Number(e.invested || 0).toLocaleString('ru-RU')} ₽\n`;
+        txt += `  Дивиденды: ${Number(e.dividends || 0).toLocaleString('ru-RU')} ₽\n`;
+        txt += `  Снял: ${Number(e.withdrawn || 0).toLocaleString('ru-RU')} ₽\n`;
+        txt += `  Прибыль: ${Number(e.profitActual || 0).toLocaleString('ru-RU')} ₽\n`;
+        txt += `  Факт %: ${Number(e.factPercent || 0).toFixed(2)}%\n\n`;
+      });
+      navigator.clipboard.writeText(txt).then(() => {
+        showCopyNotification('✅ Отчёт скопирован в буфер');
+      }).catch(() => alert('Не удалось скопировать'));
+    }
+
+    // ---- Рендер месяцев ----
     function renderMonthlyReports() {
       const container = document.getElementById('initMonthsContainer');
+      if (!container) return;
       container.innerHTML = '';
       
       const keys = Object.keys(initMonthlyReports).sort();
+      const monthNames = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
       
       if (keys.length === 0) {
-        // Если нет ни одного месяца, создаем текущий
-        const now = new Date();
-        getMonthlyReport(now.getFullYear(), now.getMonth() + 1);
-        recalculateInit();
-        saveInitData();
-        return renderMonthlyReports();
+        container.innerHTML = '<div class="text-center text-gray-500 py-8">Нет ни одного месяца. Создайте первый.</div>';
+        return;
       }
       
-      keys.forEach(key => {
+      keys.forEach((key, keyIdx) => {
         const report = initMonthlyReports[key];
-        const year = report.year;
-        const month = report.month;
-        const monthNames = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+        if (!report) return;
+        const year = report.year, month = report.month;
+        const isFirstMonth = keyIdx === 0;
         
         const card = document.createElement('div');
         card.className = 'month-card';
         
-        const overallPct = report.overallProfitPercent !== null ? report.overallProfitPercent.toFixed(2) : '0.00';
+        const overallPct = (report.overallProfitPercent || 0).toFixed(2);
+        
+        let totalCap = 0, totalProfit = 0;
+        initInvestors.forEach(inv => {
+          const e = report.entries[inv.id] || {};
+          totalCap += Number(e.capital || 0);
+          totalProfit += Number(e.profitActual || 0);
+        });
         
         let tableRows = '';
         initInvestors.forEach(inv => {
-          const entry = report.entries[inv.id] || { invested:0, dividends:0, withdrawn:0, profitActual:0, factPercent:0, stopValue:null, addedPercent:0, capital:0 };
+          const entry = report.entries[inv.id] || { invested:0, dividends:0, withdrawn:0, profitActual:0, factPercent:0, stopValue:null, addedPercent:0, capital:0, capitalStart:0 };
           
-          // Доля в капитале = капитал / общий капитал * 100
-          let totalCap = 0;
-          initInvestors.forEach(i2 => {
-            const e2 = report.entries[i2.id] || { capital: 0 };
-            totalCap += Number(e2.capital || 0);
-          });
           const shareOfCapital = totalCap > 0 ? (Number(entry.capital || 0) / totalCap) * 100 : 0;
+          const shareOfProfit = inv.isOwner
+            ? (totalProfit > 0 ? (Number(entry.profitActual || 0) / totalProfit) * 100 : 0)
+            : (Number(inv.percent) || 0);
           
-          // Доля в прибыли: для владельца = его прибыль / общая прибыль * 100, для инвестора = процент инвестора
-          let totalProfit = 0;
-          initInvestors.forEach(i2 => {
-            const e2 = report.entries[i2.id] || { profitActual: 0 };
-            totalProfit += Number(e2.profitActual || 0);
-          });
-          let shareOfProfit = 0;
-          if (inv.isOwner) {
-            shareOfProfit = totalProfit > 0 ? (Number(entry.profitActual || 0) / totalProfit) * 100 : 0;
-          } else {
-            shareOfProfit = Number(inv.percent) || 0;
-          }
+          const factDisplay = report.stopped
+            ? (entry.stopValue !== null && entry.stopValue !== undefined ? Number(entry.stopValue).toFixed(2) : Number(entry.factPercent || 0).toFixed(2))
+            : Number(entry.factPercent || 0).toFixed(2);
           
-          const factDisplay = report.stopped ? (entry.stopValue !== null ? entry.stopValue.toFixed(2) : entry.factPercent.toFixed(2)) : entry.factPercent.toFixed(2);
+          const factClass = Number(entry.factPercent) > 0 ? 'fact-percent-positive' : 'fact-percent-zero';
+          const capitalClass = Number(entry.capital) < 0 ? 'capital-negative' : '';
           
-          tableRows += `
+          const startCapRow = isFirstMonth ? `
+            <tr style="background:#faf5ff;">
+              <td colspan="10" style="text-align:left; font-size:10px; color:#6b7280; padding:3px 8px;">
+                💰 Стартовый капитал <b>${inv.name}</b>: 
+                <input type="number" value="${(report.startingCapital && report.startingCapital[inv.id]) || 0}" 
+                  onchange="updateStartingCapital(${year},${month},'${inv.id}', this.value)" 
+                  style="width:120px; margin-left:6px;" min="0">
+                <span style="margin-left:10px; color:#7c3aed;">Текущий капитал на начало: ${Number(entry.capitalStart || 0).toLocaleString('ru-RU')} ₽</span>
+              </td>
+            </tr>` : '';
+          
+          tableRows += startCapRow + `
             <tr class="${inv.isOwner ? 'owner-row' : 'investor-row'}">
               <td class="font-bold text-left">${inv.name}${inv.isOwner ? ' <span class="owner-badge">Вы</span>' : ''}</td>
-              <td class="font-bold text-purple-700">${Number(entry.capital || 0).toLocaleString('ru-RU')}</td>
+              <td class="${capitalClass}">${Number(entry.capital || 0).toLocaleString('ru-RU')}</td>
               <td><input type="number" value="${entry.invested || 0}" onchange="updateMonthlyEntry(${year},${month},'${inv.id}','invested',this.value)" min="0"></td>
               <td><input type="number" value="${entry.dividends || 0}" onchange="updateMonthlyEntry(${year},${month},'${inv.id}','dividends',this.value)" min="0"></td>
               <td><input type="number" value="${entry.withdrawn || 0}" onchange="updateMonthlyEntry(${year},${month},'${inv.id}','withdrawn',this.value)" min="0"></td>
               <td class="font-bold text-blue-700">${shareOfCapital.toFixed(2)}%</td>
               <td class="profit-cell">${Number(entry.profitActual || 0).toLocaleString('ru-RU')}</td>
               <td>${inv.isOwner ? '—' : shareOfProfit.toFixed(2) + '%'}</td>
-              <td>${factDisplay}%</td>
+              <td class="${factClass}">${factDisplay}%</td>
               <td>
                 ${report.stopped 
-                  ? `<span class="text-green-700 font-bold">✅ ${entry.stopValue !== null ? entry.stopValue.toFixed(2) : entry.factPercent.toFixed(2)}%</span>`
+                  ? `<span class="text-green-700 font-bold" title="Зафиксировано">✅</span>`
                   : `<button class="stop-btn unlocked" onclick="stopMonth(${year},${month})">Стоп</button>`
                 }
               </td>
               <td>
-                <input type="number" value="${entry.addedPercent || 0}" onchange="applyAddedPercent(${year},${month},'${inv.id}',this.value)" min="0" step="0.1">
+                <input type="number" value="${entry.addedPercent || 0}" onchange="applyAddedPercent(${year},${month},'${inv.id}',this.value)" min="0" step="0.1" ${inv.isOwner ? 'disabled title="Только для инвесторов"' : ''}>
               </td>
             </tr>
           `;
         });
         
-        // Добавляем строку ИТОГО
-        let totalCapital = 0;
-        let totalProfit = 0;
-        initInvestors.forEach(inv => {
-          const entry = report.entries[inv.id] || {};
-          totalCapital += Number(entry.capital || 0);
-          totalProfit += Number(entry.profitActual || 0);
-        });
-        
         tableRows += `
           <tr class="total-row">
             <td class="font-bold">ИТОГО</td>
-            <td class="font-bold">${totalCapital.toLocaleString('ru-RU')}</td>
+            <td class="font-bold">${totalCap.toLocaleString('ru-RU')}</td>
             <td colspan="3"></td>
             <td class="font-bold">100%</td>
             <td class="font-bold text-green-700">${totalProfit.toLocaleString('ru-RU')}</td>
-            <td colspan="2"></td>
-            <td colspan="2"></td>
+            <td colspan="3"></td>
           </tr>
         `;
         
         card.innerHTML = `
           <div class="month-card-header">
             <span>📅 ${monthNames[month-1]} ${year}</span>
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2 flex-wrap">
               <span class="overall-pct">Общий % прибыли: ${overallPct}%</span>
+              <button class="hdr-btn" onclick="copyMonthReport(${year},${month})">📋 Скопировать</button>
               ${report.stopped 
-                ? `<button onclick="unstopMonth(${year},${month})" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold px-3 py-1 rounded text-[11px]">🔓 Разблокировать</button>`
+                ? `<button class="hdr-btn" onclick="unstopMonth(${year},${month})">🔓 Разблокировать</button>`
                 : ''
               }
+              <button class="hdr-btn danger" onclick="deleteMonth(${year},${month})">🗑️ Удалить</button>
             </div>
           </div>
           <div style="overflow-x:auto;">
@@ -3464,50 +3533,73 @@
         
         container.appendChild(card);
       });
-      
-      // Кнопка добавления нового месяца
-      const addBtn = document.createElement('button');
-      addBtn.className = 'bg-purple-600 hover:bg-purple-700 text-white font-bold px-5 py-3 rounded-lg shadow transition w-full text-sm';
-      addBtn.textContent = '+ Добавить новый месяц';
-      addBtn.onclick = () => {
-        const now = new Date();
-        let nextYear = now.getFullYear();
-        let nextMonth = now.getMonth() + 1;
-        // Проверяем, есть ли уже такой месяц
-        while (initMonthlyReports[`${nextYear}-${String(nextMonth).padStart(2, '0')}`]) {
-          nextMonth++;
-          if (nextMonth > 12) { nextMonth = 1; nextYear++; }
-        }
-        saveState();
-        getMonthlyReport(nextYear, nextMonth);
-        recalculateInit();
-        saveInitData();
-        renderInitPage();
-      };
-      container.appendChild(addBtn);
     }
 
+    // ---- Главная функция страницы ----
     function renderInitPage() {
-      renderInvestorSetup();
-      
-      // Убедимся, что для текущего месяца есть отчет
-      const now = new Date();
-      const currentKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
-      if (!initMonthlyReports[currentKey]) {
-        getMonthlyReport(now.getFullYear(), now.getMonth()+1);
+      try {
+        // Сначала пересчитываем
+        recalculateInit();
+        
+        // Заполняем селект годов
+        const yearSelect = document.getElementById('newMonthYear');
+        if (yearSelect && yearSelect.options.length === 0) {
+          const currentYear = new Date().getFullYear();
+          for (let y = currentYear - 3; y <= currentYear + 5; y++) {
+            const opt = document.createElement('option');
+            opt.value = y; opt.textContent = y;
+            yearSelect.appendChild(opt);
+          }
+          yearSelect.value = currentYear;
+          
+          const monthSelect = document.getElementById('newMonthMonth');
+          if (monthSelect) monthSelect.value = new Date().getMonth() + 1;
+        }
+        
+        renderInvestorSetup();
+        
+        // Если месяцев нет — создаём текущий
+        const keys = Object.keys(initMonthlyReports).sort();
+        if (keys.length === 0) {
+          const now = new Date();
+          getMonthlyReport(now.getFullYear(), now.getMonth() + 1);
+          recalculateInit();
+          saveInitData();
+        }
+        
+        renderMonthlyReports();
+        
+        // Скрываем баннер ошибки
+        const errBanner = document.getElementById('initErrorBanner');
+        if (errBanner) errBanner.classList.add('hidden');
+        
+        // Debug info
+        const dbg = document.getElementById('initDebug');
+        if (dbg) {
+          const cnt = Object.keys(initMonthlyReports).length;
+          dbg.textContent = `Месяцев: ${cnt}, Инвесторов: ${initInvestors.length}`;
+        }
+      } catch (err) {
+        console.error('Ошибка рендера Инициализации:', err);
+        const errBanner = document.getElementById('initErrorBanner');
+        if (errBanner) {
+          errBanner.textContent = '⚠️ Ошибка: ' + err.message;
+          errBanner.classList.remove('hidden');
+        }
       }
-      
-      recalculateInit();
-      renderMonthlyReports();
     }
 
     // ================================================================
     // ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ
     // ================================================================
-    renderTable(allContracts);
-    renderAccountingTable(allAccounting);
-    renderTakenSheet();
-    updateHistoryButtons();
+    try {
+      renderTable(allContracts);
+      renderAccountingTable(allAccounting);
+      renderTakenSheet();
+      updateHistoryButtons();
+    } catch (e) {
+      console.error('Ошибка начальной инициализации:', e);
+    }
   </script>
 </body>
   </html>
