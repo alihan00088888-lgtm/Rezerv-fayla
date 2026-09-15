@@ -2825,11 +2825,14 @@
         totalIncomeExpenses += Number(e.amount || 0);
       });
 
-      // ============== ИЗМЕНЕНИЕ: добавляем инвестиции в кассу ==============
+      // ============== ИНВЕСТИЦИИ + СТАРТОВЫЙ КАПИТАЛ В КАССУ ==============
       let totalInvested = 0;
       let totalDividends = 0;
       let totalWithdrawn = 0;
-      Object.keys(initMonthlyReports).forEach(key => {
+      let totalStartingCapital = 0;
+      
+      const sortedMonthKeys = Object.keys(initMonthlyReports).sort();
+      sortedMonthKeys.forEach((key, idx) => {
         const rep = initMonthlyReports[key];
         if (rep && rep.entries) {
           initInvestors.forEach(inv => {
@@ -2841,9 +2844,15 @@
             }
           });
         }
+        // Стартовый капитал берём ТОЛЬКО из первого месяца
+        if (idx === 0 && rep && rep.startingCapital) {
+          initInvestors.forEach(inv => {
+            totalStartingCapital += Number(rep.startingCapital[inv.id] || 0);
+          });
+        }
       });
-      const investImpact = totalInvested - totalDividends - totalWithdrawn;
-      // ============== /ИЗМЕНЕНИЕ ==============
+      const investImpact = totalInvested - totalDividends - totalWithdrawn + totalStartingCapital;
+      // ============== /ИНВЕСТИЦИИ + СТАРТОВЫЙ КАПИТАЛ ==============
 
       let totalKassa = totalDownPayments + totalInstallments - totalCostPrice - sumTaken + sumPut - totalIncomeExpenses + investImpact;
       document.getElementById('kassaTotal').innerText = totalKassa.toLocaleString('ru-RU');
@@ -3223,22 +3232,19 @@
       return rep;
     }
 
-    // ============== ИЗМЕНЕНИЕ: автосоздание следующего месяца ==============
+    // Автосоздание следующего месяца
     function ensureNextMonthExists() {
       const now = new Date();
       const currentYear = now.getFullYear();
       const currentMonth = now.getMonth() + 1;
       
-      // Если текущего месяца нет — создаём
       getMonthlyReport(currentYear, currentMonth);
       
-      // Следующий месяц
       let nextMonth = currentMonth + 1;
       let nextYear = currentYear;
       if (nextMonth > 12) { nextMonth = 1; nextYear++; }
       getMonthlyReport(nextYear, nextMonth);
     }
-    // ============== /ИЗМЕНЕНИЕ ==============
 
     function createMonthFromSelects() {
       const yearEl = document.getElementById('newMonthYear');
@@ -3300,13 +3306,11 @@
       return totalProfit;
     }
 
-    // ---- Пересчёт ----
-    // ============== ПЕРЕПИСАНО: идемпотентная + прибыль переносится в следующий месяц ==============
+    // ---- Пересчёт (идемпотентный) ----
     function recalculateInit() {
       const keys = Object.keys(initMonthlyReports).sort();
       
-      // Снимок "чистого" состояния — чтобы повторные вызовы давали тот же результат
-      // 1. Сбрасываем profitActual, factPercent, capital у всех entries
+      // Сброс к чистому состоянию
       keys.forEach((key) => {
         const report = initMonthlyReports[key];
         if (!report || typeof report !== 'object') return;
@@ -3328,10 +3332,8 @@
         });
       });
       
-      // 2. Первый проход: считаем baseProfit, factPercent, capitalStart — НЕ накапливая
-      //    Прибыль месяца M добавляется к капиталу на НАЧАЛО месяца M+1
-      let previousCapitais = {};       // капитал на конец предыдущего месяца (без прибыли прошлого)
-      let pendingProfit = {};          // прибыль предыдущего месяца, которая перейдёт в этот месяц
+      let previousCapitais = {};
+      let pendingProfit = {};
       
       initInvestors.forEach(inv => {
         previousCapitais[inv.id] = 0;
@@ -3346,7 +3348,7 @@
         const year = report.year;
         const month = report.month;
         
-        // Капитал на начало = капитал прошлого месяца (без прибыли прошлого) + прибыль прошлого месяца
+        // Капитал на начало
         initInvestors.forEach(inv => {
           const entry = report.entries[inv.id];
           const manualStart = report.startingCapital && report.startingCapital[inv.id] !== undefined 
@@ -3354,14 +3356,12 @@
             : null;
           
           if (manualStart !== null && Object.keys(previousCapitais).every(k => previousCapitais[k] === 0)) {
-            // Самый первый месяц — берём ручной стартовый капитал
             entry.capitalStart = manualStart;
           } else {
             entry.capitalStart = (previousCapitais[inv.id] || 0) + (pendingProfit[inv.id] || 0);
           }
         });
         
-        // Считаем baseProfit от прибыли месяца
         const totalProfitMonth = getProfitByMonth(year, month);
         
         let totalCapitalForProfit = 0;
@@ -3395,7 +3395,7 @@
           report.entries[ownerId]._baseProfit = (report.entries[ownerId]._baseProfit || 0) + ownerProfitFromInvestors;
         }
         
-        // profitActual по умолчанию = baseProfit (если не stopped)
+        // profitActual по умолчанию
         initInvestors.forEach(inv => {
           const entry = report.entries[inv.id];
           if (!report.stopped) {
@@ -3403,7 +3403,6 @@
             const cfs = Math.max(1, (entry.capitalStart || 0) + Number(entry.invested || 0) - Number(entry.withdrawn || 0));
             entry.factPercent = (entry.profitActual / cfs) * 100;
           } else {
-            // Месяц зафиксирован — берём stopValue
             entry.factPercent = (entry.stopValue !== null && entry.stopValue !== undefined) 
               ? Number(entry.stopValue) 
               : 0;
@@ -3411,7 +3410,7 @@
           }
         });
         
-        // Применяем addedPercent — считаем ОТ baseProfit и вычитаем diff у владельца
+        // Применяем addedPercent один раз
         if (ownerId && report.entries[ownerId]) {
           const ownerEntry = report.entries[ownerId];
           initInvestors.forEach(inv => {
@@ -3428,19 +3427,16 @@
           });
         }
         
-        // Капитал на конец = капитал на начало + вложил + прибыль_факт − дивиденды − снял
-        // НО прибыль НЕ переносится в текущий капитал — она уйдёт в следующий месяц
+        // Капитал на конец БЕЗ прибыли текущего месяца (она уйдёт в следующий)
         initInvestors.forEach(inv => {
           const entry = report.entries[inv.id];
           const cs = entry.capitalStart || 0;
           const invested = Number(entry.invested || 0);
           const dividends = Number(entry.dividends || 0);
           const withdrawn = Number(entry.withdrawn || 0);
-          // Капитал БЕЗ прибыли текущего месяца
           entry.capital = cs + invested - dividends - withdrawn;
         });
         
-        // Запоминаем для следующего месяца
         previousCapitais = {};
         pendingProfit = {};
         initInvestors.forEach(inv => {
@@ -3458,7 +3454,6 @@
       
       saveInitData();
     }
-    // ============== /ПЕРЕПИСАНО ==============
 
     // ---- Обновление полей ----
     function updateMonthlyEntry(year, month, investorId, field, value) {
@@ -3485,7 +3480,7 @@
       renderInitPage();
     }
 
-    // ---- Синхронизация с учётом ----
+    // ---- Синхронизация с учётом ---- (ИСПРАВЛЕНО: invested → income)
     function syncInvestorOperationsWithAccounting(year, month, investorId, field, value) {
       const dateStr = `${year}-${String(month).padStart(2, '0')}-01`;
       const investMonth = `${year}-${String(month).padStart(2, '0')}`;
@@ -3508,11 +3503,15 @@
         withdraw_invest: `Снятие вклада: ${investor.name} (${month}/${year})`
       };
       
+      // invested → income (Поступило)
+      // dividends, withdrawn → expense (Расход)
+      const isIncome = (type === 'invest');
+      
       allAccounting.unshift({
         id: 'acc_' + type + '_' + Date.now() + '_' + investorId,
         date: dateStr,
-        income: 0,
-        expense: value,
+        income: isIncome ? value : 0,
+        expense: isIncome ? 0 : value,
         note: noteMap[type],
         account: 'N',
         _investorId: investorId,
@@ -3580,14 +3579,14 @@
       }).catch(() => alert('Не удалось скопировать'));
     }
 
-    // ---- Рендер месяцев ----
-    // ============== ИЗМЕНЁН ПОРЯДОК СТОЛБЦОВ ==============
+    // ---- Рендер месяцев (НОВЫЕ СВЕРХУ + новый порядок столбцов) ----
     function renderMonthlyReports() {
       const container = document.getElementById('initMonthsContainer');
       if (!container) return;
       container.innerHTML = '';
       
-      const keys = Object.keys(initMonthlyReports).sort();
+      // НОВЫЕ СВЕРХУ: reverse
+      const keys = Object.keys(initMonthlyReports).sort().reverse();
       const monthNames = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
       
       if (keys.length === 0) {
@@ -3595,12 +3594,15 @@
         return;
       }
       
-      keys.forEach((key, keyIdx) => {
+      // Самый старый месяц для отображения стартового капитала:
+      const oldestKey = Object.keys(initMonthlyReports).sort()[0];
+      
+      keys.forEach((key) => {
         const report = initMonthlyReports[key];
         if (!report) return;
         const year = report.year, month = report.month;
         if (!year || !month) return;
-        const isFirstMonth = keyIdx === 0;
+        const isFirstMonth = (key === oldestKey);
         
         const card = document.createElement('div');
         card.className = 'month-card';
@@ -3641,7 +3643,6 @@
               </td>
             </tr>` : '';
           
-          // НОВЫЙ ПОРЯДОК: Капитал → Вложил → Дивиденды → Снял → Доля → Прибыль факт → Стоп → Факт % → Добавить %
           tableRows += startCapRow + `
             <tr class="${inv.isOwner ? 'owner-row' : 'investor-row'}">
               <td class="font-bold text-left">${inv.name}${inv.isOwner ? ' <span class="owner-badge">Вы</span>' : ''}</td>
@@ -3715,15 +3716,11 @@
         container.appendChild(card);
       });
     }
-    // ============== /ИЗМЕНЁН ПОРЯДОК ==============
 
     // ---- Главная функция страницы ----
     function renderInitPage() {
       try {
-        // ============== ИЗМЕНЕНИЕ: автосоздание следующего месяца ==============
         ensureNextMonthExists();
-        // ============== /ИЗМЕНЕНИЕ ==============
-        
         recalculateInit();
         
         const yearSelect = document.getElementById('newMonthYear');
