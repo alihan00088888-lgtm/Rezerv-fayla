@@ -520,6 +520,50 @@
       .accounts-grid { grid-template-columns: 1fr; }
       .account-cube-balance { font-size: 20px; }
     }
+
+    /* === Профессиональный слой интерфейса YUSRA === */
+    :root { --brand:#2563eb; --brand-dark:#1d4ed8; --ink:#0f172a; --muted:#64748b; --surface:#ffffff; --soft:#f8fafc; }
+    body { background:linear-gradient(180deg,#f8fafc 0%,#eef2f7 100%) !important; color:var(--ink); }
+    .app-topbar { backdrop-filter: blur(12px); background:rgba(255,255,255,.92) !important; }
+    .app-brand { display:flex; align-items:center; gap:10px; min-width:190px; }
+    .app-logo { width:38px; height:38px; border-radius:12px; display:grid; place-items:center; color:#fff; font-weight:900; background:linear-gradient(135deg,#2563eb,#7c3aed); box-shadow:0 8px 20px rgba(37,99,235,.25); }
+    .app-title { font-size:15px; font-weight:900; letter-spacing:.04em; }
+    .app-subtitle { font-size:9px; color:#64748b; font-weight:700; text-transform:uppercase; letter-spacing:.12em; }
+    .modern-btn { border-radius:10px !important; font-weight:800 !important; transition:.18s ease !important; }
+    .modern-btn:hover { transform:translateY(-1px); box-shadow:0 6px 14px rgba(15,23,42,.10); }
+    .modern-search { background:#f8fafc; border:1px solid #e2e8f0 !important; border-radius:11px !important; padding:9px 12px !important; }
+    .section-shell { background:rgba(255,255,255,.9); border:1px solid #e2e8f0; border-radius:18px; box-shadow:0 10px 30px rgba(15,23,42,.06); }
+    .page-heading { display:flex; align-items:flex-end; justify-content:space-between; gap:12px; margin-bottom:14px; }
+    .page-heading h1 { font-size:22px; font-weight:900; letter-spacing:-.02em; }
+    .page-heading p { margin-top:3px; color:#64748b; font-size:11px; font-weight:600; }
+    .dashboard-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; }
+    .dash-kpi { background:#fff; border:1px solid #e2e8f0; border-radius:16px; padding:16px; box-shadow:0 8px 24px rgba(15,23,42,.05); position:relative; overflow:hidden; }
+    .dash-kpi::after { content:''; position:absolute; width:70px; height:70px; border-radius:50%; right:-25px; top:-25px; background:#eff6ff; }
+    .dash-kpi .label { color:#64748b; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; }
+    .dash-kpi .value { font-size:24px; font-weight:950; margin-top:7px; position:relative; z-index:1; }
+    .dash-kpi .hint { font-size:10px; color:#94a3b8; margin-top:5px; position:relative; z-index:1; }
+    .dash-two { display:grid; grid-template-columns:1.25fr .75fr; gap:14px; }
+    .dash-card-modern { background:#fff; border:1px solid #e2e8f0; border-radius:16px; padding:16px; box-shadow:0 8px 24px rgba(15,23,42,.05); }
+    .dash-card-modern h3 { font-size:13px; font-weight:900; margin-bottom:12px; }
+    .attention-item { display:flex; justify-content:space-between; gap:10px; align-items:center; padding:10px 0; border-bottom:1px solid #f1f5f9; }
+    .attention-item:last-child { border-bottom:0; }
+    .pill { display:inline-flex; align-items:center; padding:4px 8px; border-radius:999px; font-size:9px; font-weight:900; }
+    .pill-red { background:#fef2f2; color:#dc2626; } .pill-blue { background:#eff6ff; color:#2563eb; } .pill-green { background:#ecfdf5; color:#059669; } .pill-amber { background:#fffbeb; color:#d97706; }
+    .client-toolbar { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; }
+    .client-card { background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:14px; transition:.18s ease; }
+    .client-card:hover { border-color:#bfdbfe; box-shadow:0 8px 20px rgba(37,99,235,.08); transform:translateY(-1px); }
+    .client-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+    .client-name-modern { font-size:14px; font-weight:900; }
+    .client-meta { color:#64748b; font-size:10px; margin-top:3px; }
+    .client-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-top:12px; }
+    .client-stat { background:#f8fafc; border-radius:10px; padding:8px; }
+    .client-stat span { display:block; color:#94a3b8; font-size:8px; text-transform:uppercase; font-weight:800; }
+    .client-stat b { display:block; margin-top:3px; font-size:11px; }
+    .quick-nav { display:flex; gap:7px; overflow-x:auto; padding:0 2px 8px; scrollbar-width:thin; }
+    .quick-nav button { white-space:nowrap; border:1px solid #e2e8f0; background:#fff; color:#475569; border-radius:999px; padding:7px 11px; font-size:10px; font-weight:800; }
+    .quick-nav button:hover { border-color:#93c5fd; color:#1d4ed8; }
+    @media (max-width: 1024px) { .dashboard-grid{grid-template-columns:repeat(2,1fr)} .client-grid{grid-template-columns:repeat(2,1fr)} .dash-two{grid-template-columns:1fr} }
+    @media (max-width: 640px) { .dashboard-grid{grid-template-columns:1fr 1fr} .client-grid{grid-template-columns:1fr} .app-brand{min-width:auto} .app-subtitle{display:none} .page-heading h1{font-size:18px} .dash-kpi .value{font-size:19px} }
   </style>
 </head>
 <body class="bg-slate-100 text-gray-800 text-xs min-h-screen pb-20">
@@ -532,9 +576,12 @@
   </div>
 
   <!-- ВЕРХНЯЯ ПАНЕЛЬ -->
-  <div class="sticky top-0 z-40 bg-white shadow-md border-b no-print">
+  <div class="sticky top-0 z-40 bg-white shadow-md border-b no-print app-topbar">
     <div class="p-3 max-w-[100vw] flex flex-wrap justify-between items-center gap-4">
       
+      <div class="app-brand">
+        <div class="app-logo">Y</div><div><div class="app-title">YUSRA</div><div class="app-subtitle">Учёт рассрочки</div></div>
+      </div>
       <div class="flex items-center gap-2 flex-wrap">
         <div class="flex bg-slate-200 rounded-lg p-1 gap-1">
           <button type="button" id="undoBtn" onclick="undo()" disabled title="Шаг назад (Ctrl+Z)" 
@@ -560,7 +607,7 @@
           <span id="syncText">Синхронизировано</span>
         </div>
 
-        <input type="text" id="searchInput" oninput="handleSearch()" placeholder="Поиск..." class="p-1.5 border rounded-lg w-40 focus:ring-2 focus:ring-blue-400 outline-none">
+        <input type="text" id="searchInput" oninput="handleSearch()" placeholder="🔎 Поиск клиента или договора..." class="modern-search w-56 focus:ring-2 focus:ring-blue-400 outline-none">
       </div>
 
       <div class="flex items-center gap-2">
@@ -581,8 +628,57 @@
     </div>
   </div>
 
+  <div class="p-3 max-w-[100vw] no-print" style="padding-bottom:0;">
+    <div class="quick-nav">
+      <button onclick="switchTab('dashboard')">🏠 Главная</button>
+      <button onclick="switchTab('clients')">👥 Клиенты</button>
+      <button onclick="switchTab('contracts')">📋 Договоры</button>
+      <button onclick="switchTab('accounting')">📊 Учёт</button>
+      <button onclick="switchTab('today')">📅 Сегодня</button>
+      <button onclick="switchTab('threeDays')">⏰ 3 дня</button>
+      <button onclick="switchTab('debtors')">⚠️ Просрочки</button>
+      <button onclick="switchTab('partners')">🏪 Магазины</button>
+      <button onclick="switchTab('init')">🤝 Инвесторы</button>
+      <button onclick="switchTab('print')">🖨️ Печать</button>
+    </div>
+  </div>
+
   <div class="p-4 max-w-[100vw]">
     
+    <!-- ================= Главная ================= -->
+    <div id="dashboardTabContent" class="space-y-4">
+      <div class="page-heading">
+        <div><h1>Главная</h1><p>Краткая картина по договорам, платежам и текущим обязательствам</p></div>
+        <button onclick="switchTab('contracts')" class="modern-btn bg-blue-600 hover:bg-blue-700 text-white px-4 py-2">📋 К договорам</button>
+      </div>
+      <div class="dashboard-grid">
+        <div class="dash-kpi"><div class="label">Активные договоры</div><div class="value" id="dashActiveContracts">0</div><div class="hint" id="dashClosedHint">Закрыто: 0</div></div>
+        <div class="dash-kpi"><div class="label">Остаток клиентов</div><div class="value" id="dashTotalRest">0 ₽</div><div class="hint">По действующим договорам</div></div>
+        <div class="dash-kpi"><div class="label">Просрочка</div><div class="value text-red-600" id="dashOverdue">0 ₽</div><div class="hint" id="dashDebtorHint">0 клиентов</div></div>
+        <div class="dash-kpi"><div class="label">Платежи сегодня</div><div class="value text-emerald-600" id="dashTodaySum">0 ₽</div><div class="hint" id="dashTodayHint">0 клиентов</div></div>
+      </div>
+      <div class="dash-two">
+        <div class="dash-card-modern"><h3>🔔 Требует внимания</h3><div id="dashboardAttention"></div></div>
+        <div class="dash-card-modern"><h3>📈 Быстрые показатели</h3><div id="dashboardQuickStats"></div></div>
+      </div>
+      <div class="dash-card-modern"><h3>📅 Ближайшие платежи</h3><div id="dashboardUpcoming"></div></div>
+    </div>
+
+    <!-- ================= Клиенты ================= -->
+    <div id="clientsTabContent" class="hidden space-y-4">
+      <div class="page-heading">
+        <div><h1>Клиенты</h1><p>Единый список клиентов, собранный из существующих договоров</p></div>
+        <button onclick="openCreateModal()" class="modern-btn bg-blue-600 hover:bg-blue-700 text-white px-4 py-2">+ Новый договор</button>
+      </div>
+      <div class="section-shell p-4">
+        <div class="client-toolbar">
+          <input id="clientsSearchInput" oninput="renderClientsPage()" class="modern-search flex-1 min-w-[220px] outline-none" placeholder="Поиск по ФИО, телефону, товару, магазину...">
+          <select id="clientsStatusFilter" onchange="renderClientsPage()" class="modern-search outline-none"><option value="all">Все клиенты</option><option value="active">Есть долг</option><option value="overdue">Есть просрочка</option><option value="closed">Все договоры закрыты</option></select>
+        </div>
+        <div id="clientsGrid" class="client-grid"></div>
+      </div>
+    </div>
+
     <!-- ================= Лист 1: Договоры ================= -->
     <div id="contractsTabContent" class="space-y-4">
       <div class="bg-white shadow-xl rounded-xl overflow-x-auto max-h-[78vh] border">
@@ -945,8 +1041,14 @@
   </div>
 
   <!-- НИЖНЯЯ ПАНЕЛЬ ПЕРЕКЛЮЧЕНИЯ -->
-  <div class="fixed bottom-0 left-0 right-0 z-40 bg-white shadow-lg border-t px-4 py-2 flex justify-center items-center gap-2 overflow-x-auto no-print">
+  <div class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur shadow-lg border-t px-4 py-2 flex justify-center items-center gap-2 overflow-x-auto no-print">
     <div class="flex items-center gap-2 bg-slate-200 p-1 rounded-xl">
+      <button type="button" onclick="switchTab('dashboard')" id="tabBtnDashboard" class="tab-btn active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2">
+        🏠 Главная
+      </button>
+      <button type="button" onclick="switchTab('clients')" id="tabBtnClients" class="tab-btn px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900">
+        👥 Клиенты
+      </button>
       <button type="button" onclick="switchTab('contracts')" id="tabBtnContracts" class="tab-btn active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2">
         📋 Договоры
       </button>
@@ -1454,6 +1556,8 @@
     // ================================================================
     window.switchTab = function(tab) {
       activeTab = tab;
+      const dashboardTab = document.getElementById('dashboardTabContent');
+      const clientsTab = document.getElementById('clientsTabContent');
       const cTab = document.getElementById('contractsTabContent');
       const aTab = document.getElementById('accountingTabContent');
       const tTab = document.getElementById('takenTabContent');
@@ -1465,6 +1569,8 @@
       const printTab = document.getElementById('printTabContent');
       const initTab = document.getElementById('initTabContent');
 
+      const dashboardBtn = document.getElementById('tabBtnDashboard');
+      const clientsBtn = document.getElementById('tabBtnClients');
       const cBtn = document.getElementById('tabBtnContracts');
       const aBtn = document.getElementById('tabBtnAccounting');
       const tBtn = document.getElementById('tabBtnTaken');
@@ -1481,6 +1587,8 @@
       const addT = document.getElementById('addTakenBtn');
       const addI = document.getElementById('addIncomeExpBtn');
 
+      dashboardTab.classList.add('hidden');
+      clientsTab.classList.add('hidden');
       cTab.classList.add('hidden');
       aTab.classList.add('hidden');
       tTab.classList.add('hidden');
@@ -1496,6 +1604,8 @@
       addT.classList.add('hidden');
       addI.classList.add('hidden');
 
+      dashboardBtn.className = "tab-btn px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
+      clientsBtn.className = "tab-btn px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
       cBtn.className = "tab-btn px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
       aBtn.className = "tab-btn px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
       tBtn.className = "tab-btn px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
@@ -1507,7 +1617,15 @@
       partnersBtn.className = "tab-btn partners-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
       printBtn.className = "tab-btn print-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
 
-      if (tab === 'contracts') {
+      if (tab === 'dashboard') {
+        dashboardTab.classList.remove('hidden');
+        dashboardBtn.className = "tab-btn active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
+        renderDashboard();
+      } else if (tab === 'clients') {
+        clientsTab.classList.remove('hidden');
+        clientsBtn.className = "tab-btn active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
+        renderClientsPage();
+      } else if (tab === 'contracts') {
         cTab.classList.remove('hidden');
         cBtn.className = "tab-btn active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
         addC.classList.remove('hidden');
@@ -1628,6 +1746,8 @@
       localStorage.setItem('monthly_reports_db', JSON.stringify(initMonthlyReports));
       renderTable(allContracts);
       renderAccountingTable(allAccounting);
+      renderDashboard();
+      renderClientsPage();
       renderTakenSheet();
       if (activeTab === 'income') renderIncomePage();
       if (activeTab === 'init') renderInitPage();
@@ -4126,6 +4246,83 @@
       }
     }
 
+
+    // ================================================================
+    // НОВЫЕ ПРОФЕССИОНАЛЬНЫЕ ЭКРАНЫ (без изменения существующей модели данных)
+    // ================================================================
+    function money(v) { return Number(v || 0).toLocaleString('ru-RU') + ' ₽'; }
+
+    function getAllClientCards() {
+      const map = new Map();
+      allContracts.forEach(c => {
+        const key = String(c.phone || c.fio || c.id).trim().toLowerCase();
+        if (!map.has(key)) map.set(key, { key, fio:c.fio||'Без имени', phone:c.phone||'', extraPhone:c.extraPhone||'', address:c.address||'', contracts:[] });
+        map.get(key).contracts.push(c);
+      });
+      return Array.from(map.values());
+    }
+
+    function renderDashboard() {
+      const active = allContracts.filter(c => !calculateContractMetrics(c).isClosed);
+      const closed = allContracts.length - active.length;
+      let rest = 0, overdue = 0, todaySum = 0;
+      active.forEach(c => { const m=calculateContractMetrics(c); rest += Math.max(0,m.rest); overdue += Math.max(0,m.overdueSum); });
+      const today = new Date(); today.setHours(0,0,0,0);
+      const todayStr = today.toISOString().slice(0,10);
+      const todayClients = getClientsForDate(todayStr);
+      todayClients.forEach(c => todaySum += Number(c.monthlyPay || 0));
+      const debtorCount = getDebtors().length;
+      const el=(id)=>document.getElementById(id);
+      if(el('dashActiveContracts')) el('dashActiveContracts').textContent=active.length;
+      if(el('dashClosedHint')) el('dashClosedHint').textContent=`Закрыто: ${closed}`;
+      if(el('dashTotalRest')) el('dashTotalRest').textContent=money(rest);
+      if(el('dashOverdue')) el('dashOverdue').textContent=money(overdue);
+      if(el('dashDebtorHint')) el('dashDebtorHint').textContent=`${debtorCount} клиентов с просрочкой`;
+      if(el('dashTodaySum')) el('dashTodaySum').textContent=money(todaySum);
+      if(el('dashTodayHint')) el('dashTodayHint').textContent=`${todayClients.length} клиентов сегодня`;
+
+      const att=[];
+      if(debtorCount) att.push(`<div class="attention-item"><span>⚠️ Клиенты с просрочкой</span><span class="pill pill-red">${debtorCount}</span></div>`);
+      if(todayClients.length) att.push(`<div class="attention-item"><span>📅 Платежи сегодня</span><span class="pill pill-green">${todayClients.length}</span></div>`);
+      const three = getClientsForDate(new Date(Date.now()+3*86400000).toISOString().slice(0,10));
+      if(three.length) att.push(`<div class="attention-item"><span>⏰ Платежи через 3 дня</span><span class="pill pill-blue">${three.length}</span></div>`);
+      const unpaidStores = allContracts.filter(c=>c.shopPaid===false).length;
+      if(unpaidStores) att.push(`<div class="attention-item"><span>🏪 Договоры с неоплаченным магазином</span><span class="pill pill-amber">${unpaidStores}</span></div>`);
+      document.getElementById('dashboardAttention').innerHTML=att.length?att.join(''):'<div class="text-slate-400 py-4">Сейчас нет срочных задач.</div>';
+
+      const totalSales=allContracts.reduce((s,c)=>s+Number(c.totalCost||0),0);
+      const totalPaid=allContracts.reduce((s,c)=>{const m=calculateContractMetrics(c);return s+Number(m.totalPaid||0)+Number(c.downPayment||0)},0);
+      document.getElementById('dashboardQuickStats').innerHTML=`
+        <div class="attention-item"><span>Всего договоров</span><b>${allContracts.length}</b></div>
+        <div class="attention-item"><span>Общая сумма договоров</span><b>${money(totalSales)}</b></div>
+        <div class="attention-item"><span>Получено по договорам</span><b class="text-emerald-600">${money(totalPaid)}</b></div>
+        <div class="attention-item"><span>Количество клиентов</span><b>${getAllClientCards().length}</b></div>`;
+
+      const upcoming=[];
+      allContracts.forEach(c=>{ const dates=calculatePaymentDates(c); const inst=c.installments||{}; dates.forEach(d=>{if(!inst[d.index] && d.date>=todayStr && upcoming.length<12) upcoming.push({date:d.date,c});}); });
+      upcoming.sort((a,b)=>a.date.localeCompare(b.date));
+      document.getElementById('dashboardUpcoming').innerHTML=upcoming.length?upcoming.map(x=>`<div class="attention-item"><div><b>${x.c.fio||'—'}</b><div class="text-[10px] text-slate-400">Договор №${x.c.contractNum} · ${x.date}</div></div><span class="pill pill-blue">${money(x.c.monthlyPay)}</span></div>`).join(''):'<div class="text-slate-400 py-4">Нет ближайших непогашенных платежей.</div>';
+    }
+
+    window.renderClientsPage = function() {
+      const grid=document.getElementById('clientsGrid'); if(!grid) return;
+      const q=(document.getElementById('clientsSearchInput')?.value||'').trim().toLowerCase();
+      const filter=document.getElementById('clientsStatusFilter')?.value||'all';
+      let clients=getAllClientCards().filter(cl=>{
+        const text=[cl.fio,cl.phone,cl.extraPhone,cl.address,...cl.contracts.map(c=>c.product||''),...cl.contracts.map(c=>c.store||'')].join(' ').toLowerCase();
+        if(q && !text.includes(q)) return false;
+        const metrics=cl.contracts.map(c=>calculateContractMetrics(c));
+        const hasDebt=metrics.some(m=>m.rest>0); const hasOverdue=metrics.some(m=>m.overdueSum>0); const allClosed=metrics.every(m=>m.isClosed);
+        return filter==='all'||(filter==='active'&&hasDebt)||(filter==='overdue'&&hasOverdue)||(filter==='closed'&&allClosed);
+      });
+      if(!clients.length){grid.innerHTML='<div class="col-span-full text-center text-slate-400 py-12">Клиенты не найдены.</div>';return;}
+      grid.innerHTML=clients.map(cl=>{
+        const ms=cl.contracts.map(c=>calculateContractMetrics(c));
+        const rest=ms.reduce((s,m)=>s+Math.max(0,m.rest),0), overdue=ms.reduce((s,m)=>s+Math.max(0,m.overdueSum),0), paid=ms.reduce((s,m)=>s+Number(m.totalPaid||0),0)+cl.contracts.reduce((s,c)=>s+Number(c.downPayment||0),0);
+        return `<div class="client-card"><div class="flex justify-between gap-3"><div><div class="client-name-modern">${cl.fio}</div><div class="client-meta">📱 ${cl.phone||'Телефон не указан'}</div></div><span class="pill ${overdue>0?'pill-red':rest>0?'pill-blue':'pill-green'}">${overdue>0?'Просрочка':rest>0?'Активен':'Закрыт'}</span></div><div class="client-stats"><div class="client-stat"><span>Договоры</span><b>${cl.contracts.length}</b></div><div class="client-stat"><span>Остаток</span><b>${money(rest)}</b></div><div class="client-stat"><span>Просрочка</span><b class="${overdue>0?'text-red-600':''}">${money(overdue)}</b></div></div><div class="flex justify-between items-center mt-3"><span class="text-[10px] text-slate-400">Оплачено: ${money(paid)}</span><button onclick="switchTab('contracts'); document.getElementById('searchInput').value=${JSON.stringify(cl.fio)}; handleSearch();" class="text-blue-600 font-extrabold text-[10px]">Открыть договоры →</button></div></div>`;
+      }).join('');
+    };
+
     // ================================================================
     // СТАРТ
     // ================================================================
@@ -4139,6 +4336,8 @@
     }
 
     initSync();
+    // После загрузки остаёмся на новой главной панели, существующие разделы не изменены.
+    setTimeout(() => switchTab('dashboard'), 50);
   </script>
 </body>
   </html>
