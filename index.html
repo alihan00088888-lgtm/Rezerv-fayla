@@ -262,310 +262,281 @@
       50% { opacity: 0.3; }
     }
 
-    /* ================================================================
-       ===== НОВЫЕ СТИЛИ ДЛЯ ЛИСТА «ВЗЯЛИ» (дашборд-стиль) =====
-       ================================================================ */
-    .taken-kpi-card {
+    /* ===== НОВЫЙ СТИЛЬ ЛИСТА «ВЗЯЛИ» ===== */
+    .taken-dashboard {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px;
+    }
+    .kpi-card {
       background: white;
       border-radius: 14px;
-      padding: 16px 20px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
-      border-left: 4px solid #94a3b8;
-      transition: all 0.2s;
+      padding: 18px 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+      border: 1px solid #e2e8f0;
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
+      flex-direction: column;
+      gap: 6px;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
     }
-    .taken-kpi-card:hover {
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08), 0 8px 20px rgba(0,0,0,0.06);
-      transform: translateY(-1px);
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 4px;
     }
-    .taken-kpi-card .kpi-label {
+    .kpi-card.kpi-kassa::before { background: linear-gradient(180deg, #2563eb, #3b82f6); }
+    .kpi-card.kpi-taken::before { background: linear-gradient(180deg, #f59e0b, #fbbf24); }
+    .kpi-card.kpi-put::before { background: linear-gradient(180deg, #10b981, #34d399); }
+    .kpi-card.kpi-uchet::before { background: linear-gradient(180deg, #8b5cf6, #a78bfa); }
+    .kpi-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-1px); }
+    .kpi-label {
       font-size: 10px;
       font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.8px;
       color: #64748b;
-      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
-    .taken-kpi-card .kpi-value {
+    .kpi-value {
       font-size: 22px;
-      font-weight: 900;
-      color: #0f172a;
+      font-weight: 800;
+      letter-spacing: -0.5px;
       line-height: 1.1;
-      white-space: nowrap;
     }
-    .taken-kpi-card .kpi-icon {
-      font-size: 28px;
-      opacity: 0.8;
-      flex-shrink: 0;
-    }
-    .taken-kpi-card.kassa { border-left-color: #f59e0b; }
-    .taken-kpi-card.kassa .kpi-value { color: #b45309; }
-    .taken-kpi-card.vzyali { border-left-color: #ea580c; }
-    .taken-kpi-card.vzyali .kpi-value { color: #c2410c; }
-    .taken-kpi-card.polozhili { border-left-color: #059669; }
-    .taken-kpi-card.polozhili .kpi-value { color: #047857; }
-    .taken-kpi-card.uchet { border-left-color: #2563eb; }
-    .taken-kpi-card.uchet .kpi-value { color: #1d4ed8; }
+    .kpi-kassa .kpi-value { color: #2563eb; }
+    .kpi-taken .kpi-value { color: #d97706; }
+    .kpi-put .kpi-value { color: #059669; }
+    .kpi-uchet .kpi-value { color: #7c3aed; }
 
-    .taken-section {
+    .dash-card {
       background: white;
       border-radius: 14px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      border: 1px solid #e2e8f0;
       overflow: hidden;
     }
-    .taken-section-header {
-      padding: 14px 20px;
-      border-bottom: 1px solid #f1f5f9;
+    .dash-card-header {
+      padding: 12px 18px;
+      background: #f8fafc;
+      border-bottom: 1px solid #e2e8f0;
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 8px;
     }
-    .taken-section-title {
-      font-size: 13px;
+    .dash-card-title {
+      font-size: 12px;
       font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.6px;
       color: #334155;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
     }
+    .dash-card-body { padding: 12px 18px; }
 
-    /* Журнал операций */
-    .taken-journal {
+    .journal-table {
       width: 100%;
       border-collapse: separate;
       border-spacing: 0;
       font-size: 12px;
     }
-    .taken-journal thead th {
+    .journal-table thead th {
       background: #f8fafc;
-      color: #64748b;
-      font-size: 10px;
+      color: #475569;
       font-weight: 800;
+      font-size: 10px;
       text-transform: uppercase;
-      letter-spacing: 0.4px;
-      padding: 10px 14px;
-      text-align: left;
+      letter-spacing: 0.5px;
+      padding: 10px 12px;
+      text-align: center;
       border-bottom: 1px solid #e2e8f0;
-      position: sticky;
-      top: 0;
-      z-index: 2;
     }
-    .taken-journal tbody td {
-      padding: 10px 14px;
+    .journal-table tbody td {
+      padding: 10px 12px;
+      text-align: center;
       border-bottom: 1px solid #f1f5f9;
       vertical-align: middle;
+      color: #334155;
     }
-    .taken-journal tbody tr:hover { background: #f8fafc; }
-    .taken-journal tbody tr:last-child td { border-bottom: none; }
-    .taken-journal .empty-cell { color: #cbd5e1; }
-    .taken-journal .taken-amount {
+    .journal-table tbody tr:hover { background: #f8fafc; }
+    .journal-table tbody tr:last-child td { border-bottom: none; }
+    .journal-taken-amount {
+      color: #d97706;
       font-weight: 800;
-      color: #c2410c;
       font-size: 13px;
-      white-space: nowrap;
     }
-    .taken-journal .put-amount {
+    .journal-put-amount {
+      color: #059669;
       font-weight: 800;
-      color: #047857;
       font-size: 13px;
-      white-space: nowrap;
     }
-    .taken-journal .desc-cell {
-      color: #475569;
-      font-size: 12px;
+    .journal-desc {
+      text-align: left !important;
+      color: #64748b;
+      font-size: 11px;
     }
-    .taken-journal .actions-cell {
-      text-align: right;
-      white-space: nowrap;
+    .journal-actions {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
     }
-    .taken-journal .action-btn {
-      background: none;
-      border: none;
+    .journal-action-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
-      padding: 4px 6px;
-      border-radius: 6px;
-      font-size: 14px;
-      transition: background 0.15s;
-    }
-    .taken-journal .action-btn:hover { background: #f1f5f9; }
-
-    .taken-journal-empty {
-      padding: 40px 20px;
-      text-align: center;
-      color: #94a3b8;
+      border: none;
       font-size: 13px;
-    }
-
-    /* Итоговая строка журнала */
-    .taken-journal tfoot td {
-      background: #f8fafc;
-      padding: 12px 14px;
-      font-weight: 800;
-      font-size: 12px;
-      border-top: 2px solid #e2e8f0;
-      color: #0f172a;
-    }
-
-    /* Блок статистики */
-    .stat-card-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      padding: 14px;
-    }
-    .stat-mini-card {
-      background: #f8fafc;
-      border-radius: 10px;
-      padding: 10px 12px;
-      border-left: 3px solid #cbd5e1;
       transition: all 0.15s;
     }
-    .stat-mini-card:hover { background: #f1f5f9; }
-    .stat-mini-card .stat-label {
-      font-size: 9px;
-      font-weight: 800;
+    .journal-action-btn.edit { background: #eff6ff; color: #2563eb; }
+    .journal-action-btn.edit:hover { background: #dbeafe; }
+    .journal-action-btn.delete { background: #fef2f2; color: #dc2626; }
+    .journal-action-btn.delete:hover { background: #fee2e2; }
+
+    .stat-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .stat-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 18px;
+      border-bottom: 1px solid #f1f5f9;
+      transition: background 0.15s;
+    }
+    .stat-item:last-child { border-bottom: none; }
+    .stat-item:hover { background: #f8fafc; }
+    .stat-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #64748b;
       text-transform: uppercase;
       letter-spacing: 0.4px;
-      color: #64748b;
-      margin-bottom: 4px;
-      line-height: 1.2;
     }
-    .stat-mini-card .stat-value {
-      font-size: 18px;
-      font-weight: 900;
-      color: #0f172a;
-      line-height: 1.1;
+    .stat-value {
+      font-size: 14px;
+      font-weight: 800;
+      color: #1e293b;
     }
-    .stat-mini-card.total { border-left-color: #8b5cf6; }
-    .stat-mini-card.closed { border-left-color: #10b981; }
-    .stat-mini-card.active { border-left-color: #3b82f6; }
-    .stat-mini-card.active .stat-value { color: #1d4ed8; }
-    .stat-mini-card.plan { border-left-color: #f59e0b; }
-    .stat-mini-card.plan .stat-value { color: #b45309; }
-    .stat-mini-card.fact { border-left-color: #059669; }
-    .stat-mini-card.fact .stat-value { color: #047857; }
+    .stat-value.stat-blue { color: #2563eb; }
+    .stat-value.stat-amber { color: #d97706; }
+    .stat-value.stat-green { color: #059669; }
 
-    /* Счета и карты — карточки */
-    .account-card {
-      background: white;
-      border-radius: 12px;
-      padding: 12px 14px;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
-      border: 1px solid #f1f5f9;
+    .accounts-list {
       display: flex;
       flex-direction: column;
       gap: 8px;
+      padding: 12px 18px;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+    .account-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 10px 14px;
       transition: all 0.15s;
-      position: relative;
+      background: white;
     }
     .account-card:hover {
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      border-color: #e2e8f0;
+      border-color: #cbd5e1;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     }
-    .account-card .acc-header {
+    .account-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      margin-bottom: 6px;
     }
-    .account-card .acc-name {
-      font-weight: 800;
+    .account-name {
       font-size: 13px;
-      color: #0f172a;
-      letter-spacing: 0.3px;
-    }
-    .account-card .acc-balance {
-      font-size: 20px;
-      font-weight: 900;
-      color: #0f172a;
-      line-height: 1.1;
-    }
-    .account-card .acc-balance.negative { color: #dc2626; }
-    .account-card .acc-stats {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px;
-      font-size: 10px;
-      color: #64748b;
-    }
-    .account-card .acc-stats .stat-pair {
-      background: #f8fafc;
-      border-radius: 6px;
-      padding: 5px 8px;
-    }
-    .account-card .stat-pair .sp-label {
-      font-size: 9px;
-      text-transform: uppercase;
-      font-weight: 700;
-      color: #94a3b8;
-      letter-spacing: 0.3px;
-      margin-bottom: 2px;
-    }
-    .account-card .stat-pair .sp-val {
       font-weight: 800;
-      color: #334155;
-      font-size: 11px;
-    }
-    .account-card .stat-pair.over-limit .sp-val {
-      color: #dc2626;
-      background: #fee2e2;
-      padding: 1px 4px;
-      border-radius: 3px;
-      display: inline-block;
-    }
-    .account-card .acc-actions {
+      color: #1e293b;
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      padding-top: 4px;
-      border-top: 1px solid #f1f5f9;
+      gap: 6px;
     }
-    .accounts-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 10px;
-      padding: 14px;
+    .account-color-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: 1px solid #cbd5e1;
     }
-    .acc-delete-btn {
-      background: none;
+    .account-actions {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .account-actions input[type="color"] {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      border: 1px solid #cbd5e1;
+      cursor: pointer;
+      padding: 0;
+    }
+    .account-actions .acc-del {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      background: #fef2f2;
+      color: #dc2626;
       border: none;
       cursor: pointer;
-      color: #ef4444;
-      padding: 4px 8px;
-      border-radius: 6px;
-      font-size: 14px;
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       transition: background 0.15s;
     }
-    .acc-delete-btn:hover { background: #fee2e2; }
-
-    /* Общий контейнер листа «Взяли» */
-    .taken-dashboard {
+    .account-actions .acc-del:hover { background: #fee2e2; }
+    .account-balance {
+      font-size: 18px;
+      font-weight: 800;
+      color: #2563eb;
+      margin-bottom: 4px;
+      letter-spacing: -0.3px;
+    }
+    .account-balance.negative { color: #dc2626; }
+    .account-month-row {
       display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-    .taken-kpi-row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
       gap: 12px;
+      font-size: 10px;
+      color: #64748b;
+      flex-wrap: wrap;
     }
-    .taken-bottom-row {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 16px;
-      align-items: start;
+    .account-month-row span b { color: #334155; }
+    .accounts-grand-total-badge {
+      display: inline-block;
+      background: #2563eb;
+      color: white;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 10px;
+      border-radius: 6px;
     }
-    @media (max-width: 900px) {
-      .taken-bottom-row { grid-template-columns: 1fr; }
-    }
-    .taken-accounts-wrapper {
-      grid-column: 1 / -1;
+
+    @media (max-width: 768px) {
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+      .kpi-value { font-size: 18px; }
     }
   </style>
 </head>
@@ -700,117 +671,101 @@
     <div id="takenTabContent" class="hidden">
       <div class="taken-dashboard">
 
-        <!-- KPI-карточки сверху -->
-        <div class="taken-kpi-row">
-          <div class="taken-kpi-card kassa">
-            <div>
-              <div class="kpi-label">💰 Касса</div>
-              <div class="kpi-value" id="kassaTotal">0</div>
-            </div>
-            <div class="kpi-icon">💰</div>
+        <!-- KPI карточки сверху -->
+        <div class="kpi-grid">
+          <div class="kpi-card kpi-kassa">
+            <div class="kpi-label">💰 Касса</div>
+            <div class="kpi-value" id="kassaTotal">0</div>
           </div>
-          <div class="taken-kpi-card vzyali">
-            <div>
-              <div class="kpi-label">⬆️ Взяли</div>
-              <div class="kpi-value" id="takenTotalSum">0</div>
-            </div>
-            <div class="kpi-icon">⬆️</div>
+          <div class="kpi-card kpi-taken">
+            <div class="kpi-label">📤 Взяли</div>
+            <div class="kpi-value" id="takenTotalSum">0</div>
           </div>
-          <div class="taken-kpi-card polozhili">
-            <div>
-              <div class="kpi-label">⬇️ Положили</div>
-              <div class="kpi-value" id="putTotalSum">0</div>
-            </div>
-            <div class="kpi-icon">⬇️</div>
+          <div class="kpi-card kpi-put">
+            <div class="kpi-label">📥 Положили</div>
+            <div class="kpi-value" id="putTotalSum">0</div>
           </div>
-          <div class="taken-kpi-card uchet">
-            <div>
-              <div class="kpi-label">📊 Касса Учёт</div>
-              <div class="kpi-value" id="kassaUchet">0</div>
-            </div>
-            <div class="kpi-icon">📊</div>
+          <div class="kpi-card kpi-uchet">
+            <div class="kpi-label">📊 Учёт</div>
+            <div class="kpi-value" id="kassaUchet">0</div>
           </div>
         </div>
 
-        <!-- Нижний ряд: журнал + статистика -->
-        <div class="taken-bottom-row">
+        <!-- Основная сетка: слева журнал, справа статистика и счета -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
-          <!-- Журнал операций -->
-          <div class="taken-section">
-            <div class="taken-section-header">
-              <div class="taken-section-title">📋 Журнал операций</div>
-              <button onclick="openTakenModal()" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-3 py-1.5 rounded-lg text-[11px] transition shadow-sm">
-                + Добавить запись
-              </button>
+          <!-- ЛЕВАЯ ЧАСТЬ: Журнал операций -->
+          <div class="lg:col-span-2 dash-card">
+            <div class="dash-card-header">
+              <div class="dash-card-title">📒 Журнал операций</div>
+              <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Взяли / Положили</div>
             </div>
-            <div style="overflow-x:auto; max-height: 500px;">
-              <table class="taken-journal">
+            <div style="overflow-x:auto;">
+              <table class="journal-table">
                 <thead>
                   <tr>
-                    <th style="width:35%;">Взяли (₽)</th>
-                    <th style="width:30%;">Описание</th>
-                    <th style="width:25%;">Положили (₽)</th>
-                    <th style="width:10%; text-align:right;">Действия</th>
+                    <th style="width: 30%;">Взяли (₽)</th>
+                    <th style="width: 25%;">Описание</th>
+                    <th style="width: 30%;">Положили (₽)</th>
+                    <th style="width: 15%;">Описание / Действия</th>
                   </tr>
                 </thead>
-                <tbody id="takenRowsTable">
-                  <!-- Заполняется JS -->
-                </tbody>
+                <tbody id="takenRowsTable"></tbody>
               </table>
             </div>
           </div>
 
-          <!-- Блок статистики -->
-          <div class="taken-section">
-            <div class="taken-section-header">
-              <div class="taken-section-title">📊 Статистика</div>
+          <!-- ПРАВАЯ ВЕРХНЯЯ ЧАСТЬ: Статистика -->
+          <div class="dash-card">
+            <div class="dash-card-header">
+              <div class="dash-card-title">📊 Статистика</div>
             </div>
-            <div class="stat-card-grid">
-              <div class="stat-mini-card total">
-                <div class="stat-label">Договоров всего</div>
-                <div class="stat-value" id="statTotalContracts">0</div>
+            <div class="stat-list">
+              <div class="stat-item">
+                <span class="stat-label">Всего договоров</span>
+                <span class="stat-value" id="statTotalContracts">0</span>
               </div>
-              <div class="stat-mini-card closed">
-                <div class="stat-label">Закрытые</div>
-                <div class="stat-value" id="statClosedContracts">0</div>
+              <div class="stat-item">
+                <span class="stat-label">Закрытые</span>
+                <span class="stat-value stat-green" id="statClosedContracts">0</span>
               </div>
-              <div class="stat-mini-card active">
-                <div class="stat-label">Актуальные</div>
-                <div class="stat-value" id="statActiveContracts">0</div>
+              <div class="stat-item">
+                <span class="stat-label">Актуальные</span>
+                <span class="stat-value stat-blue" id="statActiveContracts">0</span>
               </div>
-              <div class="stat-mini-card plan">
-                <div class="stat-label">План сегодня ₽</div>
-                <div class="stat-value" id="statPlanTodaySum">0</div>
+              <div class="stat-item">
+                <span class="stat-label">Оплаты сегодня (план)</span>
+                <span class="stat-value stat-amber" id="statPlanTodaySum">0</span>
               </div>
-              <div class="stat-mini-card plan">
-                <div class="stat-label">План кол-во</div>
-                <div class="stat-value" id="statPlanTodayCount">0</div>
+              <div class="stat-item">
+                <span class="stat-label">Кол-во (план)</span>
+                <span class="stat-value" id="statPlanTodayCount">0</span>
               </div>
-              <div class="stat-mini-card fact">
-                <div class="stat-label">Факт сегодня ₽</div>
-                <div class="stat-value" id="statFactTodaySum">0</div>
+              <div class="stat-item">
+                <span class="stat-label">Оплаты сегодня (факт)</span>
+                <span class="stat-value stat-green" id="statFactTodaySum">0</span>
               </div>
-              <div class="stat-mini-card fact">
-                <div class="stat-label">Факт кол-во</div>
-                <div class="stat-value" id="statFactTodayCount">0</div>
+              <div class="stat-item">
+                <span class="stat-label">Кол-во (факт)</span>
+                <span class="stat-value" id="statFactTodayCount">0</span>
               </div>
             </div>
           </div>
-
         </div>
 
-        <!-- Счета и карты — на всю ширину -->
-        <div class="taken-section">
-          <div class="taken-section-header">
-            <div class="taken-section-title">💳 Счета и Карты</div>
+        <!-- НИЖНЯЯ ЧАСТЬ: Счета и карты -->
+        <div class="dash-card">
+          <div class="dash-card-header">
+            <div class="dash-card-title">💳 Счета и карты</div>
             <div class="flex items-center gap-3">
-              <span class="text-[10px] font-bold text-slate-500 uppercase">Итого: <span id="accountsGrandTotal" class="text-slate-800 text-sm">0</span></span>
-              <button onclick="addNewAccountPrompt()" class="bg-slate-700 hover:bg-slate-800 text-white font-bold px-3 py-1.5 rounded-lg text-[11px] transition">+ Добавить счет</button>
+              <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Общий баланс:</span>
+              <span class="accounts-grand-total-badge" id="accountsGrandTotal">0</span>
+              <button onclick="addNewAccountPrompt()" class="bg-slate-700 hover:bg-slate-800 text-white font-bold px-3 py-1 rounded-lg text-[10px] transition">
+                + Добавить счёт
+              </button>
             </div>
           </div>
-          <div class="accounts-grid" id="accountsTableBody">
-            <!-- Карточки счетов генерируются JS -->
-          </div>
+          <div class="accounts-list" id="accountsTableBody"></div>
         </div>
 
       </div>
@@ -1191,7 +1146,7 @@
         </div>
         <div>
           <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Счет / Источник</label>
-          <input type="text" id="accAccount" placeholder="Например: S1, N, C1..." class="p-2 border rounded-md w-full outline-none">
+          <input type="text" id="accAccount" placeholder="Например: Н, C1, S1..." class="p-2 border rounded-md w-full outline-none">
         </div>
 
         <div class="flex justify-end gap-2 pt-4 border-t">
@@ -1401,17 +1356,24 @@
     localStorage.setItem('investors_db', JSON.stringify(initInvestors));
     localStorage.setItem('monthly_reports_db', JSON.stringify(initMonthlyReports));
 
+    // ============== ИЗМЕНЕНО: N → Н (русская) в дефолтных счетах ==============
     if (!customAccounts) {
-      const defaultNames = ['N', 'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9', 'C10', 'C11', 'C12', 'C13', 'C14', 'C15', 'C16', 'T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12', 'T13', 'T14', 'T15', 'T16', 'B1', 'B2', 'B3', 'B4'];
+      const defaultNames = ['Н', 'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9', 'C10', 'C11', 'C12', 'C13', 'C14', 'C15', 'C16', 'T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12', 'T13', 'T14', 'T15', 'T16', 'B1', 'B2', 'B3', 'B4'];
       customAccounts = defaultNames.map(name => ({
         name,
         color: name === 'C1' ? '#86efac' : (name === 'T1' ? '#fef08a' : '')
       }));
     } else if (typeof customAccounts[0] === 'string') {
       customAccounts = customAccounts.map(name => ({
-        name,
+        // Мигрируем старую английскую N на русскую Н
+        name: name === 'N' ? 'Н' : name,
         color: name === 'C1' ? '#86efac' : (name === 'T1' ? '#fef08a' : '')
       }));
+    } else if (Array.isArray(customAccounts)) {
+      // Объекты — мигрируем name === 'N' на 'Н'
+      customAccounts.forEach(a => {
+        if (a && a.name === 'N') a.name = 'Н';
+      });
     }
 
     let activeTab = 'contracts';
@@ -1419,7 +1381,7 @@
     let redoStack = [];
 
     // ================================================================
-    // ОТПРАВКА В ОБЛАКО
+    // СИНХРОНИЗАЦИЯ
     // ================================================================
     function pushToCloud() {
       if (isApplyingRemote) return;
@@ -1547,7 +1509,6 @@
     // ================================================================
     // ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК
     // ================================================================
-
     window.switchTab = function(tab) {
       activeTab = tab;
       const cTab = document.getElementById('contractsTabContent');
@@ -1614,6 +1575,7 @@
       } else if (tab === 'taken') {
         tTab.classList.remove('hidden');
         tBtn.className = "tab-btn active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
+        addT.classList.remove('hidden');
         renderTakenSheet();
       } else if (tab === 'income') {
         iTab.classList.remove('hidden');
@@ -1775,9 +1737,8 @@
     };
 
     // ================================================================
-    // ФУНКЦИИ ДЛЯ ДОГОВОРОВ
+    // ДОГОВОРЫ
     // ================================================================
-    
     function calculatePaymentDates(contract) {
       const payDateStr = contract.payDate;
       if (!payDateStr) return [];
@@ -3248,7 +3209,7 @@
           income: 0,
           expense: takenAmount,
           note: `Взяли: ${takenDesc || 'без описания'}`,
-          account: 'N',
+          account: 'Н',
           _source: editId || allTaken[allTaken.length - 1]?.id || 'taken_' + Date.now(),
           type: 'taken',
           createdAt: Date.now()
@@ -3262,7 +3223,7 @@
           income: putAmount,
           expense: 0,
           note: `Положили: ${putDesc || 'без описания'}`,
-          account: 'N',
+          account: 'Н',
           _source: editId || allTaken[allTaken.length - 1]?.id || 'taken_' + Date.now(),
           type: 'put',
           createdAt: Date.now()
@@ -3310,7 +3271,9 @@
       saveToStorage();
     };
 
-    // ============== ОБНОВЛЁННЫЙ renderTakenSheet (новый дизайн) ==============
+    // ================================================================
+    // НОВЫЙ РЕНДЕР ЛИСТА «ВЗЯЛИ»
+    // ================================================================
     function renderTakenSheet() {
       const rowsTbody = document.getElementById('takenRowsTable');
       rowsTbody.innerHTML = '';
@@ -3318,40 +3281,40 @@
       let sumTaken = 0;
       let sumPut = 0;
 
+      allTaken.forEach(item => {
+        sumTaken += Number(item.takenAmount || 0);
+        sumPut += Number(item.putAmount || 0);
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>
+            ${item.takenAmount ? `<span class="journal-taken-amount">− ${Number(item.takenAmount).toLocaleString('ru-RU')} ₽</span>` : '<span style="color:#cbd5e1;">—</span>'}
+          </td>
+          <td class="journal-desc">${item.takenDesc || ''}</td>
+          <td>
+            ${item.putAmount ? `<span class="journal-put-amount">+ ${Number(item.putAmount).toLocaleString('ru-RU')} ₽</span>` : '<span style="color:#cbd5e1;">—</span>'}
+          </td>
+          <td>
+            <div class="journal-actions">
+              <button class="journal-action-btn edit" onclick="openEditTakenModal('${item.id}')" title="Редактировать">✏️</button>
+              <button class="journal-action-btn delete" onclick="deleteTakenItem('${item.id}')" title="Удалить">🗑️</button>
+            </div>
+          </td>
+        `;
+        rowsTbody.appendChild(tr);
+      });
+
+      // Пустая строка для аккуратности, если записей нет
       if (allTaken.length === 0) {
-        rowsTbody.innerHTML = `<tr><td colspan="4" class="taken-journal-empty">📭 Нет записей. Нажмите «+ Добавить запись» чтобы создать первую.</td></tr>`;
-      } else {
-        allTaken.forEach(item => {
-          sumTaken += Number(item.takenAmount || 0);
-          sumPut += Number(item.putAmount || 0);
-
-          const tr = document.createElement('tr');
-          
-          const takenAmt = Number(item.takenAmount) || 0;
-          const putAmt = Number(item.putAmount) || 0;
-          
-          const takenCell = takenAmt > 0 
-            ? `<span class="taken-amount">${takenAmt.toLocaleString('ru-RU')} ₽</span>` 
-            : `<span class="empty-cell">—</span>`;
-          const putCell = putAmt > 0 
-            ? `<span class="put-amount">${putAmt.toLocaleString('ru-RU')} ₽</span>` 
-            : `<span class="empty-cell">—</span>`;
-          const descCell = item.takenDesc || item.putDesc || '<span class="empty-cell">—</span>';
-
-          tr.innerHTML = `
-            <td>${takenCell}</td>
-            <td class="desc-cell">${descCell}</td>
-            <td>${putCell}</td>
-            <td class="actions-cell">
-              <button class="action-btn" onclick="openEditTakenModal('${item.id}')" title="Редактировать">✏️</button>
-              <button class="action-btn" onclick="deleteTakenItem('${item.id}')" title="Удалить">🗑️</button>
+        rowsTbody.innerHTML = `
+          <tr>
+            <td colspan="4" style="text-align:center; color:#94a3b8; padding: 30px 12px; font-size: 12px;">
+              📭 Нет записей. Нажмите «+ Запись Взяли / Положили» чтобы добавить.
             </td>
-          `;
-          rowsTbody.appendChild(tr);
-        });
+          </tr>
+        `;
       }
 
-      // KPI
       document.getElementById('takenTotalSum').innerText = sumTaken.toLocaleString('ru-RU') + ' ₽';
       document.getElementById('putTotalSum').innerText = sumPut.toLocaleString('ru-RU') + ' ₽';
 
@@ -3459,12 +3422,12 @@
       document.getElementById('statTotalContracts').innerText = totalContracts;
       document.getElementById('statClosedContracts').innerText = closedContracts;
       document.getElementById('statActiveContracts').innerText = activeContracts;
-      document.getElementById('statPlanTodaySum').innerText = planTodaySum.toLocaleString('ru-RU');
+      document.getElementById('statPlanTodaySum').innerText = planTodaySum.toLocaleString('ru-RU') + ' ₽';
       document.getElementById('statPlanTodayCount').innerText = planTodayCount;
-      document.getElementById('statFactTodaySum').innerText = factTodaySum.toLocaleString('ru-RU');
+      document.getElementById('statFactTodaySum').innerText = factTodaySum.toLocaleString('ru-RU') + ' ₽';
       document.getElementById('statFactTodayCount').innerText = factTodayCount;
 
-      // ============== Счета и Карты — карточки ==============
+      // ============ Счета и карты — карточками ============
       const accountsBody = document.getElementById('accountsTableBody');
       accountsBody.innerHTML = '';
 
@@ -3508,39 +3471,39 @@
 
         const isIncOverLimit = incSumMonth >= 400000;
         const isExpOverLimit = expSumMonth >= 400000;
-        
-        const cardBg = accObj.color ? `background-color: ${accObj.color};` : '';
-        const balanceClass = accBalance < 0 ? 'negative' : '';
 
         const card = document.createElement('div');
         card.className = 'account-card';
-        card.style = cardBg;
+        if (accObj.color) card.style.background = accObj.color;
+        
         card.innerHTML = `
-          <div class="acc-header">
-            <span class="acc-name">${accObj.name}</span>
-          </div>
-          <div class="acc-balance ${balanceClass}">${accBalance.toLocaleString('ru-RU')} ₽</div>
-          <div class="acc-stats">
-            <div class="stat-pair ${isIncOverLimit ? 'over-limit' : ''}">
-              <div class="sp-label">Приход (${incCountMonth})</div>
-              <div class="sp-val">${incSumMonth.toLocaleString('ru-RU')}</div>
+          <div class="account-header">
+            <div class="account-name">
+              <span class="account-color-dot" style="background: ${accObj.color || '#e2e8f0'};"></span>
+              ${accObj.name}
             </div>
-            <div class="stat-pair ${isExpOverLimit ? 'over-limit' : ''}">
-              <div class="sp-label">Расход (${expCountMonth})</div>
-              <div class="sp-val">${expSumMonth.toLocaleString('ru-RU')}</div>
+            <div class="account-actions">
+              <input type="color" value="${accObj.color || '#ffffff'}" onchange="changeAccountColor(${idx}, this.value)" title="Изменить цвет">
+              <button class="acc-del" onclick="deleteAccount(${idx})" title="Удалить счёт">🗑️</button>
             </div>
           </div>
-          <div class="acc-actions">
-            <input type="color" value="${accObj.color || '#ffffff'}" onchange="changeAccountColor(${idx}, this.value)" title="Изменить цвет" class="w-6 h-6 cursor-pointer align-middle border rounded">
-            <button class="acc-delete-btn" onclick="deleteAccount(${idx})" title="Удалить счет">🗑️</button>
+          <div class="account-balance ${accBalance < 0 ? 'negative' : ''}">
+            ${accBalance.toLocaleString('ru-RU')} ₽
+          </div>
+          <div class="account-month-row">
+            <span>📥 Приход: <b class="${isIncOverLimit ? 'cell-over-limit' : ''}" style="${isIncOverLimit ? 'padding: 1px 4px; border-radius: 3px;' : ''}">${incSumMonth.toLocaleString('ru-RU')} ₽</b> (${incCountMonth})</span>
+            <span>📤 Расход: <b class="${isExpOverLimit ? 'cell-over-limit' : ''}" style="${isExpOverLimit ? 'padding: 1px 4px; border-radius: 3px;' : ''}">${expSumMonth.toLocaleString('ru-RU')} ₽</b> (${expCountMonth})</span>
           </div>
         `;
         accountsBody.appendChild(card);
       });
 
+      if (customAccounts.length === 0) {
+        accountsBody.innerHTML = '<div style="text-align:center; color:#94a3b8; padding: 20px; font-size: 12px;">💳 Нет счетов. Добавьте первый счёт.</div>';
+      }
+
       document.getElementById('accountsGrandTotal').innerText = accountsGrandTotalSum.toLocaleString('ru-RU') + ' ₽';
     }
-    // ============== /renderTakenSheet ==============
 
     window.handleSearch = function() {
       const q = document.getElementById('searchInput').value.toLowerCase();
@@ -3564,33 +3527,21 @@
     function renderTakenFiltered(items) {
       const rowsTbody = document.getElementById('takenRowsTable');
       rowsTbody.innerHTML = '';
-      
       if (items.length === 0) {
-        rowsTbody.innerHTML = `<tr><td colspan="4" class="taken-journal-empty">📭 Ничего не найдено</td></tr>`;
+        rowsTbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#94a3b8; padding: 30px 12px; font-size: 12px;">🔍 Нет совпадений</td></tr>`;
         return;
       }
-      
       items.forEach(item => {
         const tr = document.createElement('tr');
-        
-        const takenAmt = Number(item.takenAmount) || 0;
-        const putAmt = Number(item.putAmount) || 0;
-        
-        const takenCell = takenAmt > 0 
-          ? `<span class="taken-amount">${takenAmt.toLocaleString('ru-RU')} ₽</span>` 
-          : `<span class="empty-cell">—</span>`;
-        const putCell = putAmt > 0 
-          ? `<span class="put-amount">${putAmt.toLocaleString('ru-RU')} ₽</span>` 
-          : `<span class="empty-cell">—</span>`;
-        const descCell = item.takenDesc || item.putDesc || '<span class="empty-cell">—</span>';
-
         tr.innerHTML = `
-          <td>${takenCell}</td>
-          <td class="desc-cell">${descCell}</td>
-          <td>${putCell}</td>
-          <td class="actions-cell">
-            <button class="action-btn" onclick="openEditTakenModal('${item.id}')" title="Редактировать">✏️</button>
-            <button class="action-btn" onclick="deleteTakenItem('${item.id}')" title="Удалить">🗑️</button>
+          <td>${item.takenAmount ? `<span class="journal-taken-amount">− ${Number(item.takenAmount).toLocaleString('ru-RU')} ₽</span>` : '—'}</td>
+          <td class="journal-desc">${item.takenDesc || ''}</td>
+          <td>${item.putAmount ? `<span class="journal-put-amount">+ ${Number(item.putAmount).toLocaleString('ru-RU')} ₽</span>` : '—'}</td>
+          <td>
+            <div class="journal-actions">
+              <button class="journal-action-btn edit" onclick="openEditTakenModal('${item.id}')">✏️</button>
+              <button class="journal-action-btn delete" onclick="deleteTakenItem('${item.id}')">🗑️</button>
+            </div>
           </td>
         `;
         rowsTbody.appendChild(tr);
@@ -3649,9 +3600,8 @@
     });
 
     // ================================================================
-    // ИНИЦИАЛИЗАЦИЯ (без изменений в логике)
+    // ИНИЦИАЛИЗАЦИЯ — ИНВЕСТИЦИИ
     // ================================================================
-
     function saveInitData() {
       localStorage.setItem('investors_db', JSON.stringify(initInvestors));
       localStorage.setItem('monthly_reports_db', JSON.stringify(initMonthlyReports));
@@ -4050,6 +4000,7 @@
       pushToCloud();
     };
 
+    // ============== ИЗМЕНЕНО: N → Н (русская) в инвестициях ==============
     function syncInvestorOperationsWithAccounting(year, month, investorId, field, value) {
       const dateStr = `${year}-${String(month).padStart(2, '0')}-01`;
       const investMonth = `${year}-${String(month).padStart(2, '0')}`;
@@ -4080,7 +4031,7 @@
         income: isIncome ? value : 0,
         expense: isIncome ? 0 : value,
         note: noteMap[type],
-        account: 'N',
+        account: 'Н',
         _investorId: investorId,
         _investMonth: investMonth,
         type: type,
@@ -4331,7 +4282,7 @@
     }
 
     // ================================================================
-    // ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ
+    // ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ + ЗАПУСК СИНХРОНИЗАЦИИ
     // ================================================================
     try {
       renderTable(allContracts);
