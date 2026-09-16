@@ -521,49 +521,12 @@
       .account-cube-balance { font-size: 20px; }
     }
 
-    /* === Профессиональный слой интерфейса YUSRA === */
-    :root { --brand:#2563eb; --brand-dark:#1d4ed8; --ink:#0f172a; --muted:#64748b; --surface:#ffffff; --soft:#f8fafc; }
-    body { background:linear-gradient(180deg,#f8fafc 0%,#eef2f7 100%) !important; color:var(--ink); }
-    .app-topbar { backdrop-filter: blur(12px); background:rgba(255,255,255,.92) !important; }
-    .app-brand { display:flex; align-items:center; gap:10px; min-width:190px; }
-    .app-logo { width:38px; height:38px; border-radius:12px; display:grid; place-items:center; color:#fff; font-weight:900; background:linear-gradient(135deg,#2563eb,#7c3aed); box-shadow:0 8px 20px rgba(37,99,235,.25); }
-    .app-title { font-size:15px; font-weight:900; letter-spacing:.04em; }
-    .app-subtitle { font-size:9px; color:#64748b; font-weight:700; text-transform:uppercase; letter-spacing:.12em; }
-    .modern-btn { border-radius:10px !important; font-weight:800 !important; transition:.18s ease !important; }
-    .modern-btn:hover { transform:translateY(-1px); box-shadow:0 6px 14px rgba(15,23,42,.10); }
-    .modern-search { background:#f8fafc; border:1px solid #e2e8f0 !important; border-radius:11px !important; padding:9px 12px !important; }
-    .section-shell { background:rgba(255,255,255,.9); border:1px solid #e2e8f0; border-radius:18px; box-shadow:0 10px 30px rgba(15,23,42,.06); }
-    .page-heading { display:flex; align-items:flex-end; justify-content:space-between; gap:12px; margin-bottom:14px; }
-    .page-heading h1 { font-size:22px; font-weight:900; letter-spacing:-.02em; }
-    .page-heading p { margin-top:3px; color:#64748b; font-size:11px; font-weight:600; }
-    .dashboard-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; }
-    .dash-kpi { background:#fff; border:1px solid #e2e8f0; border-radius:16px; padding:16px; box-shadow:0 8px 24px rgba(15,23,42,.05); position:relative; overflow:hidden; }
-    .dash-kpi::after { content:''; position:absolute; width:70px; height:70px; border-radius:50%; right:-25px; top:-25px; background:#eff6ff; }
-    .dash-kpi .label { color:#64748b; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; }
-    .dash-kpi .value { font-size:24px; font-weight:950; margin-top:7px; position:relative; z-index:1; }
-    .dash-kpi .hint { font-size:10px; color:#94a3b8; margin-top:5px; position:relative; z-index:1; }
-    .dash-two { display:grid; grid-template-columns:1.25fr .75fr; gap:14px; }
-    .dash-card-modern { background:#fff; border:1px solid #e2e8f0; border-radius:16px; padding:16px; box-shadow:0 8px 24px rgba(15,23,42,.05); }
-    .dash-card-modern h3 { font-size:13px; font-weight:900; margin-bottom:12px; }
-    .attention-item { display:flex; justify-content:space-between; gap:10px; align-items:center; padding:10px 0; border-bottom:1px solid #f1f5f9; }
-    .attention-item:last-child { border-bottom:0; }
-    .pill { display:inline-flex; align-items:center; padding:4px 8px; border-radius:999px; font-size:9px; font-weight:900; }
-    .pill-red { background:#fef2f2; color:#dc2626; } .pill-blue { background:#eff6ff; color:#2563eb; } .pill-green { background:#ecfdf5; color:#059669; } .pill-amber { background:#fffbeb; color:#d97706; }
-    .client-toolbar { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; }
-    .client-card { background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:14px; transition:.18s ease; }
-    .client-card:hover { border-color:#bfdbfe; box-shadow:0 8px 20px rgba(37,99,235,.08); transform:translateY(-1px); }
-    .client-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
-    .client-name-modern { font-size:14px; font-weight:900; }
-    .client-meta { color:#64748b; font-size:10px; margin-top:3px; }
-    .client-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-top:12px; }
-    .client-stat { background:#f8fafc; border-radius:10px; padding:8px; }
-    .client-stat span { display:block; color:#94a3b8; font-size:8px; text-transform:uppercase; font-weight:800; }
-    .client-stat b { display:block; margin-top:3px; font-size:11px; }
-    .quick-nav { display:flex; gap:7px; overflow-x:auto; padding:0 2px 8px; scrollbar-width:thin; }
-    .quick-nav button { white-space:nowrap; border:1px solid #e2e8f0; background:#fff; color:#475569; border-radius:999px; padding:7px 11px; font-size:10px; font-weight:800; }
-    .quick-nav button:hover { border-color:#93c5fd; color:#1d4ed8; }
-    @media (max-width: 1024px) { .dashboard-grid{grid-template-columns:repeat(2,1fr)} .client-grid{grid-template-columns:repeat(2,1fr)} .dash-two{grid-template-columns:1fr} }
-    @media (max-width: 640px) { .dashboard-grid{grid-template-columns:1fr 1fr} .client-grid{grid-template-columns:1fr} .app-brand{min-width:auto} .app-subtitle{display:none} .page-heading h1{font-size:18px} .dash-kpi .value{font-size:19px} }
+/* ===== YUSRA V2 MODERN UI ===== */
+:root{--nav:#0f172a;--ink:#0f172a;--muted:#64748b;--line:#e2e8f0;--surface:#fff;--bg:#f5f7fb;--accent:#2563eb;--green:#16a34a;--red:#dc2626;--amber:#d97706}
+body{background:var(--bg)!important;color:var(--ink)!important;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important}
+#legacyTopbar,#legacyTabs{display:none!important}.modern-shell{display:flex;min-height:calc(100vh - 0px);margin:-16px -16px -80px}.modern-sidebar{width:245px;min-width:245px;background:linear-gradient(180deg,#0f172a,#111827);color:#cbd5e1;display:flex;flex-direction:column;padding:18px 12px;position:sticky;top:0;height:100vh;z-index:50}.brand{display:flex;gap:10px;align-items:center;padding:5px 8px 24px}.brand-mark{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#2563eb,#7c3aed);display:grid;place-items:center;color:#fff;font-weight:900;font-size:20px;box-shadow:0 8px 25px #0004}.brand-name{font-size:17px;color:#fff;font-weight:900;letter-spacing:.12em}.brand-sub{font-size:10px;color:#94a3b8;margin-top:2px}.nav-section{font-size:9px;font-weight:800;letter-spacing:.14em;color:#64748b;padding:12px 10px 7px}.mnav{width:100%;display:flex;align-items:center;gap:10px;border:0;background:transparent;color:#94a3b8;padding:10px 11px;border-radius:10px;font-size:12px;font-weight:700;text-align:left;cursor:pointer;margin:2px 0;transition:.18s}.mnav:hover{background:#ffffff0d;color:#fff}.mnav.active{background:linear-gradient(90deg,#2563eb,#3b82f6);color:#fff;box-shadow:0 8px 22px #2563eb33}.mnav b{margin-left:auto;min-width:20px;height:20px;padding:0 5px;border-radius:99px;background:#ef4444;color:#fff;font-size:9px;display:grid;place-items:center}.nav-spacer{flex:1}.sidebar-foot{font-size:10px;color:#64748b;padding:12px 10px;border-top:1px solid #ffffff12;display:flex;align-items:center;gap:7px}.online-dot{width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 3px #22c55e22}.modern-main{min-width:0;flex:1;padding:0 24px 80px}.modern-top{height:82px;display:flex;align-items:center;justify-content:space-between;gap:18px;border-bottom:1px solid var(--line);margin-bottom:20px}.page-title{font-size:24px;font-weight:900;letter-spacing:-.03em}.page-sub{font-size:11px;color:var(--muted);margin-top:3px}.top-actions{display:flex;gap:8px;align-items:center}.modern-search{width:270px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 10px;display:flex;gap:7px;align-items:center}.modern-search input{border:0;outline:0;width:100%;font-size:11px}.top-btn,.primary-btn{border:1px solid var(--line);background:#fff;padding:9px 12px;border-radius:9px;font-size:11px;font-weight:800;cursor:pointer}.primary-btn{background:#2563eb;color:#fff;border-color:#2563eb;box-shadow:0 5px 16px #2563eb33}.modern-view{animation:fadein .18s ease}@keyframes fadein{from{opacity:.3;transform:translateY(3px)}to{opacity:1;transform:none}}.mgrid{display:grid;gap:14px}.mgrid-4{grid-template-columns:repeat(4,minmax(0,1fr))}.mgrid-3{grid-template-columns:repeat(3,minmax(0,1fr))}.mgrid-2{grid-template-columns:repeat(2,minmax(0,1fr))}.mcard{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 3px 16px #0f172a08}.kpi-modern{padding:17px;position:relative;overflow:hidden}.kpi-modern:after{content:"";position:absolute;right:-25px;top:-25px;width:90px;height:90px;border-radius:50%;background:#2563eb0b}.kpi-label{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:800}.kpi-num{font-size:25px;font-weight:900;margin-top:7px;letter-spacing:-.03em}.kpi-note{font-size:10px;color:var(--muted);margin-top:5px}.section-head{display:flex;align-items:center;justify-content:space-between;margin:22px 0 10px}.section-title{font-size:14px;font-weight:900}.section-action{font-size:10px;font-weight:800;color:#2563eb;cursor:pointer}.mcard-head{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}.mcard-title{font-size:12px;font-weight:900}.mcard-body{padding:14px 16px}.mini-table{width:100%;border-collapse:collapse;font-size:10px}.mini-table th{text-align:left;color:#64748b;font-size:9px;text-transform:uppercase;letter-spacing:.05em;padding:8px;border-bottom:1px solid var(--line)}.mini-table td{padding:10px 8px;border-bottom:1px solid #f1f5f9}.mini-table tr:last-child td{border-bottom:0}.status{display:inline-flex;padding:4px 7px;border-radius:999px;font-size:9px;font-weight:800}.s-green{background:#dcfce7;color:#166534}.s-red{background:#fee2e2;color:#991b1b}.s-amber{background:#fef3c7;color:#92400e}.s-blue{background:#dbeafe;color:#1d4ed8}.progress{height:7px;border-radius:99px;background:#e2e8f0;overflow:hidden}.progress>span{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#2563eb,#7c3aed)}.client-card{padding:13px 15px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid #f1f5f9}.client-card:last-child{border-bottom:0}.avatar{width:34px;height:34px;border-radius:10px;background:#eff6ff;color:#2563eb;display:grid;place-items:center;font-weight:900}.client-main{display:flex;align-items:center;gap:10px;min-width:0}.client-title{font-size:11px;font-weight:900}.client-meta{font-size:9px;color:#64748b;margin-top:3px}.empty-state{text-align:center;color:#94a3b8;padding:30px;font-size:11px}.report-card{padding:16px}.report-number{font-size:20px;font-weight:900;margin-top:5px}.bar-row{margin:10px 0}.bar-label{display:flex;justify-content:space-between;font-size:9px;margin-bottom:5px;color:#475569}.settings-row{display:flex;justify-content:space-between;gap:20px;padding:14px 0;border-bottom:1px solid #f1f5f9;font-size:11px}.settings-row:last-child{border:0}.modern-mobilebar{display:none}.audit-item{padding:10px 0;border-bottom:1px solid #f1f5f9;font-size:10px}.audit-time{color:#94a3b8;margin-right:8px}.danger-text{color:#dc2626;font-weight:800}.success-text{color:#16a34a;font-weight:800}
+@media(max-width:1100px){.mgrid-4{grid-template-columns:repeat(2,minmax(0,1fr))}.modern-search{width:190px}}
+@media(max-width:760px){.modern-shell{margin:-16px -16px -80px;display:block}.modern-sidebar{position:fixed;left:-260px;top:0;transition:.2s;height:100vh;box-shadow:10px 0 30px #0003}.modern-sidebar.mobile-open{left:0}.modern-main{padding:0 12px 90px}.modern-top{display:none}.modern-mobilebar{display:flex;height:58px;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);margin-bottom:14px}.modern-mobilebar button{border:0;background:#fff;border:1px solid var(--line);border-radius:9px;width:36px;height:36px;font-size:17px}.mobile-brand{font-weight:900;letter-spacing:.12em}.mgrid-4,.mgrid-3,.mgrid-2{grid-template-columns:1fr}.kpi-num{font-size:22px}.modern-view{width:100%}.top-actions{display:none}}
   </style>
 </head>
 <body class="bg-slate-100 text-gray-800 text-xs min-h-screen pb-20">
@@ -576,12 +539,9 @@
   </div>
 
   <!-- ВЕРХНЯЯ ПАНЕЛЬ -->
-  <div class="sticky top-0 z-40 bg-white shadow-md border-b no-print app-topbar">
+  <div id="legacyTopbar" class="sticky top-0 z-40 bg-white shadow-md border-b no-print">
     <div class="p-3 max-w-[100vw] flex flex-wrap justify-between items-center gap-4">
       
-      <div class="app-brand">
-        <div class="app-logo">Y</div><div><div class="app-title">YUSRA</div><div class="app-subtitle">Учёт рассрочки</div></div>
-      </div>
       <div class="flex items-center gap-2 flex-wrap">
         <div class="flex bg-slate-200 rounded-lg p-1 gap-1">
           <button type="button" id="undoBtn" onclick="undo()" disabled title="Шаг назад (Ctrl+Z)" 
@@ -607,7 +567,7 @@
           <span id="syncText">Синхронизировано</span>
         </div>
 
-        <input type="text" id="searchInput" oninput="handleSearch()" placeholder="🔎 Поиск клиента или договора..." class="modern-search w-56 focus:ring-2 focus:ring-blue-400 outline-none">
+        <input type="text" id="searchInput" oninput="handleSearch()" placeholder="Поиск..." class="p-1.5 border rounded-lg w-40 focus:ring-2 focus:ring-blue-400 outline-none">
       </div>
 
       <div class="flex items-center gap-2">
@@ -628,55 +588,42 @@
     </div>
   </div>
 
-  <div class="p-3 max-w-[100vw] no-print" style="padding-bottom:0;">
-    <div class="quick-nav">
-      <button onclick="switchTab('dashboard')">🏠 Главная</button>
-      <button onclick="switchTab('clients')">👥 Клиенты</button>
-      <button onclick="switchTab('contracts')">📋 Договоры</button>
-      <button onclick="switchTab('accounting')">📊 Учёт</button>
-      <button onclick="switchTab('today')">📅 Сегодня</button>
-      <button onclick="switchTab('threeDays')">⏰ 3 дня</button>
-      <button onclick="switchTab('debtors')">⚠️ Просрочки</button>
-      <button onclick="switchTab('partners')">🏪 Магазины</button>
-      <button onclick="switchTab('init')">🤝 Инвесторы</button>
-      <button onclick="switchTab('print')">🖨️ Печать</button>
-    </div>
-  </div>
-
   <div class="p-4 max-w-[100vw]">
     
-    <!-- ================= Главная ================= -->
-    <div id="dashboardTabContent" class="space-y-4">
-      <div class="page-heading">
-        <div><h1>Главная</h1><p>Краткая картина по договорам, платежам и текущим обязательствам</p></div>
-        <button onclick="switchTab('contracts')" class="modern-btn bg-blue-600 hover:bg-blue-700 text-white px-4 py-2">📋 К договорам</button>
-      </div>
-      <div class="dashboard-grid">
-        <div class="dash-kpi"><div class="label">Активные договоры</div><div class="value" id="dashActiveContracts">0</div><div class="hint" id="dashClosedHint">Закрыто: 0</div></div>
-        <div class="dash-kpi"><div class="label">Остаток клиентов</div><div class="value" id="dashTotalRest">0 ₽</div><div class="hint">По действующим договорам</div></div>
-        <div class="dash-kpi"><div class="label">Просрочка</div><div class="value text-red-600" id="dashOverdue">0 ₽</div><div class="hint" id="dashDebtorHint">0 клиентов</div></div>
-        <div class="dash-kpi"><div class="label">Платежи сегодня</div><div class="value text-emerald-600" id="dashTodaySum">0 ₽</div><div class="hint" id="dashTodayHint">0 клиентов</div></div>
-      </div>
-      <div class="dash-two">
-        <div class="dash-card-modern"><h3>🔔 Требует внимания</h3><div id="dashboardAttention"></div></div>
-        <div class="dash-card-modern"><h3>📈 Быстрые показатели</h3><div id="dashboardQuickStats"></div></div>
-      </div>
-      <div class="dash-card-modern"><h3>📅 Ближайшие платежи</h3><div id="dashboardUpcoming"></div></div>
-    </div>
-
-    <!-- ================= Клиенты ================= -->
-    <div id="clientsTabContent" class="hidden space-y-4">
-      <div class="page-heading">
-        <div><h1>Клиенты</h1><p>Единый список клиентов, собранный из существующих договоров</p></div>
-        <button onclick="openCreateModal()" class="modern-btn bg-blue-600 hover:bg-blue-700 text-white px-4 py-2">+ Новый договор</button>
-      </div>
-      <div class="section-shell p-4">
-        <div class="client-toolbar">
-          <input id="clientsSearchInput" oninput="renderClientsPage()" class="modern-search flex-1 min-w-[220px] outline-none" placeholder="Поиск по ФИО, телефону, товару, магазину...">
-          <select id="clientsStatusFilter" onchange="renderClientsPage()" class="modern-search outline-none"><option value="all">Все клиенты</option><option value="active">Есть долг</option><option value="overdue">Есть просрочка</option><option value="closed">Все договоры закрыты</option></select>
-        </div>
-        <div id="clientsGrid" class="client-grid"></div>
-      </div>
+    <!-- ================= MODERN APP SHELL ================= -->
+    <div id="modernApp" class="modern-shell">
+      <aside class="modern-sidebar no-print">
+        <div class="brand"><div class="brand-mark">Y</div><div><div class="brand-name">YUSRA</div><div class="brand-sub">Учёт рассрочки</div></div></div>
+        <div class="nav-section">ОСНОВНОЕ</div>
+        <button class="mnav active" data-view="dashboard" onclick="openModernView('dashboard')">🏠 <span>Главная</span></button>
+        <button class="mnav" data-view="clients" onclick="openModernView('clients')">👥 <span>Клиенты</span></button>
+        <button class="mnav" data-view="contracts" onclick="openModernView('contracts')">📑 <span>Договоры</span></button>
+        <button class="mnav" data-view="payments" onclick="openModernView('payments')">💳 <span>Платежи</span></button>
+        <button class="mnav" data-view="debtors" onclick="openModernView('debtors')">⚠️ <span>Просрочки</span><b id="navDebtorBadge"></b></button>
+        <button class="mnav" data-view="stores" onclick="openModernView('stores')">🏪 <span>Магазины</span></button>
+        <div class="nav-section">УПРАВЛЕНИЕ</div>
+        <button class="mnav" data-view="taken" onclick="openModernView('taken')">💼 <span>Касса</span></button>
+        <button class="mnav" data-view="investors" onclick="openModernView('investors')">🤝 <span>Инвесторы</span></button>
+        <button class="mnav" data-view="reports" onclick="openModernView('reports')">📊 <span>Отчёты</span></button>
+        <button class="mnav" data-view="print" onclick="openModernView('print')">🖨️ <span>Печать</span></button>
+        <div class="nav-spacer"></div>
+        <button class="mnav" data-view="settings" onclick="openModernView('settings')">⚙️ <span>Настройки</span></button>
+        <div class="sidebar-foot"><span id="modernSyncDot" class="online-dot"></span><span id="modernSyncText">Синхронизировано</span></div>
+      </aside>
+      <main class="modern-main">
+        <div class="modern-mobilebar no-print"><button onclick="toggleMobileNav()">☰</button><div class="mobile-brand">YUSRA</div><button onclick="openCreateModal()">＋</button></div>
+        <div class="modern-top no-print"><div><div id="modernPageTitle" class="page-title">Главная</div><div id="modernPageSub" class="page-sub">Обзор текущего состояния</div></div><div class="top-actions"><div class="modern-search"><span>⌕</span><input id="modernSearch" placeholder="Поиск клиента, договора, телефона..." oninput="syncModernSearch(this.value)"></div><button class="top-btn" onclick="exportData()">💾 Резервная копия</button><button class="primary-btn" onclick="openCreateModal()">＋ Новый договор</button></div></div>
+        <div id="modernViews">
+          <section id="mview-dashboard" class="modern-view"></section>
+          <section id="mview-clients" class="modern-view hidden"></section>
+          <section id="mview-payments" class="modern-view hidden"></section>
+          <section id="mview-stores" class="modern-view hidden"></section>
+          <section id="mview-reports" class="modern-view hidden"></section>
+          <section id="mview-settings" class="modern-view hidden"></section>
+          <section id="mview-audit" class="modern-view hidden"></section>
+          <section id="mview-audit" class="modern-view hidden"></section>
+        </div><div id="legacyArea"></div>
+      </main>
     </div>
 
     <!-- ================= Лист 1: Договоры ================= -->
@@ -1041,14 +988,8 @@
   </div>
 
   <!-- НИЖНЯЯ ПАНЕЛЬ ПЕРЕКЛЮЧЕНИЯ -->
-  <div class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur shadow-lg border-t px-4 py-2 flex justify-center items-center gap-2 overflow-x-auto no-print">
+  <div class="fixed bottom-0 left-0 right-0 z-40 bg-white shadow-lg border-t px-4 py-2 flex justify-center items-center gap-2 overflow-x-auto no-print">
     <div class="flex items-center gap-2 bg-slate-200 p-1 rounded-xl">
-      <button type="button" onclick="switchTab('dashboard')" id="tabBtnDashboard" class="tab-btn active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2">
-        🏠 Главная
-      </button>
-      <button type="button" onclick="switchTab('clients')" id="tabBtnClients" class="tab-btn px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900">
-        👥 Клиенты
-      </button>
       <button type="button" onclick="switchTab('contracts')" id="tabBtnContracts" class="tab-btn active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2">
         📋 Договоры
       </button>
@@ -1556,8 +1497,6 @@
     // ================================================================
     window.switchTab = function(tab) {
       activeTab = tab;
-      const dashboardTab = document.getElementById('dashboardTabContent');
-      const clientsTab = document.getElementById('clientsTabContent');
       const cTab = document.getElementById('contractsTabContent');
       const aTab = document.getElementById('accountingTabContent');
       const tTab = document.getElementById('takenTabContent');
@@ -1569,8 +1508,6 @@
       const printTab = document.getElementById('printTabContent');
       const initTab = document.getElementById('initTabContent');
 
-      const dashboardBtn = document.getElementById('tabBtnDashboard');
-      const clientsBtn = document.getElementById('tabBtnClients');
       const cBtn = document.getElementById('tabBtnContracts');
       const aBtn = document.getElementById('tabBtnAccounting');
       const tBtn = document.getElementById('tabBtnTaken');
@@ -1587,8 +1524,6 @@
       const addT = document.getElementById('addTakenBtn');
       const addI = document.getElementById('addIncomeExpBtn');
 
-      dashboardTab.classList.add('hidden');
-      clientsTab.classList.add('hidden');
       cTab.classList.add('hidden');
       aTab.classList.add('hidden');
       tTab.classList.add('hidden');
@@ -1604,8 +1539,6 @@
       addT.classList.add('hidden');
       addI.classList.add('hidden');
 
-      dashboardBtn.className = "tab-btn px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
-      clientsBtn.className = "tab-btn px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
       cBtn.className = "tab-btn px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
       aBtn.className = "tab-btn px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
       tBtn.className = "tab-btn px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
@@ -1617,15 +1550,7 @@
       partnersBtn.className = "tab-btn partners-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
       printBtn.className = "tab-btn print-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
 
-      if (tab === 'dashboard') {
-        dashboardTab.classList.remove('hidden');
-        dashboardBtn.className = "tab-btn active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
-        renderDashboard();
-      } else if (tab === 'clients') {
-        clientsTab.classList.remove('hidden');
-        clientsBtn.className = "tab-btn active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
-        renderClientsPage();
-      } else if (tab === 'contracts') {
+      if (tab === 'contracts') {
         cTab.classList.remove('hidden');
         cBtn.className = "tab-btn active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
         addC.classList.remove('hidden');
@@ -1746,8 +1671,6 @@
       localStorage.setItem('monthly_reports_db', JSON.stringify(initMonthlyReports));
       renderTable(allContracts);
       renderAccountingTable(allAccounting);
-      renderDashboard();
-      renderClientsPage();
       renderTakenSheet();
       if (activeTab === 'income') renderIncomePage();
       if (activeTab === 'init') renderInitPage();
@@ -4246,83 +4169,6 @@
       }
     }
 
-
-    // ================================================================
-    // НОВЫЕ ПРОФЕССИОНАЛЬНЫЕ ЭКРАНЫ (без изменения существующей модели данных)
-    // ================================================================
-    function money(v) { return Number(v || 0).toLocaleString('ru-RU') + ' ₽'; }
-
-    function getAllClientCards() {
-      const map = new Map();
-      allContracts.forEach(c => {
-        const key = String(c.phone || c.fio || c.id).trim().toLowerCase();
-        if (!map.has(key)) map.set(key, { key, fio:c.fio||'Без имени', phone:c.phone||'', extraPhone:c.extraPhone||'', address:c.address||'', contracts:[] });
-        map.get(key).contracts.push(c);
-      });
-      return Array.from(map.values());
-    }
-
-    function renderDashboard() {
-      const active = allContracts.filter(c => !calculateContractMetrics(c).isClosed);
-      const closed = allContracts.length - active.length;
-      let rest = 0, overdue = 0, todaySum = 0;
-      active.forEach(c => { const m=calculateContractMetrics(c); rest += Math.max(0,m.rest); overdue += Math.max(0,m.overdueSum); });
-      const today = new Date(); today.setHours(0,0,0,0);
-      const todayStr = today.toISOString().slice(0,10);
-      const todayClients = getClientsForDate(todayStr);
-      todayClients.forEach(c => todaySum += Number(c.monthlyPay || 0));
-      const debtorCount = getDebtors().length;
-      const el=(id)=>document.getElementById(id);
-      if(el('dashActiveContracts')) el('dashActiveContracts').textContent=active.length;
-      if(el('dashClosedHint')) el('dashClosedHint').textContent=`Закрыто: ${closed}`;
-      if(el('dashTotalRest')) el('dashTotalRest').textContent=money(rest);
-      if(el('dashOverdue')) el('dashOverdue').textContent=money(overdue);
-      if(el('dashDebtorHint')) el('dashDebtorHint').textContent=`${debtorCount} клиентов с просрочкой`;
-      if(el('dashTodaySum')) el('dashTodaySum').textContent=money(todaySum);
-      if(el('dashTodayHint')) el('dashTodayHint').textContent=`${todayClients.length} клиентов сегодня`;
-
-      const att=[];
-      if(debtorCount) att.push(`<div class="attention-item"><span>⚠️ Клиенты с просрочкой</span><span class="pill pill-red">${debtorCount}</span></div>`);
-      if(todayClients.length) att.push(`<div class="attention-item"><span>📅 Платежи сегодня</span><span class="pill pill-green">${todayClients.length}</span></div>`);
-      const three = getClientsForDate(new Date(Date.now()+3*86400000).toISOString().slice(0,10));
-      if(three.length) att.push(`<div class="attention-item"><span>⏰ Платежи через 3 дня</span><span class="pill pill-blue">${three.length}</span></div>`);
-      const unpaidStores = allContracts.filter(c=>c.shopPaid===false).length;
-      if(unpaidStores) att.push(`<div class="attention-item"><span>🏪 Договоры с неоплаченным магазином</span><span class="pill pill-amber">${unpaidStores}</span></div>`);
-      document.getElementById('dashboardAttention').innerHTML=att.length?att.join(''):'<div class="text-slate-400 py-4">Сейчас нет срочных задач.</div>';
-
-      const totalSales=allContracts.reduce((s,c)=>s+Number(c.totalCost||0),0);
-      const totalPaid=allContracts.reduce((s,c)=>{const m=calculateContractMetrics(c);return s+Number(m.totalPaid||0)+Number(c.downPayment||0)},0);
-      document.getElementById('dashboardQuickStats').innerHTML=`
-        <div class="attention-item"><span>Всего договоров</span><b>${allContracts.length}</b></div>
-        <div class="attention-item"><span>Общая сумма договоров</span><b>${money(totalSales)}</b></div>
-        <div class="attention-item"><span>Получено по договорам</span><b class="text-emerald-600">${money(totalPaid)}</b></div>
-        <div class="attention-item"><span>Количество клиентов</span><b>${getAllClientCards().length}</b></div>`;
-
-      const upcoming=[];
-      allContracts.forEach(c=>{ const dates=calculatePaymentDates(c); const inst=c.installments||{}; dates.forEach(d=>{if(!inst[d.index] && d.date>=todayStr && upcoming.length<12) upcoming.push({date:d.date,c});}); });
-      upcoming.sort((a,b)=>a.date.localeCompare(b.date));
-      document.getElementById('dashboardUpcoming').innerHTML=upcoming.length?upcoming.map(x=>`<div class="attention-item"><div><b>${x.c.fio||'—'}</b><div class="text-[10px] text-slate-400">Договор №${x.c.contractNum} · ${x.date}</div></div><span class="pill pill-blue">${money(x.c.monthlyPay)}</span></div>`).join(''):'<div class="text-slate-400 py-4">Нет ближайших непогашенных платежей.</div>';
-    }
-
-    window.renderClientsPage = function() {
-      const grid=document.getElementById('clientsGrid'); if(!grid) return;
-      const q=(document.getElementById('clientsSearchInput')?.value||'').trim().toLowerCase();
-      const filter=document.getElementById('clientsStatusFilter')?.value||'all';
-      let clients=getAllClientCards().filter(cl=>{
-        const text=[cl.fio,cl.phone,cl.extraPhone,cl.address,...cl.contracts.map(c=>c.product||''),...cl.contracts.map(c=>c.store||'')].join(' ').toLowerCase();
-        if(q && !text.includes(q)) return false;
-        const metrics=cl.contracts.map(c=>calculateContractMetrics(c));
-        const hasDebt=metrics.some(m=>m.rest>0); const hasOverdue=metrics.some(m=>m.overdueSum>0); const allClosed=metrics.every(m=>m.isClosed);
-        return filter==='all'||(filter==='active'&&hasDebt)||(filter==='overdue'&&hasOverdue)||(filter==='closed'&&allClosed);
-      });
-      if(!clients.length){grid.innerHTML='<div class="col-span-full text-center text-slate-400 py-12">Клиенты не найдены.</div>';return;}
-      grid.innerHTML=clients.map(cl=>{
-        const ms=cl.contracts.map(c=>calculateContractMetrics(c));
-        const rest=ms.reduce((s,m)=>s+Math.max(0,m.rest),0), overdue=ms.reduce((s,m)=>s+Math.max(0,m.overdueSum),0), paid=ms.reduce((s,m)=>s+Number(m.totalPaid||0),0)+cl.contracts.reduce((s,c)=>s+Number(c.downPayment||0),0);
-        return `<div class="client-card"><div class="flex justify-between gap-3"><div><div class="client-name-modern">${cl.fio}</div><div class="client-meta">📱 ${cl.phone||'Телефон не указан'}</div></div><span class="pill ${overdue>0?'pill-red':rest>0?'pill-blue':'pill-green'}">${overdue>0?'Просрочка':rest>0?'Активен':'Закрыт'}</span></div><div class="client-stats"><div class="client-stat"><span>Договоры</span><b>${cl.contracts.length}</b></div><div class="client-stat"><span>Остаток</span><b>${money(rest)}</b></div><div class="client-stat"><span>Просрочка</span><b class="${overdue>0?'text-red-600':''}">${money(overdue)}</b></div></div><div class="flex justify-between items-center mt-3"><span class="text-[10px] text-slate-400">Оплачено: ${money(paid)}</span><button onclick="switchTab('contracts'); document.getElementById('searchInput').value=${JSON.stringify(cl.fio)}; handleSearch();" class="text-blue-600 font-extrabold text-[10px]">Открыть договоры →</button></div></div>`;
-      }).join('');
-    };
-
     // ================================================================
     // СТАРТ
     // ================================================================
@@ -4336,8 +4182,76 @@
     }
 
     initSync();
-    // После загрузки остаёмся на новой главной панели, существующие разделы не изменены.
-    setTimeout(() => switchTab('dashboard'), 50);
+
+
+    /* ================================================================
+       YUSRA V2 MODERN LAYER — интерфейс/аналитика без изменения старой БД
+       WhatsApp и расширенный финансовый модуль намеренно оставлены без AI-автоматизации.
+    ================================================================ */
+    const modernAudit = JSON.parse(localStorage.getItem('yusra_audit_v2') || '[]');
+    function money(v){ return Number(v||0).toLocaleString('ru-RU') + ' ₽'; }
+    function esc(v){ return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])); }
+    function initials(n){ return String(n||'?').split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toUpperCase(); }
+    function addAudit(action, detail=''){ modernAudit.unshift({time:new Date().toLocaleString('ru-RU'),action,detail}); if(modernAudit.length>150) modernAudit.length=150; localStorage.setItem('yusra_audit_v2',JSON.stringify(modernAudit)); }
+    function modernMetrics(){
+      const active=(allContracts||[]).filter(c=>{const m=calculateContractMetrics(c);return m.rest>0});
+      let sold=0,paid=0,rest=0,overdue=0,profit=0,todayPlan=0,todayCount=0,todayFact=0;
+      const today=new Date(); const ds=today.toISOString().slice(0,10);
+      (allContracts||[]).forEach(c=>{const m=calculateContractMetrics(c); sold+=Number(c.totalCost||0); paid+=Number(c.downPayment||0); rest+=Math.max(0,m.rest||0); overdue+=Math.max(0,m.overdueSum||0); profit+=Math.max(0,Number(c.totalCost||0)-Number(c.costPrice||0)); Object.entries(c.installments||{}).forEach(([k,v])=>{if(v?.date===ds){todayFact+=Number(v.amount||0)}}); (calculatePaymentDates(c)||[]).forEach(d=>{if(d.dateStr===ds && !(c.installments||{})[d.index]){todayPlan+=Number(d.amount||c.monthlyPay||0);todayCount++}})});
+      return {active,sold,paid,rest,overdue,profit,todayPlan,todayCount,todayFact};
+    }
+    function setModernHeader(title,sub){document.getElementById('modernPageTitle').textContent=title;document.getElementById('modernPageSub').textContent=sub||''}
+    function hideLegacy(){['contractsTabContent','accountingTabContent','takenTabContent','incomeTabContent','todayTabContent','threeDaysTabContent','debtorsTabContent','partnersTabContent','printTabContent','initTabContent'].forEach(id=>document.getElementById(id)?.classList.add('hidden'));}
+    window.openModernView=function(view){
+      hideLegacy(); document.querySelectorAll('.modern-view').forEach(x=>x.classList.add('hidden')); document.querySelectorAll('.mnav').forEach(x=>x.classList.toggle('active',x.dataset.view===view));
+      const el=document.getElementById('mview-'+view); if(el) el.classList.remove('hidden');
+      const meta={dashboard:['Главная','Обзор текущего состояния'],clients:['Клиенты','Единый профиль и история'],contracts:['Договоры','Все действующие и закрытые договоры'],payments:['Платежи','План, факт и ближайшие оплаты'],debtors:['Просрочки','Контроль задолженности'],stores:['Магазины','Партнёры и расчёты'],taken:['Касса','Взяли / положили и движение'],investors:['Инвесторы','Капитал и месячные отчёты'],reports:['Отчёты','Сводная аналитика'],print:['Печать','Договоры и документы'],settings:['Настройки','Сервисные параметры и резервная копия'],audit:['Журнал действий','История изменений']}[view]||[view,'']; setModernHeader(...meta); renderModernView(view); window.scrollTo({top:0,behavior:'smooth'});
+    }
+    function renderModernView(view){
+      if(view==='dashboard') renderModernDashboard();
+      if(view==='clients') renderModernClients();
+      if(view==='payments') renderModernPayments();
+      if(view==='stores') renderModernStores();
+      if(view==='reports') renderModernReports();
+      if(view==='settings') renderModernSettings();
+      if(view==='audit') renderModernAudit();
+      if(view==='debtors'){switchTab('debtors'); document.getElementById('debtorsTabContent').classList.remove('hidden');}
+      if(view==='contracts'){switchTab('contracts');document.getElementById('contractsTabContent').classList.remove('hidden');}
+      if(view==='taken'){switchTab('taken');document.getElementById('takenTabContent').classList.remove('hidden');}
+      if(view==='investors'){switchTab('init');document.getElementById('initTabContent').classList.remove('hidden');}
+      if(view==='print'){switchTab('print');document.getElementById('printTabContent').classList.remove('hidden');}
+    }
+    function renderModernDashboard(){const d=modernMetrics(); const overdue=(allContracts||[]).map(c=>({c,m:calculateContractMetrics(c)})).filter(x=>x.m.overdueSum>0).sort((a,b)=>b.m.overdueSum-a.m.overdueSum).slice(0,6); const today=(allContracts||[]).filter(c=>Object.values(c.installments||{}).some(v=>v?.date===new Date().toISOString().slice(0,10))); document.getElementById('mview-dashboard').innerHTML=`<div class="mgrid mgrid-4"><div class="mcard kpi-modern"><div class="kpi-label">Активные договоры</div><div class="kpi-num">${d.active.length}</div><div class="kpi-note">Всего договоров: ${(allContracts||[]).length}</div></div><div class="mcard kpi-modern"><div class="kpi-label">Остаток по договорам</div><div class="kpi-num">${money(d.rest)}</div><div class="kpi-note">Текущая задолженность</div></div><div class="mcard kpi-modern"><div class="kpi-label">Просрочка</div><div class="kpi-num danger-text">${money(d.overdue)}</div><div class="kpi-note">Требует внимания</div></div><div class="mcard kpi-modern"><div class="kpi-label">План на сегодня</div><div class="kpi-num">${money(d.todayPlan)}</div><div class="kpi-note">${d.todayCount} платежей по графику</div></div></div><div class="section-head"><div class="section-title">Требует внимания</div><div class="section-action" onclick="openModernView('debtors')">Все просрочки →</div></div><div class="mgrid mgrid-2"><div class="mcard"><div class="mcard-head"><div class="mcard-title">🔴 Должники</div><div class="danger-text">${overdue.length}</div></div>${overdue.length?overdue.map(x=>`<div class="client-card"><div class="client-main"><div class="avatar">${initials(x.c.fio)}</div><div><div class="client-title">${esc(x.c.fio)}</div><div class="client-meta">Договор №${esc(x.c.contractNum||'—')} · ${esc(x.c.phone||'—')}</div></div></div><div><span class="status s-red">${money(x.m.overdueSum)}</span></div></div>`).join(''):'<div class="empty-state">Просрочек нет 🎉</div>'}</div><div class="mcard"><div class="mcard-head"><div class="mcard-title">📅 Сегодня</div><div class="section-action" onclick="switchTab('today')">Открыть</div></div>${today.length?today.slice(0,7).map(c=>{const m=calculateContractMetrics(c);return `<div class="client-card"><div class="client-main"><div class="avatar">${initials(c.fio)}</div><div><div class="client-title">${esc(c.fio)}</div><div class="client-meta">${esc(c.phone||'—')} · Договор №${esc(c.contractNum||'—')}</div></div></div><span class="status s-blue">${money(c.monthlyPay)}</span></div>`}).join(''):'<div class="empty-state">Сегодняшних платежей нет</div>'}</div></div><div class="section-head"><div class="section-title">Погашение портфеля</div></div><div class="mcard mcard-body"><div class="bar-row"><div class="bar-label"><span>Оплачено от стоимости договоров</span><b>${d.sold?Math.min(100,(d.paid/d.sold)*100).toFixed(1):0}%</b></div><div class="progress"><span style="width:${d.sold?Math.min(100,(d.paid/d.sold)*100):0}%"></span></div></div></div>`; document.getElementById('navDebtorBadge').textContent=overdue.length||''; }
+    function renderModernClients(){const q=(document.getElementById('modernSearch')?.value||'').toLowerCase().trim(); const groups={}; (allContracts||[]).forEach(c=>{const key=(c.fio||'').trim().toLowerCase()+'|'+(c.phone||'').trim(); if(!groups[key])groups[key]={name:c.fio||'Без имени',phone:c.phone||'',contracts:[]}; groups[key].contracts.push(c)}); const arr=Object.values(groups).filter(x=>!q||(x.name+' '+x.phone).toLowerCase().includes(q)); document.getElementById('mview-clients').innerHTML=`<div class="mcard"><div class="mcard-head"><div class="mcard-title">👥 Клиенты (${arr.length})</div><button class="primary-btn" onclick="openCreateModal()">＋ Новый договор</button></div>${arr.length?arr.map(x=>{let rest=0,od=0; x.contracts.forEach(c=>{const m=calculateContractMetrics(c);rest+=Math.max(0,m.rest);od+=Math.max(0,m.overdueSum)});return `<div class="client-card"><div class="client-main"><div class="avatar">${initials(x.name)}</div><div><div class="client-title">${esc(x.name)}</div><div class="client-meta">${esc(x.phone||'Телефон не указан')} · Договоров: ${x.contracts.length}</div></div></div><div style="text-align:right"><div class="client-title">${money(rest)}</div><div class="client-meta ${od?'danger-text':''}">${od?'Просрочка '+money(od):'Без просрочки'}</div></div></div>`}).join(''):'<div class="empty-state">Клиенты не найдены</div>'}</div>`;}
+    function renderModernPayments(){const ds=new Date().toISOString().slice(0,10); const rows=[]; (allContracts||[]).forEach(c=>(calculatePaymentDates(c)||[]).forEach(d=>{const paid=(c.installments||{})[d.index]; rows.push({c,i:d.index,v:{date:d.dateStr,amount:paid?Number(paid.amount||0):Number(d.amount||c.monthlyPay||0),paid:!!paid}})})); rows.sort((a,b)=>String(a.v.date).localeCompare(String(b.v.date))); const upcoming=rows.filter(x=>x.v.date>=ds).slice(0,40); document.getElementById('mview-payments').innerHTML=`<div class="mgrid mgrid-3"><div class="mcard kpi-modern"><div class="kpi-label">Сегодня по факту</div><div class="kpi-num success-text">${money(modernMetrics().todayFact)}</div></div><div class="mcard kpi-modern"><div class="kpi-label">Сегодня по плану</div><div class="kpi-num">${money(modernMetrics().todayPlan)}</div></div><div class="mcard kpi-modern"><div class="kpi-label">Ближайших платежей</div><div class="kpi-num">${upcoming.length}</div></div></div><div class="section-head"><div class="section-title">График ближайших платежей</div></div><div class="mcard"><table class="mini-table"><thead><tr><th>Дата</th><th>Клиент</th><th>Договор</th><th>Сумма</th><th>Действие</th></tr></thead><tbody>${upcoming.map(x=>`<tr><td>${esc(x.v.date)}</td><td><b>${esc(x.c.fio)}</b><br><span style="color:#94a3b8">${esc(x.c.phone||'')}</span></td><td>№${esc(x.c.contractNum||'—')}</td><td><b>${money(x.v.amount)}</b><br><span class="status ${x.v.paid?'s-green':'s-amber'}">${x.v.paid?'Оплачено':'Ожидается'}</span></td><td><button class="top-btn" onclick="openPayModal('${x.c.id}')">＋ Взнос</button></td></tr>`).join('')}</tbody></table></div>`;}
+    function renderModernStores(){const map={}; (allContracts||[]).forEach(c=>{const s=(c.store||'Без магазина').trim()||'Без магазина'; if(!map[s])map[s]={name:s,count:0,total:0,paid:0}; map[s].count++;map[s].total+=Number(c.totalCost||0);if(c.shopPaid)map[s].paid+=1});const arr=Object.values(map).sort((a,b)=>b.count-a.count);document.getElementById('mview-stores').innerHTML=`<div class="mgrid mgrid-3"><div class="mcard kpi-modern"><div class="kpi-label">Магазинов / партнёров</div><div class="kpi-num">${arr.length}</div></div><div class="mcard kpi-modern"><div class="kpi-label">Договоров</div><div class="kpi-num">${(allContracts||[]).length}</div></div><div class="mcard kpi-modern"><div class="kpi-label">Ожидают оплаты магазину</div><div class="kpi-num">${(allContracts||[]).filter(c=>!c.shopPaid).length}</div></div></div><div class="section-head"><div class="section-title">Партнёры</div></div><div class="mcard"><table class="mini-table"><thead><tr><th>Магазин</th><th>Договоров</th><th>Сумма продаж</th><th>Оплачено</th><th>Ожидает</th></tr></thead><tbody>${arr.map(x=>`<tr><td><b>${esc(x.name)}</b></td><td>${x.count}</td><td>${money(x.total)}</td><td><span class="status s-green">${x.paid}</span></td><td><span class="status ${x.count-x.paid?'s-amber':'s-green'}">${x.count-x.paid}</span></td></tr>`).join('')}</tbody></table></div>`;}
+    function renderModernReports(){const d=modernMetrics();const closed=(allContracts||[]).filter(c=>calculateContractMetrics(c).rest<=0).length;const active=(allContracts||[]).length-closed;document.getElementById('mview-reports').innerHTML=`<div class="mgrid mgrid-4"><div class="mcard report-card"><div class="kpi-label">Продажи</div><div class="report-number">${money(d.sold)}</div></div><div class="mcard report-card"><div class="kpi-label">Остаток</div><div class="report-number">${money(d.rest)}</div></div><div class="mcard report-card"><div class="kpi-label">Активные</div><div class="report-number">${active}</div></div><div class="mcard report-card"><div class="kpi-label">Закрытые</div><div class="report-number success-text">${closed}</div></div></div><div class="section-head"><div class="section-title">Состояние портфеля</div></div><div class="mgrid mgrid-2"><div class="mcard mcard-body"><div class="bar-row"><div class="bar-label"><span>Закрытые договоры</span><b>${(allContracts||[]).length?((closed/(allContracts||[]).length)*100).toFixed(1):0}%</b></div><div class="progress"><span style="width:${(allContracts||[]).length?(closed/(allContracts||[]).length)*100:0}%"></span></div></div><div class="bar-row"><div class="bar-label"><span>Просрочка от остатка</span><b>${d.rest?((d.overdue/d.rest)*100).toFixed(1):0}%</b></div><div class="progress"><span style="width:${d.rest?Math.min(100,(d.overdue/d.rest)*100):0}%;background:linear-gradient(90deg,#f59e0b,#ef4444)"></span></div></div></div><div class="mcard mcard-body"><div class="section-title" style="margin-bottom:10px">Быстрые отчёты</div><button class="top-btn" onclick="exportData()">💾 Скачать полную базу JSON</button> <button class="top-btn" onclick="window.print()">🖨️ Печать текущего отчёта</button></div></div>`;}
+    function renderModernSettings(){document.getElementById('mview-settings').innerHTML=`<div class="mgrid mgrid-2"><div class="mcard mcard-body"><div class="section-title">⚙️ Настройки интерфейса</div><div class="settings-row"><span>Современная панель</span><span class="status s-green">Включена</span></div><div class="settings-row"><span>Мобильный режим</span><span class="status s-blue">Адаптивный</span></div><div class="settings-row"><span>Undo / Redo</span><span class="status s-green">Активен</span></div><div class="settings-row"><span>Облачная синхронизация</span><span id="settingsSync" class="status s-green">См. статус сверху</span></div></div><div class="mcard mcard-body"><div class="section-title">💾 Резервная копия</div><p style="font-size:10px;color:#64748b;margin:8px 0 14px">Перед переносом данных из Excel рекомендуется сначала скачать резервную копию текущей базы.</p><button class="primary-btn" onclick="exportData()">Скачать базу</button><button class="top-btn" style="margin-left:6px" onclick="document.getElementById('importFile').click()">Загрузить базу</button></div></div><div class="section-head"><div class="section-title">🕒 История действий</div><div class="section-action" onclick="openModernView('audit')">Открыть журнал →</div></div><div class="mcard mcard-body">${modernAudit.slice(0,8).map(x=>`<div class="audit-item"><span class="audit-time">${esc(x.time)}</span><b>${esc(x.action)}</b> ${esc(x.detail)}</div>`).join('')||'<div class="empty-state">Журнал начнёт заполняться после изменений.</div>'}</div>`;}
+    function renderModernAudit(){const e=document.getElementById('mview-audit'); if(!e)return;e.innerHTML=`<div class="mcard mcard-body"><div class="section-title">🕒 Журнал действий</div>${modernAudit.map(x=>`<div class="audit-item"><span class="audit-time">${esc(x.time)}</span><b>${esc(x.action)}</b> ${esc(x.detail)}</div>`).join('')||'<div class="empty-state">Пока нет записей.</div>'}</div>`;}
+    function toggleMobileNav(){document.querySelector('.modern-sidebar')?.classList.toggle('mobile-open')}
+    function syncModernSearch(v){const active=document.querySelector('.mnav.active')?.dataset.view;if(active==='clients')renderModernClients(); if(active==='contracts'){document.getElementById('searchInput').value=v;handleSearch();}}
+    // Route legacy named sections into the modern shell; keep original renderers intact.
+    const originalFinishAction=window.finishAction;
+    window.finishAction=function(){ const r=originalFinishAction.apply(this,arguments); addAudit('Изменение данных','Операция сохранена'); setTimeout(()=>{const v=document.querySelector('.mnav.active')?.dataset.view;if(v)renderModernView(v)},50); return r; };
+    const originalExportData=window.exportData; window.exportData=function(){addAudit('Резервная копия','Выгрузка базы JSON');return originalExportData.apply(this,arguments)};
+    function mountLegacyArea(){
+      const area=document.getElementById('legacyArea'); if(!area||area.dataset.mounted)return;
+      area.dataset.mounted='1';
+      const ids=['contractsTabContent','accountingTabContent','takenTabContent','incomeTabContent','todayTabContent','threeDaysTabContent','debtorsTabContent','partnersTabContent','printTabContent','initTabContent','legacyTabs'];
+      ids.forEach(id=>{const el=document.getElementById(id);if(el)area.appendChild(el)});
+      area.style.display='none';
+    }
+    function setLegacyMode(on){const area=document.getElementById('legacyArea');if(area)area.style.display=on?'block':'none';const views=document.getElementById('modernViews');if(views)views.style.display=on?'none':'block';}
+    const _openModernView=window.openModernView;
+    window.openModernView=function(view){
+      mountLegacyArea();
+      const legacy=['contracts','debtors','taken','investors','print'];
+      setLegacyMode(legacy.includes(view));
+      return _openModernView(view);
+    };
+    // Start in modern dashboard after Firebase/local data have rendered.
+    setTimeout(()=>{try{openModernView('dashboard');}catch(e){console.error(e)}},900);
+
   </script>
 </body>
   </html>
