@@ -225,9 +225,52 @@
       background: #fee2e2; color: #7f1d1d; border: 1px solid #ef4444;
       padding: 10px 14px; border-radius: 8px; font-weight: 700; margin-bottom: 12px;
     }
+
+    /* ===== Экран загрузки ===== */
+    #loadingScreen {
+      position: fixed; inset: 0; z-index: 99999;
+      background: linear-gradient(135deg, #7c3aed, #2563eb);
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; color: white;
+      font-family: system-ui, sans-serif;
+    }
+    #loadingScreen .spinner {
+      width: 60px; height: 60px; border: 6px solid rgba(255,255,255,0.3);
+      border-top-color: #ffffff; border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 20px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #loadingScreen .label { font-size: 18px; font-weight: 700; letter-spacing: 0.5px; }
+    #loadingScreen .sub { font-size: 13px; opacity: 0.8; margin-top: 8px; }
+
+    /* ===== Индикатор синхронизации ===== */
+    .sync-indicator {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700;
+      transition: all 0.3s;
+    }
+    .sync-indicator.syncing { background: #fef3c7; color: #92400e; }
+    .sync-indicator.synced { background: #dcfce7; color: #166534; }
+    .sync-indicator.error { background: #fee2e2; color: #991b1b; }
+    .sync-dot {
+      width: 8px; height: 8px; border-radius: 50%; background: currentColor;
+    }
+    .sync-indicator.syncing .sync-dot { animation: pulse 1s infinite; }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
   </style>
 </head>
 <body class="bg-slate-100 text-gray-800 text-xs min-h-screen pb-20">
+
+  <!-- ЭКРАН ЗАГРУЗКИ -->
+  <div id="loadingScreen">
+    <div class="spinner"></div>
+    <div class="label">YUSRA</div>
+    <div class="sub">Загрузка данных из облака...</div>
+  </div>
 
   <!-- ВЕРХНЯЯ ПАНЕЛЬ ДЕЙСТВИЙ -->
   <div class="sticky top-0 z-40 bg-white shadow-md border-b no-print">
@@ -252,6 +295,11 @@
         <button type="button" onclick="document.getElementById('importFile').click()" class="bg-slate-600 hover:bg-slate-700 text-white font-medium px-3 py-1.5 rounded-lg text-xs transition shadow-sm">
           📂 Загрузить базу
         </button>
+
+        <div id="syncIndicator" class="sync-indicator synced" title="Статус синхронизации с облаком">
+          <span class="sync-dot"></span>
+          <span id="syncText">Синхронизировано</span>
+        </div>
 
         <input type="text" id="searchInput" oninput="handleSearch()" placeholder="Поиск..." class="p-1.5 border rounded-lg w-40 focus:ring-2 focus:ring-blue-400 outline-none">
       </div>
@@ -881,7 +929,52 @@
     </div>
   </div>
 
-  <script>
+  <script type="module">
+    // ================================================================
+    // FIREBASE — ПОДКЛЮЧЕНИЕ
+    // ================================================================
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDuPqMwudSodv37VjNCNmVg71ES09AmyW0",
+      authDomain: "yusra-fayl.firebaseapp.com",
+      projectId: "yusra-fayl",
+      storageBucket: "yusra-fayl.firebasestorage.app",
+      messagingSenderId: "727049123441",
+      appId: "1:727049123441:web:a930058c08764e35e3cdd0"
+    };
+
+    const fbApp = initializeApp(firebaseConfig);
+    const db = getFirestore(fbApp);
+
+    const DOC_REF = doc(db, 'yusra_data', 'main');
+
+    // Флаги состояния
+    let isCloudLoaded = false;      // Облако успешно прочитано
+    let isApplyingRemote = false;   // Сейчас применяем данные из облака (не отправлять обратно)
+    let syncTimeout = null;         // Дебаунс для автоотправки
+    let isFirstSync = true;         // Первая ли загрузка
+
+    // Показать статус
+    function setSyncStatus(status, text) {
+      const el = document.getElementById('syncIndicator');
+      const txt = document.getElementById('syncText');
+      if (!el || !txt) return;
+      el.className = 'sync-indicator ' + status;
+      txt.textContent = text;
+    }
+
+    // Скрыть экран загрузки
+    function hideLoadingScreen() {
+      const ls = document.getElementById('loadingScreen');
+      if (ls) {
+        ls.style.transition = 'opacity 0.4s';
+        ls.style.opacity = '0';
+        setTimeout(() => ls.remove(), 400);
+      }
+    }
+
     // ================================================================
     // ВСЕ ПЕРЕМЕННЫЕ И БАЗОВЫЕ ФУНКЦИИ
     // ================================================================
@@ -900,19 +993,15 @@
     let initMonthlyReports;
 
     try {
-      // Инвесторы
       const rawInv = JSON.parse(localStorage.getItem('investors_db') || 'null');
       if (Array.isArray(rawInv) && rawInv.length > 0) {
-        // Фильтруем только валидные записи
         initInvestors = rawInv.filter(inv => inv && typeof inv === 'object' && inv.id && inv.name);
       } else {
         initInvestors = [];
       }
-      // Гарантируем владельца
       if (!initInvestors.some(i => i.isOwner)) {
         initInvestors.unshift({ id: 'owner', name: 'Владелец', percent: 100, isOwner: true });
       }
-      // Гарантируем хотя бы одного инвестора
       if (initInvestors.length < 2) {
         initInvestors.push({
           id: 'inv_default_' + Date.now(),
@@ -922,7 +1011,6 @@
         });
       }
       
-      // Месяцы — жёсткая миграция
       let rawMonths = JSON.parse(localStorage.getItem('monthly_reports_db') || 'null');
       initMonthlyReports = {};
       
@@ -930,10 +1018,8 @@
         let cleaned = 0;
         Object.keys(rawMonths).forEach(key => {
           const rep = rawMonths[key];
-          // Валидация: должен быть объект с year/month/entries
           if (!rep || typeof rep !== 'object') { cleaned++; return; }
           if (typeof rep.year !== 'number' || typeof rep.month !== 'number') {
-            // Пробуем вытащить из ключа "YYYY-MM"
             const parts = String(key).split('-');
             if (parts.length === 2) {
               const y = Number(parts[0]);
@@ -948,7 +1034,6 @@
               cleaned++; return;
             }
           }
-          // Гарантируем entries
           if (!rep.entries || typeof rep.entries !== 'object') {
             rep.entries = {};
           }
@@ -957,7 +1042,6 @@
           if (!rep.startingCapital || typeof rep.startingCapital !== 'object') {
             rep.startingCapital = {};
           }
-          // Ключ в нормализованном виде
           const normKey = `${rep.year}-${String(rep.month).padStart(2, '0')}`;
           initMonthlyReports[normKey] = rep;
         });
@@ -974,7 +1058,6 @@
       initMonthlyReports = {};
     }
 
-    // Единоразовая очистка: если в старом формате был ключ "owner" внутри отчёта — удаляем
     (function cleanupOldOwnerField() {
       let cleaned = 0;
       Object.keys(initMonthlyReports).forEach(key => {
@@ -989,7 +1072,6 @@
       }
     })();
 
-    // Сохраняем нормализованные данные обратно
     localStorage.setItem('investors_db', JSON.stringify(initInvestors));
     localStorage.setItem('monthly_reports_db', JSON.stringify(initMonthlyReports));
 
@@ -1011,10 +1093,149 @@
     let redoStack = [];
 
     // ================================================================
+    // ОТПРАВКА В ОБЛАКО (дебаунс)
+    // ================================================================
+    function pushToCloud() {
+      if (isApplyingRemote) return; // не отправляем если сейчас применяем данные из облака
+      if (!isCloudLoaded) return;   // не отправляем пока облако не прочитано
+
+      if (syncTimeout) clearTimeout(syncTimeout);
+      syncTimeout = setTimeout(async () => {
+        try {
+          setSyncStatus('syncing', 'Сохранение...');
+          await setDoc(DOC_REF, {
+            contracts: allContracts,
+            accounting: allAccounting,
+            taken: allTaken,
+            incomeExpenses: allIncomeExpenses,
+            accounts: customAccounts,
+            investors: initInvestors,
+            monthlyReports: initMonthlyReports,
+            updatedAt: Date.now()
+          });
+          setSyncStatus('synced', 'Синхронизировано');
+        } catch (e) {
+          console.error('Ошибка сохранения в облако:', e);
+          setSyncStatus('error', 'Ошибка синхронизации');
+        }
+      }, 800); // 800 мс дебаунс
+    }
+
+    // Применить данные из облака
+    function applyCloudData(data) {
+      isApplyingRemote = true;
+      allContracts = data.contracts || [];
+      allAccounting = data.accounting || [];
+      allTaken = data.taken || [];
+      allIncomeExpenses = data.incomeExpenses || [];
+      if (data.accounts) customAccounts = data.accounts;
+      if (data.investors) initInvestors = data.investors;
+      if (data.monthlyReports) initMonthlyReports = data.monthlyReports;
+
+      // Сохраняем в localStorage
+      localStorage.setItem('contracts_db', JSON.stringify(allContracts));
+      localStorage.setItem('accounting_db', JSON.stringify(allAccounting));
+      localStorage.setItem('taken_db', JSON.stringify(allTaken));
+      localStorage.setItem('income_expenses_db', JSON.stringify(allIncomeExpenses));
+      localStorage.setItem('accounts_db', JSON.stringify(customAccounts));
+      localStorage.setItem('investors_db', JSON.stringify(initInvestors));
+      localStorage.setItem('monthly_reports_db', JSON.stringify(initMonthlyReports));
+
+      // Перерисовываем всё
+      try {
+        renderTable(allContracts);
+        renderAccountingTable(allAccounting);
+        renderTakenSheet();
+        if (activeTab === 'income') renderIncomePage();
+        if (activeTab === 'init') renderInitPage();
+        if (activeTab === 'today') renderTodayClients();
+        if (activeTab === 'threeDays') renderThreeDaysClients();
+        if (activeTab === 'debtors') renderDebtorsClients();
+        if (activeTab === 'partners') renderPartners();
+        if (activeTab === 'print') {
+          updatePrintSelect();
+          loadContractForPrint();
+        }
+        updateHistoryButtons();
+      } catch (e) {
+        console.error('Ошибка перерисовки после загрузки из облака:', e);
+      }
+
+      setTimeout(() => { isApplyingRemote = false; }, 100);
+    }
+
+    // Проверка: пустое ли облако
+    function isCloudEmpty(data) {
+      if (!data) return true;
+      const emptyArr = (arr) => !Array.isArray(arr) || arr.length === 0;
+      const emptyObj = (obj) => !obj || typeof obj !== 'object' || Object.keys(obj).length === 0;
+      return emptyArr(data.contracts) && 
+             emptyArr(data.accounting) && 
+             emptyArr(data.taken) && 
+             emptyArr(data.incomeExpenses) && 
+             emptyObj(data.monthlyReports);
+    }
+
+    // ================================================================
+    // ЗАПУСК СИНХРОНИЗАЦИИ
+    // ================================================================
+    async function initSync() {
+      try {
+        setSyncStatus('syncing', 'Загрузка...');
+        
+        const snap = await getDoc(DOC_REF);
+        
+        if (snap.exists() && !isCloudEmpty(snap.data())) {
+          // Облако не пустое — берём облачные данные
+          console.log('[Sync] Облако не пустое — загружаем оттуда');
+          applyCloudData(snap.data());
+        } else {
+          // Облако пустое — отправляем локальные
+          console.log('[Sync] Облако пустое — заливаем локальные');
+          await setDoc(DOC_REF, {
+            contracts: allContracts,
+            accounting: allAccounting,
+            taken: allTaken,
+            incomeExpenses: allIncomeExpenses,
+            accounts: customAccounts,
+            investors: initInvestors,
+            monthlyReports: initMonthlyReports,
+            updatedAt: Date.now()
+          });
+        }
+        
+        isCloudLoaded = true;
+        isFirstSync = false;
+        setSyncStatus('synced', 'Синхронизировано');
+        hideLoadingScreen();
+        
+        // Подписываемся на изменения в облаке (кто-то другой меняет — приходят сюда)
+        onSnapshot(DOC_REF, (docSnap) => {
+          if (!docSnap.exists()) return;
+          if (isApplyingRemote) return; // свои же изменения — игнорируем
+          const data = docSnap.data();
+          if (!data) return;
+          // Проверяем, действительно ли данные отличаются
+          const remoteUpdatedAt = data.updatedAt || 0;
+          console.log('[Sync] Облако изменилось, обновляем локально');
+          applyCloudData(data);
+          setSyncStatus('synced', 'Обновлено из облака');
+        });
+        
+      } catch (e) {
+        console.error('Ошибка инициализации синхронизации:', e);
+        setSyncStatus('error', 'Ошибка подключения');
+        // Работаем локально
+        isCloudLoaded = false;
+        hideLoadingScreen();
+      }
+    }
+
+    // ================================================================
     // ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК
     // ================================================================
 
-    function switchTab(tab) {
+    window.switchTab = function(tab) {
       activeTab = tab;
       const cTab = document.getElementById('contractsTabContent');
       const aTab = document.getElementById('accountingTabContent');
@@ -1114,9 +1335,9 @@
         loadContractForPrint();
       }
       handleSearch();
-    }
+    };
 
-    function saveState() {
+    window.saveState = function() {
       const stateSnapshot = {
         contracts: JSON.parse(JSON.stringify(allContracts)),
         accounting: JSON.parse(JSON.stringify(allAccounting)),
@@ -1130,9 +1351,9 @@
       if (undoStack.length > 50) undoStack.shift();
       redoStack = [];
       updateHistoryButtons();
-    }
+    };
 
-    function undo() {
+    window.undo = function() {
       if (undoStack.length === 0) return;
       const currentState = {
         contracts: JSON.parse(JSON.stringify(allContracts)),
@@ -1154,9 +1375,9 @@
       initInvestors = previousState.investors || initInvestors;
       initMonthlyReports = previousState.monthlyReports || initMonthlyReports;
       finishAction();
-    }
+    };
 
-    function redo() {
+    window.redo = function() {
       if (redoStack.length === 0) return;
       const currentState = {
         contracts: JSON.parse(JSON.stringify(allContracts)),
@@ -1178,7 +1399,7 @@
       initInvestors = nextState.investors || initInvestors;
       initMonthlyReports = nextState.monthlyReports || initMonthlyReports;
       finishAction();
-    }
+    };
 
     function finishAction() {
       localStorage.setItem('contracts_db', JSON.stringify(allContracts));
@@ -1202,6 +1423,7 @@
         loadContractForPrint();
       }
       updateHistoryButtons();
+      pushToCloud();
     }
 
     function updateHistoryButtons() {
@@ -1215,7 +1437,7 @@
       rBtn.className = rBtn.disabled ? "px-3 py-1.5 rounded text-xs font-bold text-gray-400 bg-gray-100 cursor-not-allowed transition" : "px-3 py-1.5 rounded text-xs font-bold btn-history-active transition";
     }
 
-    function saveToStorage() {
+    window.saveToStorage = function() {
       localStorage.setItem('contracts_db', JSON.stringify(allContracts));
       localStorage.setItem('accounting_db', JSON.stringify(allAccounting));
       localStorage.setItem('taken_db', JSON.stringify(allTaken));
@@ -1237,10 +1459,12 @@
         loadContractForPrint();
       }
       updateHistoryButtons();
-    }
+      // ОТПРАВКА В ОБЛАКО
+      pushToCloud();
+    };
 
     // ================================================================
-    // ФУНКЦИИ ДЛЯ ДОГОВОРОВ (БЕЗ ИЗМЕНЕНИЙ)
+    // ФУНКЦИИ ДЛЯ ДОГОВОРОВ
     // ================================================================
     
     function calculatePaymentDates(contract) {
@@ -1337,7 +1561,7 @@
       };
     }
 
-    function checkPaymentDateAdjustment() {
+    window.checkPaymentDateAdjustment = function() {
       const payDateStr = document.getElementById('payDate').value;
       const warningEl = document.getElementById('dateWarning');
       
@@ -1368,7 +1592,7 @@
       } catch (e) {
         warningEl.classList.remove('show');
       }
-    }
+    };
 
     function updatePrintSelect() {
       const select = document.getElementById('printContractSelect');
@@ -1387,7 +1611,7 @@
       }
     }
 
-    function loadContractForPrint() {
+    window.loadContractForPrint = function() {
       const select = document.getElementById('printContractSelect');
       const contractId = select.value;
       const container = document.getElementById('printContent');
@@ -1649,16 +1873,16 @@
           
         </div>
       `;
-    }
+    };
 
-    function printContract() {
+    window.printContract = function() {
       const select = document.getElementById('printContractSelect');
       if (!select.value) {
         alert('Пожалуйста, выберите договор для печати');
         return;
       }
       window.print();
-    }
+    };
 
     function renderIncomePage() {
       const tbody = document.getElementById('incomeTableBody');
@@ -1732,15 +1956,15 @@
 
     const incomeExpModal = document.getElementById('incomeExpModal');
 
-    function openIncomeExpModal() {
+    window.openIncomeExpModal = function() {
       document.getElementById('incomeExpForm').reset();
       document.getElementById('incomeExpEditId').value = '';
       document.getElementById('incomeExpModalTitle').innerText = 'Добавить расход';
       document.getElementById('incomeExpDate').valueAsDate = new Date();
       incomeExpModal.classList.remove('hidden');
-    }
+    };
 
-    function openEditIncomeExpModal(id) {
+    window.openEditIncomeExpModal = function(id) {
       const item = allIncomeExpenses.find(e => e.id === id);
       if (!item) return;
       document.getElementById('incomeExpEditId').value = item.id;
@@ -1749,19 +1973,19 @@
       document.getElementById('incomeExpDate').value = item.date || '';
       document.getElementById('incomeExpNote').value = item.note || '';
       incomeExpModal.classList.remove('hidden');
-    }
+    };
 
-    function closeIncomeExpModal() {
+    window.closeIncomeExpModal = function() {
       incomeExpModal.classList.add('hidden');
-    }
+    };
 
-    function deleteIncomeExpItem(id) {
+    window.deleteIncomeExpItem = function(id) {
       if (confirm('Удалить этот расход?')) {
         saveState();
         allIncomeExpenses = allIncomeExpenses.filter(e => e.id !== id);
         saveToStorage();
       }
-    }
+    };
 
     document.getElementById('incomeExpForm').addEventListener('submit', (e) => {
       e.preventDefault();
@@ -1791,7 +2015,7 @@
       closeIncomeExpModal();
     });
 
-    function renderPartners() {
+    window.renderPartners = function() {
       const container = document.getElementById('partnersList');
       
       const dateFrom = document.getElementById('partnerDateFrom').value;
@@ -1892,9 +2116,9 @@
       `;
       
       container.innerHTML = html;
-    }
+    };
 
-    function showPartnerDetails(partnerName) {
+    window.showPartnerDetails = function(partnerName) {
       const dateFrom = document.getElementById('partnerDateFrom').value;
       const dateTo = document.getElementById('partnerDateTo').value;
       
@@ -1931,13 +2155,13 @@
         </head><body>${message.replace(/\n/g, '<br>')}</body></html>
       `);
       detailsWindow.document.close();
-    }
+    };
 
-    function clearPartnerDates() {
+    window.clearPartnerDates = function() {
       document.getElementById('partnerDateFrom').value = '';
       document.getElementById('partnerDateTo').value = '';
       renderPartners();
-    }
+    };
 
     function getMonthStatus(contract) {
       const paymentDates = calculatePaymentDates(contract);
@@ -2130,7 +2354,7 @@
       }, 3000);
     }
 
-    function sendWhatsAppToday() {
+    window.sendWhatsAppToday = function() {
       const today = new Date();
       const todayStr = today.toISOString().slice(0, 10);
       const clients = getClientsForDate(todayStr);
@@ -2174,9 +2398,9 @@
       
       const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
       window.open(url, '_blank');
-    }
+    };
 
-    function sendWhatsAppThreeDays() {
+    window.sendWhatsAppThreeDays = function() {
       const today = new Date();
       const threeDaysLater = new Date(today);
       threeDaysLater.setDate(today.getDate() + 3);
@@ -2222,9 +2446,9 @@
       
       const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
       window.open(url, '_blank');
-    }
+    };
 
-    function sendWhatsAppDebtors() {
+    window.sendWhatsAppDebtors = function() {
       const clients = getDebtors();
       
       if (clients.length === 0) {
@@ -2267,9 +2491,9 @@
       
       const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
       window.open(url, '_blank');
-    }
+    };
 
-    function validateFinance() {
+    window.validateFinance = function() {
       const months = Number(document.getElementById('monthsCount').value) || 0;
       const monthly = Number(document.getElementById('monthlyPay').value) || 0;
       const total = Number(document.getElementById('totalCost').value) || 0;
@@ -2303,10 +2527,10 @@
       saveBtn.classList.toggle('cursor-not-allowed', hasError);
 
       return !hasError;
-    }
+    };
 
     const modal = document.getElementById('modal');
-    function openCreateModal() {
+    window.openCreateModal = function() {
       document.getElementById('contractForm').reset();
       document.getElementById('editDocId').value = '';
       document.getElementById('modalTitle').innerText = 'Оформление нового договора';
@@ -2314,17 +2538,17 @@
       document.getElementById('dateWarning').classList.remove('show');
       validateFinance();
       modal.classList.remove('hidden');
-    }
-    function closeModal() { modal.classList.add('hidden'); }
-    function closePayModal() { document.getElementById('payModal').classList.add('hidden'); }
+    };
+    window.closeModal = function() { modal.classList.add('hidden'); };
+    window.closePayModal = function() { document.getElementById('payModal').classList.add('hidden'); };
 
-    function openPayModal(id) {
+    window.openPayModal = function(id) {
       document.getElementById('payContractId').value = id;
       document.getElementById('payDateVal').valueAsDate = new Date();
       document.getElementById('payModal').classList.remove('hidden');
-    }
+    };
 
-    function openEditModal(id) {
+    window.openEditModal = function(id) {
       const contract = allContracts.find(c => c.id === id);
       if(!contract) return;
       document.getElementById('editDocId').value = id;
@@ -2351,7 +2575,7 @@
       checkPaymentDateAdjustment();
       validateFinance();
       modal.classList.remove('hidden');
-    }
+    };
 
     document.getElementById('contractForm').addEventListener('submit', (e) => {
       e.preventDefault();
@@ -2445,7 +2669,7 @@
       document.getElementById('payForm').reset();
     });
 
-    function deleteInstallment() {
+    window.deleteInstallment = function() {
       const id = document.getElementById('payContractId').value;
       const idx = document.getElementById('payIndex').value;
       const contract = allContracts.find(c => c.id === id);
@@ -2462,9 +2686,9 @@
       } else {
         alert("Этот взнос еще не был внесен.");
       }
-    }
+    };
 
-    function deleteContract(id) {
+    window.deleteContract = function(id) {
       const contract = allContracts.find(c => c.id === id);
       if (confirm(`Удалить договор №${contract.contractNum}?`)) {
         if (prompt('Введите "УДАЛИТЬ" для подтверждения:') === "УДАЛИТЬ") {
@@ -2473,7 +2697,7 @@
           saveToStorage();
         }
       }
-    }
+    };
 
     function copyToClip(text, btn) {
       navigator.clipboard.writeText(text).then(() => {
@@ -2484,19 +2708,19 @@
       });
     }
 
-    function copyHistory(id, btn) {
+    window.copyHistory = function(id, btn) {
       const c = allContracts.find(i => i.id === id);
       let log = `Договор №${c.contractNum}\nФИО: ${c.fio}\n\nОплаты:\n`;
       Object.keys(c.installments || {}).sort((a,b)=>Number(a)-Number(b)).forEach(k => {
         log += `${k}-й: ${c.installments[k].amount}₽ (${c.installments[k].date})\n`;
       });
       copyToClip(log, btn);
-    }
+    };
 
-    function copyGuarantor(id, btn) {
+    window.copyGuarantor = function(id, btn) {
       const c = allContracts.find(i => i.id === id);
       copyToClip(`Договор №${c.contractNum}\nКлиент: ${c.fio}\nПоручитель: ${c.guarantorFio || '—'} (${c.guarantorPhone || '—'})`, btn);
-    }
+    };
 
     function renderTable(contracts) {
       const tbody = document.getElementById('contractsTable');
@@ -2544,17 +2768,17 @@
 
     const accModal = document.getElementById('accModal');
     
-    function openAccModal() {
+    window.openAccModal = function() {
       document.getElementById('accForm').reset();
       document.getElementById('accEditId').value = '';
       document.getElementById('accModalTitle').innerText = 'Новая запись учета';
       document.getElementById('accDate').valueAsDate = new Date();
       accModal.classList.remove('hidden');
-    }
+    };
 
-    function closeAccModal() { accModal.classList.add('hidden'); }
+    window.closeAccModal = function() { accModal.classList.add('hidden'); };
 
-    function openEditAccModal(id) {
+    window.openEditAccModal = function(id) {
       const item = allAccounting.find(a => a.id === id);
       if (!item) return;
       document.getElementById('accEditId').value = item.id;
@@ -2565,7 +2789,7 @@
       document.getElementById('accNote').value = item.note || '';
       document.getElementById('accAccount').value = item.account || '';
       accModal.classList.remove('hidden');
-    }
+    };
 
     document.getElementById('accForm').addEventListener('submit', (e) => {
       e.preventDefault();
@@ -2595,13 +2819,13 @@
       closeAccModal();
     });
 
-    function deleteAccItem(id) {
+    window.deleteAccItem = function(id) {
       if (confirm('Удалить эту запись из учета?')) {
         saveState();
         allAccounting = allAccounting.filter(a => a.id !== id);
         saveToStorage();
       }
-    }
+    };
 
     function renderAccountingTable(items) {
       const tbody = document.getElementById('accountingTable');
@@ -2637,16 +2861,16 @@
 
     const takenModal = document.getElementById('takenModal');
 
-    function openTakenModal() {
+    window.openTakenModal = function() {
       document.getElementById('takenForm').reset();
       document.getElementById('takenEditId').value = '';
       document.getElementById('takenModalTitle').innerText = 'Новая запись Взяли / Положили';
       takenModal.classList.remove('hidden');
-    }
+    };
 
-    function closeTakenModal() { takenModal.classList.add('hidden'); }
+    window.closeTakenModal = function() { takenModal.classList.add('hidden'); };
 
-    function openEditTakenModal(id) {
+    window.openEditTakenModal = function(id) {
       const item = allTaken.find(t => t.id === id);
       if(!item) return;
       document.getElementById('takenEditId').value = item.id;
@@ -2656,7 +2880,7 @@
       document.getElementById('putAmount').value = item.putAmount || 0;
       document.getElementById('putDesc').value = item.putDesc || '';
       takenModal.classList.remove('hidden');
-    }
+    };
 
     document.getElementById('takenForm').addEventListener('submit', (e) => {
       e.preventDefault();
@@ -2738,16 +2962,16 @@
       closeTakenModal();
     });
 
-    function deleteTakenItem(id) {
+    window.deleteTakenItem = function(id) {
       if (confirm('Удалить эту строку?')) {
         saveState();
         allAccounting = allAccounting.filter(a => a._source !== id);
         allTaken = allTaken.filter(t => t.id !== id);
         saveToStorage();
       }
-    }
+    };
 
-    function addNewAccountPrompt() {
+    window.addNewAccountPrompt = function() {
       const accName = prompt('Введите название нового счета/карты (например: S3, A1):');
       if (accName && accName.trim()) {
         const cleanName = accName.trim();
@@ -2759,21 +2983,21 @@
           alert('Такой счет уже существует!');
         }
       }
-    }
+    };
 
-    function deleteAccount(index) {
+    window.deleteAccount = function(index) {
       if (confirm(`Удалить счет "${customAccounts[index].name}"?`)) {
         saveState();
         customAccounts.splice(index, 1);
         saveToStorage();
       }
-    }
+    };
 
-    function changeAccountColor(index, color) {
+    window.changeAccountColor = function(index, color) {
       saveState();
       customAccounts[index].color = color;
       saveToStorage();
-    }
+    };
 
     function renderTakenSheet() {
       const rowsTbody = document.getElementById('takenRowsTable');
@@ -2825,7 +3049,6 @@
         totalIncomeExpenses += Number(e.amount || 0);
       });
 
-      // ============== ИНВЕСТИЦИИ + СТАРТОВЫЙ КАПИТАЛ В КАССУ ==============
       let totalInvested = 0;
       let totalDividends = 0;
       let totalWithdrawn = 0;
@@ -2844,7 +3067,6 @@
             }
           });
         }
-        // Стартовый капитал берём ТОЛЬКО из первого месяца
         if (idx === 0 && rep && rep.startingCapital) {
           initInvestors.forEach(inv => {
             totalStartingCapital += Number(rep.startingCapital[inv.id] || 0);
@@ -2852,7 +3074,6 @@
         }
       });
       const investImpact = totalInvested - totalDividends - totalWithdrawn + totalStartingCapital;
-      // ============== /ИНВЕСТИЦИИ + СТАРТОВЫЙ КАПИТАЛ ==============
 
       let totalKassa = totalDownPayments + totalInstallments - totalCostPrice - sumTaken + sumPut - totalIncomeExpenses + investImpact;
       document.getElementById('kassaTotal').innerText = totalKassa.toLocaleString('ru-RU');
@@ -2983,7 +3204,7 @@
       document.getElementById('accountsGrandTotal').innerText = accountsGrandTotalSum.toLocaleString('ru-RU');
     }
 
-    function handleSearch() {
+    window.handleSearch = function() {
       const q = document.getElementById('searchInput').value.toLowerCase();
       if (activeTab === 'contracts') {
         renderTable(allContracts.filter(c => c.fio.toLowerCase().includes(q) || String(c.contractNum).includes(q)));
@@ -3000,7 +3221,7 @@
           renderIncomePage();
         }
       }
-    }
+    };
 
     function renderTakenFiltered(items) {
       const rowsTbody = document.getElementById('takenRowsTable');
@@ -3023,7 +3244,7 @@
       });
     }
 
-    function exportData() {
+    window.exportData = function() {
       const exportObject = {
         contracts: allContracts,
         accounting: allAccounting,
@@ -3040,9 +3261,9 @@
       a.download = `BAZA_FULL_${new Date().toISOString().slice(0,10)}.json`;
       a.click();
       URL.revokeObjectURL(url);
-    }
+    };
 
-    function importData(e) {
+    window.importData = function(e) {
       const file = e.target.files[0];
       if (!file) return;
       const reader = new FileReader();
@@ -3067,7 +3288,7 @@
         } catch (err) { alert("Ошибка при чтении файла: " + err.message); }
       };
       reader.readAsText(file);
-    }
+    };
 
     document.addEventListener('keydown', (e) => {
       if (e.ctrlKey && (e.key === 'z' || e.key === 'я')) { e.preventDefault(); undo(); }
@@ -3083,8 +3304,7 @@
       localStorage.setItem('monthly_reports_db', JSON.stringify(initMonthlyReports));
     }
 
-    // ---- Настройка инвесторов ----
-    function addInvestorSetup() {
+    window.addInvestorSetup = function() {
       saveState();
       initInvestors.push({
         id: 'inv_' + Date.now(),
@@ -3094,25 +3314,28 @@
       });
       saveInitData();
       renderInitPage();
-    }
+      pushToCloud();
+    };
 
-    function updateInvestorName(idx, value) {
+    window.updateInvestorName = function(idx, value) {
       if (initInvestors[idx].isOwner) return;
       initInvestors[idx].name = value;
       saveInitData();
       renderInitPage();
-    }
+      pushToCloud();
+    };
 
-    function updateInvestorPercent(idx, value) {
+    window.updateInvestorPercent = function(idx, value) {
       if (initInvestors[idx].isOwner) return;
       initInvestors[idx].percent = Math.min(100, Math.max(0, Number(value) || 0));
       saveInitData();
       recalculateInit();
       saveInitData();
       renderInitPage();
-    }
+      pushToCloud();
+    };
 
-    function deleteInvestorSetup(idx) {
+    window.deleteInvestorSetup = function(idx) {
       if (initInvestors[idx].isOwner) {
         alert('Нельзя удалить владельца');
         return;
@@ -3128,9 +3351,9 @@
         }
       });
       saveToStorage();
-    }
+    };
 
-    function resetInitPage() {
+    window.resetInitPage = function() {
       if (!confirm('Удалить ВСЕ данные страницы Инициализация? (инвесторы и все месяцы)')) return;
       if (prompt('Введите "СБРОС" для подтверждения:') !== 'СБРОС') return;
       saveState();
@@ -3143,7 +3366,7 @@
       saveInitData();
       saveToStorage();
       renderInitPage();
-    }
+    };
 
     function renderInvestorSetup() {
       const tbody = document.getElementById('investorSetupBody');
@@ -3202,7 +3425,6 @@
       });
     }
 
-    // ---- Месяцы ----
     function getMonthlyReport(year, month) {
       const key = `${year}-${String(month).padStart(2, '0')}`;
       if (!initMonthlyReports[key] || typeof initMonthlyReports[key] !== 'object') {
@@ -3232,7 +3454,6 @@
       return rep;
     }
 
-    // Автосоздание следующего месяца
     function ensureNextMonthExists() {
       const now = new Date();
       const currentYear = now.getFullYear();
@@ -3246,7 +3467,7 @@
       getMonthlyReport(nextYear, nextMonth);
     }
 
-    function createMonthFromSelects() {
+    window.createMonthFromSelects = function() {
       const yearEl = document.getElementById('newMonthYear');
       const monthEl = document.getElementById('newMonthMonth');
       if (!yearEl || !monthEl) return;
@@ -3268,9 +3489,10 @@
       recalculateInit();
       saveInitData();
       renderInitPage();
-    }
+      pushToCloud();
+    };
 
-    function deleteMonth(year, month) {
+    window.deleteMonth = function(year, month) {
       const key = `${year}-${String(month).padStart(2, '0')}`;
       if (!confirm(`Удалить месяц ${month}/${year}? Связанные записи учёта будут удалены.`)) return;
       saveState();
@@ -3279,9 +3501,9 @@
       recalculateInit();
       saveInitData();
       renderInitPage();
-    }
+      pushToCloud();
+    };
 
-    // ---- Прибыль по месяцам ----
     function getProfitByMonth(year, month) {
       let totalProfit = 0;
       allContracts.forEach(c => {
@@ -3306,11 +3528,9 @@
       return totalProfit;
     }
 
-    // ---- Пересчёт (идемпотентный) ----
     function recalculateInit() {
       const keys = Object.keys(initMonthlyReports).sort();
       
-      // Сброс к чистому состоянию
       keys.forEach((key) => {
         const report = initMonthlyReports[key];
         if (!report || typeof report !== 'object') return;
@@ -3348,7 +3568,6 @@
         const year = report.year;
         const month = report.month;
         
-        // Капитал на начало
         initInvestors.forEach(inv => {
           const entry = report.entries[inv.id];
           const manualStart = report.startingCapital && report.startingCapital[inv.id] !== undefined 
@@ -3395,7 +3614,6 @@
           report.entries[ownerId]._baseProfit = (report.entries[ownerId]._baseProfit || 0) + ownerProfitFromInvestors;
         }
         
-        // profitActual по умолчанию
         initInvestors.forEach(inv => {
           const entry = report.entries[inv.id];
           if (!report.stopped) {
@@ -3410,7 +3628,6 @@
           }
         });
         
-        // Применяем addedPercent один раз
         if (ownerId && report.entries[ownerId]) {
           const ownerEntry = report.entries[ownerId];
           initInvestors.forEach(inv => {
@@ -3427,7 +3644,6 @@
           });
         }
         
-        // Капитал на конец БЕЗ прибыли текущего месяца (она уйдёт в следующий)
         initInvestors.forEach(inv => {
           const entry = report.entries[inv.id];
           const cs = entry.capitalStart || 0;
@@ -3455,8 +3671,7 @@
       saveInitData();
     }
 
-    // ---- Обновление полей ----
-    function updateMonthlyEntry(year, month, investorId, field, value) {
+    window.updateMonthlyEntry = function(year, month, investorId, field, value) {
       const report = getMonthlyReport(year, month);
       if (!report.entries[investorId]) {
         report.entries[investorId] = { invested: 0, dividends: 0, withdrawn: 0, profitActual: 0, factPercent: 0, stopValue: null, addedPercent: 0, capital: 0, capitalStart: 0 };
@@ -3469,18 +3684,19 @@
       recalculateInit();
       saveInitData();
       renderInitPage();
-    }
+      pushToCloud();
+    };
 
-    function updateStartingCapital(year, month, investorId, value) {
+    window.updateStartingCapital = function(year, month, investorId, value) {
       const report = getMonthlyReport(year, month);
       if (!report.startingCapital) report.startingCapital = {};
       report.startingCapital[investorId] = Number(value) || 0;
       recalculateInit();
       saveInitData();
       renderInitPage();
-    }
+      pushToCloud();
+    };
 
-    // ---- Синхронизация с учётом ---- (ИСПРАВЛЕНО: invested → income)
     function syncInvestorOperationsWithAccounting(year, month, investorId, field, value) {
       const dateStr = `${year}-${String(month).padStart(2, '0')}-01`;
       const investMonth = `${year}-${String(month).padStart(2, '0')}`;
@@ -3503,8 +3719,6 @@
         withdraw_invest: `Снятие вклада: ${investor.name} (${month}/${year})`
       };
       
-      // invested → income (Поступило)
-      // dividends, withdrawn → expense (Расход)
       const isIncome = (type === 'invest');
       
       allAccounting.unshift({
@@ -3521,8 +3735,7 @@
       });
     }
 
-    // ---- Стоп / Разблокировка ----
-    function stopMonth(year, month) {
+    window.stopMonth = function(year, month) {
       const report = getMonthlyReport(year, month);
       saveState();
       report.stopped = true;
@@ -3532,9 +3745,10 @@
       });
       saveInitData();
       renderInitPage();
-    }
+      pushToCloud();
+    };
 
-    function unstopMonth(year, month) {
+    window.unstopMonth = function(year, month) {
       const report = getMonthlyReport(year, month);
       saveState();
       report.stopped = false;
@@ -3545,20 +3759,20 @@
       recalculateInit();
       saveInitData();
       renderInitPage();
-    }
+      pushToCloud();
+    };
 
-    // ---- Добавить % ----
-    function applyAddedPercent(year, month, investorId, value) {
+    window.applyAddedPercent = function(year, month, investorId, value) {
       const report = getMonthlyReport(year, month);
       if (!report.entries[investorId]) return;
       report.entries[investorId].addedPercent = Number(value) || 0;
       recalculateInit();
       saveInitData();
       renderInitPage();
-    }
+      pushToCloud();
+    };
 
-    // ---- Копировать отчёт ----
-    function copyMonthReport(year, month) {
+    window.copyMonthReport = function(year, month) {
       const report = getMonthlyReport(year, month);
       const monthNames = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
       let txt = `📅 ${monthNames[month-1]} ${year}\n`;
@@ -3577,15 +3791,13 @@
       navigator.clipboard.writeText(txt).then(() => {
         showCopyNotification('✅ Отчёт скопирован в буфер');
       }).catch(() => alert('Не удалось скопировать'));
-    }
+    };
 
-    // ---- Рендер месяцев (НОВЫЕ СВЕРХУ + новый порядок столбцов) ----
     function renderMonthlyReports() {
       const container = document.getElementById('initMonthsContainer');
       if (!container) return;
       container.innerHTML = '';
       
-      // НОВЫЕ СВЕРХУ: reverse
       const keys = Object.keys(initMonthlyReports).sort().reverse();
       const monthNames = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
       
@@ -3594,7 +3806,6 @@
         return;
       }
       
-      // Самый старый месяц для отображения стартового капитала:
       const oldestKey = Object.keys(initMonthlyReports).sort()[0];
       
       keys.forEach((key) => {
@@ -3717,7 +3928,6 @@
       });
     }
 
-    // ---- Главная функция страницы ----
     function renderInitPage() {
       try {
         ensureNextMonthExists();
@@ -3768,7 +3978,7 @@
     }
 
     // ================================================================
-    // ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ
+    // ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ + ЗАПУСК СИНХРОНИЗАЦИИ
     // ================================================================
     try {
       renderTable(allContracts);
@@ -3778,6 +3988,9 @@
     } catch (e) {
       console.error('Ошибка начальной инициализации:', e);
     }
+
+    // Запуск синхронизации с Firebase
+    initSync();
   </script>
 </body>
   </html>
