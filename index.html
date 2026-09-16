@@ -261,6 +261,312 @@
       0%, 100% { opacity: 1; }
       50% { opacity: 0.3; }
     }
+
+    /* ================================================================
+       ===== НОВЫЕ СТИЛИ ДЛЯ ЛИСТА «ВЗЯЛИ» (дашборд-стиль) =====
+       ================================================================ */
+    .taken-kpi-card {
+      background: white;
+      border-radius: 14px;
+      padding: 16px 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
+      border-left: 4px solid #94a3b8;
+      transition: all 0.2s;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+    .taken-kpi-card:hover {
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08), 0 8px 20px rgba(0,0,0,0.06);
+      transform: translateY(-1px);
+    }
+    .taken-kpi-card .kpi-label {
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #64748b;
+      margin-bottom: 6px;
+    }
+    .taken-kpi-card .kpi-value {
+      font-size: 22px;
+      font-weight: 900;
+      color: #0f172a;
+      line-height: 1.1;
+      white-space: nowrap;
+    }
+    .taken-kpi-card .kpi-icon {
+      font-size: 28px;
+      opacity: 0.8;
+      flex-shrink: 0;
+    }
+    .taken-kpi-card.kassa { border-left-color: #f59e0b; }
+    .taken-kpi-card.kassa .kpi-value { color: #b45309; }
+    .taken-kpi-card.vzyali { border-left-color: #ea580c; }
+    .taken-kpi-card.vzyali .kpi-value { color: #c2410c; }
+    .taken-kpi-card.polozhili { border-left-color: #059669; }
+    .taken-kpi-card.polozhili .kpi-value { color: #047857; }
+    .taken-kpi-card.uchet { border-left-color: #2563eb; }
+    .taken-kpi-card.uchet .kpi-value { color: #1d4ed8; }
+
+    .taken-section {
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
+      overflow: hidden;
+    }
+    .taken-section-header {
+      padding: 14px 20px;
+      border-bottom: 1px solid #f1f5f9;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .taken-section-title {
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #334155;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Журнал операций */
+    .taken-journal {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 12px;
+    }
+    .taken-journal thead th {
+      background: #f8fafc;
+      color: #64748b;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid #e2e8f0;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+    .taken-journal tbody td {
+      padding: 10px 14px;
+      border-bottom: 1px solid #f1f5f9;
+      vertical-align: middle;
+    }
+    .taken-journal tbody tr:hover { background: #f8fafc; }
+    .taken-journal tbody tr:last-child td { border-bottom: none; }
+    .taken-journal .empty-cell { color: #cbd5e1; }
+    .taken-journal .taken-amount {
+      font-weight: 800;
+      color: #c2410c;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+    .taken-journal .put-amount {
+      font-weight: 800;
+      color: #047857;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+    .taken-journal .desc-cell {
+      color: #475569;
+      font-size: 12px;
+    }
+    .taken-journal .actions-cell {
+      text-align: right;
+      white-space: nowrap;
+    }
+    .taken-journal .action-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px 6px;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: background 0.15s;
+    }
+    .taken-journal .action-btn:hover { background: #f1f5f9; }
+
+    .taken-journal-empty {
+      padding: 40px 20px;
+      text-align: center;
+      color: #94a3b8;
+      font-size: 13px;
+    }
+
+    /* Итоговая строка журнала */
+    .taken-journal tfoot td {
+      background: #f8fafc;
+      padding: 12px 14px;
+      font-weight: 800;
+      font-size: 12px;
+      border-top: 2px solid #e2e8f0;
+      color: #0f172a;
+    }
+
+    /* Блок статистики */
+    .stat-card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      padding: 14px;
+    }
+    .stat-mini-card {
+      background: #f8fafc;
+      border-radius: 10px;
+      padding: 10px 12px;
+      border-left: 3px solid #cbd5e1;
+      transition: all 0.15s;
+    }
+    .stat-mini-card:hover { background: #f1f5f9; }
+    .stat-mini-card .stat-label {
+      font-size: 9px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      color: #64748b;
+      margin-bottom: 4px;
+      line-height: 1.2;
+    }
+    .stat-mini-card .stat-value {
+      font-size: 18px;
+      font-weight: 900;
+      color: #0f172a;
+      line-height: 1.1;
+    }
+    .stat-mini-card.total { border-left-color: #8b5cf6; }
+    .stat-mini-card.closed { border-left-color: #10b981; }
+    .stat-mini-card.active { border-left-color: #3b82f6; }
+    .stat-mini-card.active .stat-value { color: #1d4ed8; }
+    .stat-mini-card.plan { border-left-color: #f59e0b; }
+    .stat-mini-card.plan .stat-value { color: #b45309; }
+    .stat-mini-card.fact { border-left-color: #059669; }
+    .stat-mini-card.fact .stat-value { color: #047857; }
+
+    /* Счета и карты — карточки */
+    .account-card {
+      background: white;
+      border-radius: 12px;
+      padding: 12px 14px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+      border: 1px solid #f1f5f9;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: all 0.15s;
+      position: relative;
+    }
+    .account-card:hover {
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      border-color: #e2e8f0;
+    }
+    .account-card .acc-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .account-card .acc-name {
+      font-weight: 800;
+      font-size: 13px;
+      color: #0f172a;
+      letter-spacing: 0.3px;
+    }
+    .account-card .acc-balance {
+      font-size: 20px;
+      font-weight: 900;
+      color: #0f172a;
+      line-height: 1.1;
+    }
+    .account-card .acc-balance.negative { color: #dc2626; }
+    .account-card .acc-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      font-size: 10px;
+      color: #64748b;
+    }
+    .account-card .acc-stats .stat-pair {
+      background: #f8fafc;
+      border-radius: 6px;
+      padding: 5px 8px;
+    }
+    .account-card .stat-pair .sp-label {
+      font-size: 9px;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: #94a3b8;
+      letter-spacing: 0.3px;
+      margin-bottom: 2px;
+    }
+    .account-card .stat-pair .sp-val {
+      font-weight: 800;
+      color: #334155;
+      font-size: 11px;
+    }
+    .account-card .stat-pair.over-limit .sp-val {
+      color: #dc2626;
+      background: #fee2e2;
+      padding: 1px 4px;
+      border-radius: 3px;
+      display: inline-block;
+    }
+    .account-card .acc-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 4px;
+      border-top: 1px solid #f1f5f9;
+    }
+    .accounts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 10px;
+      padding: 14px;
+    }
+    .acc-delete-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #ef4444;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: background 0.15s;
+    }
+    .acc-delete-btn:hover { background: #fee2e2; }
+
+    /* Общий контейнер листа «Взяли» */
+    .taken-dashboard {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .taken-kpi-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }
+    .taken-bottom-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+    @media (max-width: 900px) {
+      .taken-bottom-row { grid-template-columns: 1fr; }
+    }
+    .taken-accounts-wrapper {
+      grid-column: 1 / -1;
+    }
   </style>
 </head>
 <body class="bg-slate-100 text-gray-800 text-xs min-h-screen pb-20">
@@ -390,92 +696,123 @@
       </div>
     </div>
 
-    <!-- ================= Лист 3: Взяли ================= -->
-    <div id="takenTabContent" class="hidden space-y-4">
-      <div class="bg-white shadow-xl rounded-xl p-4 overflow-x-auto border">
-        <div class="flex flex-wrap lg:flex-nowrap gap-6">
-          
-          <div class="flex-1 min-w-[550px]">
-            <table class="w-full text-left border-collapse excel-table bg-amber-50/20">
-              <thead>
-                <tr class="bg-excel-header text-center font-bold">
-                  <th class="w-24">Касса</th>
-                  <th class="w-28">Взяли</th>
-                  <th>Описание</th>
-                  <th class="w-28">Положили</th>
-                  <th>Описание</th>
-                  <th class="w-16">Действия</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr class="bg-excel-yellow font-bold text-center">
-                  <td id="kassaTotal" class="text-sm">0</td>
-                  <td id="takenTotalSum" class="text-sm">0</td>
-                  <td></td>
-                  <td id="putTotalSum" class="text-sm">0</td>
-                  <td></td>
-                  <td></td>
-                </tr>
-                <tr class="bg-excel-yellow font-bold text-center">
-                  <td>Учет</td>
-                  <td colspan="4"></td>
-                  <td></td>
-                </tr>
-                <tr class="bg-excel-yellow font-bold text-center">
-                  <td id="kassaUchet">0</td>
-                  <td colspan="4"></td>
-                  <td></td>
-                </tr>
-              </tbody>
-              <tbody id="takenRowsTable"></tbody>
-            </table>
-          </div>
+    <!-- ================= Лист 3: Взяли (НОВЫЙ ДИЗАЙН) ================= -->
+    <div id="takenTabContent" class="hidden">
+      <div class="taken-dashboard">
 
-          <div class="w-64 shrink-0">
-            <table class="w-full border-collapse excel-table text-center">
-              <tbody>
-                <tr class="bg-excel-header font-bold"><td class="p-2">Количество договоров</td></tr>
-                <tr><td id="statTotalContracts" class="font-bold text-sm">0</td></tr>
-                <tr class="bg-excel-header font-bold"><td class="p-2">Закрытые договора</td></tr>
-                <tr><td id="statClosedContracts" class="font-bold text-sm">0</td></tr>
-                <tr class="bg-excel-header font-bold"><td class="p-2">Актуальные договора</td></tr>
-                <tr><td id="statActiveContracts" class="font-bold text-sm text-blue-600">0</td></tr>
-                <tr class="bg-excel-header font-bold"><td class="p-2">Оплаты Сегодня (план)</td></tr>
-                <tr><td id="statPlanTodaySum" class="font-bold text-sm text-amber-600">0</td></tr>
-                <tr class="bg-excel-header"><td class="text-[10px] uppercase font-bold">Количество</td></tr>
-                <tr><td id="statPlanTodayCount" class="font-bold">0</td></tr>
-                <tr class="bg-excel-header font-bold"><td class="p-2">Оплаты Сегодня (факт)</td></tr>
-                <tr><td id="statFactTodaySum" class="font-bold text-sm text-emerald-600">0</td></tr>
-                <tr class="bg-excel-header"><td class="text-[10px] uppercase font-bold">Количество</td></tr>
-                <tr><td id="statFactTodayCount" class="font-bold">0</td></tr>
-              </tbody>
-            </table>
-          </div>
-
-          <div class="flex-1 min-w-[500px]">
-            <div class="mb-2 flex justify-between items-center">
-              <span class="font-bold uppercase text-[10px] text-slate-500">Счета и Карты (Цвет и Удаление)</span>
-              <button onclick="addNewAccountPrompt()" class="bg-slate-700 hover:bg-slate-800 text-white font-bold px-2 py-1 rounded text-[10px]">+ Добавить счет</button>
+        <!-- KPI-карточки сверху -->
+        <div class="taken-kpi-row">
+          <div class="taken-kpi-card kassa">
+            <div>
+              <div class="kpi-label">💰 Касса</div>
+              <div class="kpi-value" id="kassaTotal">0</div>
             </div>
-            <div class="max-h-[70vh] overflow-y-auto">
-              <table class="w-full border-collapse excel-table text-center">
+            <div class="kpi-icon">💰</div>
+          </div>
+          <div class="taken-kpi-card vzyali">
+            <div>
+              <div class="kpi-label">⬆️ Взяли</div>
+              <div class="kpi-value" id="takenTotalSum">0</div>
+            </div>
+            <div class="kpi-icon">⬆️</div>
+          </div>
+          <div class="taken-kpi-card polozhili">
+            <div>
+              <div class="kpi-label">⬇️ Положили</div>
+              <div class="kpi-value" id="putTotalSum">0</div>
+            </div>
+            <div class="kpi-icon">⬇️</div>
+          </div>
+          <div class="taken-kpi-card uchet">
+            <div>
+              <div class="kpi-label">📊 Касса Учёт</div>
+              <div class="kpi-value" id="kassaUchet">0</div>
+            </div>
+            <div class="kpi-icon">📊</div>
+          </div>
+        </div>
+
+        <!-- Нижний ряд: журнал + статистика -->
+        <div class="taken-bottom-row">
+
+          <!-- Журнал операций -->
+          <div class="taken-section">
+            <div class="taken-section-header">
+              <div class="taken-section-title">📋 Журнал операций</div>
+              <button onclick="openTakenModal()" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-3 py-1.5 rounded-lg text-[11px] transition shadow-sm">
+                + Добавить запись
+              </button>
+            </div>
+            <div style="overflow-x:auto; max-height: 500px;">
+              <table class="taken-journal">
                 <thead>
-                  <tr class="bg-excel-header font-bold text-[10px]">
-                    <th>Счет / Карта</th>
-                    <th id="accountsGrandTotal">0</th>
-                    <th>кол-во вход.</th>
-                    <th>приход в месяц</th>
-                    <th>кол-во исх.</th>
-                    <th>расход в месяц</th>
-                    <th>Цвет / Удал.</th>
+                  <tr>
+                    <th style="width:35%;">Взяли (₽)</th>
+                    <th style="width:30%;">Описание</th>
+                    <th style="width:25%;">Положили (₽)</th>
+                    <th style="width:10%; text-align:right;">Действия</th>
                   </tr>
                 </thead>
-                <tbody id="accountsTableBody"></tbody>
+                <tbody id="takenRowsTable">
+                  <!-- Заполняется JS -->
+                </tbody>
               </table>
             </div>
           </div>
 
+          <!-- Блок статистики -->
+          <div class="taken-section">
+            <div class="taken-section-header">
+              <div class="taken-section-title">📊 Статистика</div>
+            </div>
+            <div class="stat-card-grid">
+              <div class="stat-mini-card total">
+                <div class="stat-label">Договоров всего</div>
+                <div class="stat-value" id="statTotalContracts">0</div>
+              </div>
+              <div class="stat-mini-card closed">
+                <div class="stat-label">Закрытые</div>
+                <div class="stat-value" id="statClosedContracts">0</div>
+              </div>
+              <div class="stat-mini-card active">
+                <div class="stat-label">Актуальные</div>
+                <div class="stat-value" id="statActiveContracts">0</div>
+              </div>
+              <div class="stat-mini-card plan">
+                <div class="stat-label">План сегодня ₽</div>
+                <div class="stat-value" id="statPlanTodaySum">0</div>
+              </div>
+              <div class="stat-mini-card plan">
+                <div class="stat-label">План кол-во</div>
+                <div class="stat-value" id="statPlanTodayCount">0</div>
+              </div>
+              <div class="stat-mini-card fact">
+                <div class="stat-label">Факт сегодня ₽</div>
+                <div class="stat-value" id="statFactTodaySum">0</div>
+              </div>
+              <div class="stat-mini-card fact">
+                <div class="stat-label">Факт кол-во</div>
+                <div class="stat-value" id="statFactTodayCount">0</div>
+              </div>
+            </div>
+          </div>
+
         </div>
+
+        <!-- Счета и карты — на всю ширину -->
+        <div class="taken-section">
+          <div class="taken-section-header">
+            <div class="taken-section-title">💳 Счета и Карты</div>
+            <div class="flex items-center gap-3">
+              <span class="text-[10px] font-bold text-slate-500 uppercase">Итого: <span id="accountsGrandTotal" class="text-slate-800 text-sm">0</span></span>
+              <button onclick="addNewAccountPrompt()" class="bg-slate-700 hover:bg-slate-800 text-white font-bold px-3 py-1.5 rounded-lg text-[11px] transition">+ Добавить счет</button>
+            </div>
+          </div>
+          <div class="accounts-grid" id="accountsTableBody">
+            <!-- Карточки счетов генерируются JS -->
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -619,7 +956,6 @@
     <div id="initTabContent" class="hidden space-y-4">
       <div id="initErrorBanner" class="init-error-banner hidden"></div>
 
-      <!-- Блок настройки инвесторов -->
       <div class="bg-white shadow-xl rounded-xl p-6 border-2 border-purple-300">
         <h2 class="text-xl font-bold text-purple-700 mb-4">🏛️ Настройка инвесторов</h2>
         <div class="overflow-x-auto">
@@ -649,7 +985,6 @@
         </div>
       </div>
 
-      <!-- Панель управления месяцами -->
       <div class="bg-white shadow-xl rounded-xl p-4 border-2 border-purple-200 flex flex-wrap items-center gap-3">
         <span class="font-bold text-purple-700 text-sm">📅 Управление месяцами:</span>
         <select id="newMonthYear" class="p-2 border rounded text-xs font-bold"></select>
@@ -673,7 +1008,6 @@
         <span id="initDebug" class="text-[10px] text-gray-400"></span>
       </div>
 
-      <!-- Ежемесячный учет -->
       <div id="initMonthsContainer"></div>
     </div>
 
@@ -902,7 +1236,6 @@
     </div>
   </div>
 
-  <!-- МОДАЛЬНОЕ ОКНО ДЛЯ РАСХОДА В ДОХОДЕ -->
   <div id="incomeExpModal" class="fixed inset-0 bg-black/60 hidden flex items-center justify-center p-4 z-50">
     <div class="bg-white rounded-xl p-6 max-w-md w-full shadow-2xl border-t-4 border-red-500">
       <h3 id="incomeExpModalTitle" class="font-bold text-base text-slate-800 mb-4 border-b pb-2 uppercase">Добавить расход</h3>
@@ -950,13 +1283,11 @@
 
     const DOC_REF = doc(db, 'yusra_data', 'main');
 
-    // Флаги состояния
-    let isCloudLoaded = false;      // Облако успешно прочитано
-    let isApplyingRemote = false;   // Сейчас применяем данные из облака (не отправлять обратно)
-    let syncTimeout = null;         // Дебаунс для автоотправки
-    let isFirstSync = true;         // Первая ли загрузка
+    let isCloudLoaded = false;
+    let isApplyingRemote = false;
+    let syncTimeout = null;
+    let isFirstSync = true;
 
-    // Показать статус
     function setSyncStatus(status, text) {
       const el = document.getElementById('syncIndicator');
       const txt = document.getElementById('syncText');
@@ -965,7 +1296,6 @@
       txt.textContent = text;
     }
 
-    // Скрыть экран загрузки
     function hideLoadingScreen() {
       const ls = document.getElementById('loadingScreen');
       if (ls) {
@@ -976,7 +1306,7 @@
     }
 
     // ================================================================
-    // ВСЕ ПЕРЕМЕННЫЕ И БАЗОВЫЕ ФУНКЦИИ
+    // ВСЕ ПЕРЕМЕННЫЕ
     // ================================================================
     
     let allContracts = JSON.parse(localStorage.getItem('contracts_db') || '[]');
@@ -985,10 +1315,6 @@
     let allIncomeExpenses = JSON.parse(localStorage.getItem('income_expenses_db') || '[]');
     let customAccounts = JSON.parse(localStorage.getItem('accounts_db') || 'null');
 
-    // ================================================================
-    // ИНИЦИАЛИЗАЦИЯ ДАННЫХ ИНВЕСТИЦИЙ + МИГРАЦИЯ СТАРЫХ ДАННЫХ
-    // ================================================================
-    
     let initInvestors;
     let initMonthlyReports;
 
@@ -1093,11 +1419,11 @@
     let redoStack = [];
 
     // ================================================================
-    // ОТПРАВКА В ОБЛАКО (дебаунс)
+    // ОТПРАВКА В ОБЛАКО
     // ================================================================
     function pushToCloud() {
-      if (isApplyingRemote) return; // не отправляем если сейчас применяем данные из облака
-      if (!isCloudLoaded) return;   // не отправляем пока облако не прочитано
+      if (isApplyingRemote) return;
+      if (!isCloudLoaded) return;
 
       if (syncTimeout) clearTimeout(syncTimeout);
       syncTimeout = setTimeout(async () => {
@@ -1118,10 +1444,9 @@
           console.error('Ошибка сохранения в облако:', e);
           setSyncStatus('error', 'Ошибка синхронизации');
         }
-      }, 800); // 800 мс дебаунс
+      }, 800);
     }
 
-    // Применить данные из облака
     function applyCloudData(data) {
       isApplyingRemote = true;
       allContracts = data.contracts || [];
@@ -1132,7 +1457,6 @@
       if (data.investors) initInvestors = data.investors;
       if (data.monthlyReports) initMonthlyReports = data.monthlyReports;
 
-      // Сохраняем в localStorage
       localStorage.setItem('contracts_db', JSON.stringify(allContracts));
       localStorage.setItem('accounting_db', JSON.stringify(allAccounting));
       localStorage.setItem('taken_db', JSON.stringify(allTaken));
@@ -1141,7 +1465,6 @@
       localStorage.setItem('investors_db', JSON.stringify(initInvestors));
       localStorage.setItem('monthly_reports_db', JSON.stringify(initMonthlyReports));
 
-      // Перерисовываем всё
       try {
         renderTable(allContracts);
         renderAccountingTable(allAccounting);
@@ -1164,7 +1487,6 @@
       setTimeout(() => { isApplyingRemote = false; }, 100);
     }
 
-    // Проверка: пустое ли облако
     function isCloudEmpty(data) {
       if (!data) return true;
       const emptyArr = (arr) => !Array.isArray(arr) || arr.length === 0;
@@ -1176,9 +1498,6 @@
              emptyObj(data.monthlyReports);
     }
 
-    // ================================================================
-    // ЗАПУСК СИНХРОНИЗАЦИИ
-    // ================================================================
     async function initSync() {
       try {
         setSyncStatus('syncing', 'Загрузка...');
@@ -1186,11 +1505,9 @@
         const snap = await getDoc(DOC_REF);
         
         if (snap.exists() && !isCloudEmpty(snap.data())) {
-          // Облако не пустое — берём облачные данные
           console.log('[Sync] Облако не пустое — загружаем оттуда');
           applyCloudData(snap.data());
         } else {
-          // Облако пустое — отправляем локальные
           console.log('[Sync] Облако пустое — заливаем локальные');
           await setDoc(DOC_REF, {
             contracts: allContracts,
@@ -1209,14 +1526,11 @@
         setSyncStatus('synced', 'Синхронизировано');
         hideLoadingScreen();
         
-        // Подписываемся на изменения в облаке (кто-то другой меняет — приходят сюда)
         onSnapshot(DOC_REF, (docSnap) => {
           if (!docSnap.exists()) return;
-          if (isApplyingRemote) return; // свои же изменения — игнорируем
+          if (isApplyingRemote) return;
           const data = docSnap.data();
           if (!data) return;
-          // Проверяем, действительно ли данные отличаются
-          const remoteUpdatedAt = data.updatedAt || 0;
           console.log('[Sync] Облако изменилось, обновляем локально');
           applyCloudData(data);
           setSyncStatus('synced', 'Обновлено из облака');
@@ -1225,7 +1539,6 @@
       } catch (e) {
         console.error('Ошибка инициализации синхронизации:', e);
         setSyncStatus('error', 'Ошибка подключения');
-        // Работаем локально
         isCloudLoaded = false;
         hideLoadingScreen();
       }
@@ -1301,7 +1614,6 @@
       } else if (tab === 'taken') {
         tTab.classList.remove('hidden');
         tBtn.className = "tab-btn active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
-        addT.classList.remove('hidden');
         renderTakenSheet();
       } else if (tab === 'income') {
         iTab.classList.remove('hidden');
@@ -1459,7 +1771,6 @@
         loadContractForPrint();
       }
       updateHistoryButtons();
-      // ОТПРАВКА В ОБЛАКО
       pushToCloud();
     };
 
@@ -2999,6 +3310,7 @@
       saveToStorage();
     };
 
+    // ============== ОБНОВЛЁННЫЙ renderTakenSheet (новый дизайн) ==============
     function renderTakenSheet() {
       const rowsTbody = document.getElementById('takenRowsTable');
       rowsTbody.innerHTML = '';
@@ -3006,28 +3318,42 @@
       let sumTaken = 0;
       let sumPut = 0;
 
-      allTaken.forEach(item => {
-        sumTaken += Number(item.takenAmount || 0);
-        sumPut += Number(item.putAmount || 0);
+      if (allTaken.length === 0) {
+        rowsTbody.innerHTML = `<tr><td colspan="4" class="taken-journal-empty">📭 Нет записей. Нажмите «+ Добавить запись» чтобы создать первую.</td></tr>`;
+      } else {
+        allTaken.forEach(item => {
+          sumTaken += Number(item.takenAmount || 0);
+          sumPut += Number(item.putAmount || 0);
 
-        const tr = document.createElement('tr');
-        tr.className = "text-center";
-        tr.innerHTML = `
-          <td></td>
-          <td class="font-bold text-amber-700">${item.takenAmount || ''}</td>
-          <td class="text-left">${item.takenDesc || ''}</td>
-          <td class="font-bold text-emerald-600">${item.putAmount || ''}</td>
-          <td class="text-left">${item.putDesc || ''}</td>
-          <td class="space-x-1">
-            <button onclick="openEditTakenModal('${item.id}')" class="text-blue-600 font-bold">✏️</button>
-            <button onclick="deleteTakenItem('${item.id}')" class="text-red-600 font-bold">🗑️</button>
-          </td>
-        `;
-        rowsTbody.appendChild(tr);
-      });
+          const tr = document.createElement('tr');
+          
+          const takenAmt = Number(item.takenAmount) || 0;
+          const putAmt = Number(item.putAmount) || 0;
+          
+          const takenCell = takenAmt > 0 
+            ? `<span class="taken-amount">${takenAmt.toLocaleString('ru-RU')} ₽</span>` 
+            : `<span class="empty-cell">—</span>`;
+          const putCell = putAmt > 0 
+            ? `<span class="put-amount">${putAmt.toLocaleString('ru-RU')} ₽</span>` 
+            : `<span class="empty-cell">—</span>`;
+          const descCell = item.takenDesc || item.putDesc || '<span class="empty-cell">—</span>';
 
-      document.getElementById('takenTotalSum').innerText = sumTaken.toLocaleString('ru-RU');
-      document.getElementById('putTotalSum').innerText = sumPut.toLocaleString('ru-RU');
+          tr.innerHTML = `
+            <td>${takenCell}</td>
+            <td class="desc-cell">${descCell}</td>
+            <td>${putCell}</td>
+            <td class="actions-cell">
+              <button class="action-btn" onclick="openEditTakenModal('${item.id}')" title="Редактировать">✏️</button>
+              <button class="action-btn" onclick="deleteTakenItem('${item.id}')" title="Удалить">🗑️</button>
+            </td>
+          `;
+          rowsTbody.appendChild(tr);
+        });
+      }
+
+      // KPI
+      document.getElementById('takenTotalSum').innerText = sumTaken.toLocaleString('ru-RU') + ' ₽';
+      document.getElementById('putTotalSum').innerText = sumPut.toLocaleString('ru-RU') + ' ₽';
 
       let totalDownPayments = 0;
       let totalInstallments = 0;
@@ -3076,7 +3402,7 @@
       const investImpact = totalInvested - totalDividends - totalWithdrawn + totalStartingCapital;
 
       let totalKassa = totalDownPayments + totalInstallments - totalCostPrice - sumTaken + sumPut - totalIncomeExpenses + investImpact;
-      document.getElementById('kassaTotal').innerText = totalKassa.toLocaleString('ru-RU');
+      document.getElementById('kassaTotal').innerText = totalKassa.toLocaleString('ru-RU') + ' ₽';
 
       let totalUchetIncome = 0;
       let totalUchetExpense = 0;
@@ -3085,7 +3411,7 @@
         totalUchetExpense += Number(a.expense || 0);
       });
       let uchetBalance = totalUchetIncome - totalUchetExpense;
-      document.getElementById('kassaUchet').innerText = uchetBalance.toLocaleString('ru-RU');
+      document.getElementById('kassaUchet').innerText = uchetBalance.toLocaleString('ru-RU') + ' ₽';
 
       const now = new Date();
       const todayStr = now.toISOString().slice(0, 10);
@@ -3133,11 +3459,12 @@
       document.getElementById('statTotalContracts').innerText = totalContracts;
       document.getElementById('statClosedContracts').innerText = closedContracts;
       document.getElementById('statActiveContracts').innerText = activeContracts;
-      document.getElementById('statPlanTodaySum').innerText = planTodaySum.toLocaleString('ru-RU') + ' ₽';
+      document.getElementById('statPlanTodaySum').innerText = planTodaySum.toLocaleString('ru-RU');
       document.getElementById('statPlanTodayCount').innerText = planTodayCount;
-      document.getElementById('statFactTodaySum').innerText = factTodaySum.toLocaleString('ru-RU') + ' ₽';
+      document.getElementById('statFactTodaySum').innerText = factTodaySum.toLocaleString('ru-RU');
       document.getElementById('statFactTodayCount').innerText = factTodayCount;
 
+      // ============== Счета и Карты — карточки ==============
       const accountsBody = document.getElementById('accountsTableBody');
       accountsBody.innerHTML = '';
 
@@ -3182,27 +3509,38 @@
         const isIncOverLimit = incSumMonth >= 400000;
         const isExpOverLimit = expSumMonth >= 400000;
         
-        let rowStyle = accObj.color ? `background-color: ${accObj.color};` : '';
+        const cardBg = accObj.color ? `background-color: ${accObj.color};` : '';
+        const balanceClass = accBalance < 0 ? 'negative' : '';
 
-        const tr = document.createElement('tr');
-        tr.style = rowStyle;
-        tr.innerHTML = `
-          <td class="font-bold">${accObj.name}</td>
-          <td class="font-bold">${accBalance.toLocaleString('ru-RU')}</td>
-          <td>${incCountMonth}</td>
-          <td class="${isIncOverLimit ? 'cell-over-limit' : ''}">${incSumMonth.toLocaleString('ru-RU')}</td>
-          <td>${expCountMonth}</td>
-          <td class="${isExpOverLimit ? 'cell-over-limit' : ''}">${expSumMonth.toLocaleString('ru-RU')}</td>
-          <td class="space-x-1">
-            <input type="color" value="${accObj.color || '#ffffff'}" onchange="changeAccountColor(${idx}, this.value)" title="Изменить цвет" class="w-5 h-5 cursor-pointer align-middle border rounded">
-            <button onclick="deleteAccount(${idx})" class="text-red-700 font-bold px-1 text-[11px]" title="Удалить счет">🗑️</button>
-          </td>
+        const card = document.createElement('div');
+        card.className = 'account-card';
+        card.style = cardBg;
+        card.innerHTML = `
+          <div class="acc-header">
+            <span class="acc-name">${accObj.name}</span>
+          </div>
+          <div class="acc-balance ${balanceClass}">${accBalance.toLocaleString('ru-RU')} ₽</div>
+          <div class="acc-stats">
+            <div class="stat-pair ${isIncOverLimit ? 'over-limit' : ''}">
+              <div class="sp-label">Приход (${incCountMonth})</div>
+              <div class="sp-val">${incSumMonth.toLocaleString('ru-RU')}</div>
+            </div>
+            <div class="stat-pair ${isExpOverLimit ? 'over-limit' : ''}">
+              <div class="sp-label">Расход (${expCountMonth})</div>
+              <div class="sp-val">${expSumMonth.toLocaleString('ru-RU')}</div>
+            </div>
+          </div>
+          <div class="acc-actions">
+            <input type="color" value="${accObj.color || '#ffffff'}" onchange="changeAccountColor(${idx}, this.value)" title="Изменить цвет" class="w-6 h-6 cursor-pointer align-middle border rounded">
+            <button class="acc-delete-btn" onclick="deleteAccount(${idx})" title="Удалить счет">🗑️</button>
+          </div>
         `;
-        accountsBody.appendChild(tr);
+        accountsBody.appendChild(card);
       });
 
-      document.getElementById('accountsGrandTotal').innerText = accountsGrandTotalSum.toLocaleString('ru-RU');
+      document.getElementById('accountsGrandTotal').innerText = accountsGrandTotalSum.toLocaleString('ru-RU') + ' ₽';
     }
+    // ============== /renderTakenSheet ==============
 
     window.handleSearch = function() {
       const q = document.getElementById('searchInput').value.toLowerCase();
@@ -3226,18 +3564,33 @@
     function renderTakenFiltered(items) {
       const rowsTbody = document.getElementById('takenRowsTable');
       rowsTbody.innerHTML = '';
+      
+      if (items.length === 0) {
+        rowsTbody.innerHTML = `<tr><td colspan="4" class="taken-journal-empty">📭 Ничего не найдено</td></tr>`;
+        return;
+      }
+      
       items.forEach(item => {
         const tr = document.createElement('tr');
-        tr.className = "text-center";
+        
+        const takenAmt = Number(item.takenAmount) || 0;
+        const putAmt = Number(item.putAmount) || 0;
+        
+        const takenCell = takenAmt > 0 
+          ? `<span class="taken-amount">${takenAmt.toLocaleString('ru-RU')} ₽</span>` 
+          : `<span class="empty-cell">—</span>`;
+        const putCell = putAmt > 0 
+          ? `<span class="put-amount">${putAmt.toLocaleString('ru-RU')} ₽</span>` 
+          : `<span class="empty-cell">—</span>`;
+        const descCell = item.takenDesc || item.putDesc || '<span class="empty-cell">—</span>';
+
         tr.innerHTML = `
-          <td></td>
-          <td class="font-bold text-amber-700">${item.takenAmount || ''}</td>
-          <td class="text-left">${item.takenDesc || ''}</td>
-          <td class="font-bold text-emerald-600">${item.putAmount || ''}</td>
-          <td class="text-left">${item.putDesc || ''}</td>
-          <td class="space-x-1">
-            <button onclick="openEditTakenModal('${item.id}')" class="text-blue-600 font-bold">✏️</button>
-            <button onclick="deleteTakenItem('${item.id}')" class="text-red-600 font-bold">🗑️</button>
+          <td>${takenCell}</td>
+          <td class="desc-cell">${descCell}</td>
+          <td>${putCell}</td>
+          <td class="actions-cell">
+            <button class="action-btn" onclick="openEditTakenModal('${item.id}')" title="Редактировать">✏️</button>
+            <button class="action-btn" onclick="deleteTakenItem('${item.id}')" title="Удалить">🗑️</button>
           </td>
         `;
         rowsTbody.appendChild(tr);
@@ -3296,7 +3649,7 @@
     });
 
     // ================================================================
-    // СТРАНИЦА «ИНИЦИАЛИЗАЦИЯ» — ПОЛНАЯ ЛОГИКА
+    // ИНИЦИАЛИЗАЦИЯ (без изменений в логике)
     // ================================================================
 
     function saveInitData() {
@@ -3978,7 +4331,7 @@
     }
 
     // ================================================================
-    // ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ + ЗАПУСК СИНХРОНИЗАЦИИ
+    // ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ
     // ================================================================
     try {
       renderTable(allContracts);
@@ -3989,7 +4342,6 @@
       console.error('Ошибка начальной инициализации:', e);
     }
 
-    // Запуск синхронизации с Firebase
     initSync();
   </script>
 </body>
