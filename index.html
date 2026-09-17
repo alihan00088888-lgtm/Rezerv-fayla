@@ -6,101 +6,6 @@
   <title>Система Учета и Договоров</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-
-    /* === Навигационная шторка и адаптивная мобильная версия === */
-    :root { --nav-drawer-width: 280px; }
-    html { scroll-behavior: smooth; }
-    body { overflow-x: hidden; }
-    .nav-drawer {
-      position: fixed; top: 0; left: 0; bottom: 0; width: var(--nav-drawer-width);
-      z-index: 60; background: rgba(255,255,255,.98); backdrop-filter: blur(14px);
-      border-right: 1px solid #e2e8f0; box-shadow: 8px 0 30px rgba(15,23,42,.12);
-      transform: translateX(-105%); transition: transform .28s ease; display: flex; flex-direction: column;
-    }
-    .nav-drawer.open { transform: translateX(0); }
-    .nav-drawer-overlay {
-      position: fixed; inset: 0; z-index: 55; background: rgba(15,23,42,.42);
-      opacity: 0; pointer-events: none; transition: opacity .28s ease;
-    }
-    .nav-drawer-overlay.open { opacity: 1; pointer-events: auto; }
-    .drawer-toggle {
-      position: fixed; top: 76px; left: 0; z-index: 54;
-      width: 42px; height: 46px; border: 0; border-radius: 0 12px 12px 0;
-      background: #1e293b; color: white; box-shadow: 4px 4px 14px rgba(15,23,42,.18);
-      cursor: pointer; transition: left .28s ease, background .2s ease;
-    }
-    .drawer-toggle:hover { background: #334155; }
-    .drawer-toggle.open { left: var(--nav-drawer-width); }
-    .drawer-header { padding: 18px 16px 14px; border-bottom: 1px solid #e2e8f0; }
-    .drawer-title { font-size: 15px; font-weight: 900; color: #0f172a; }
-    .drawer-subtitle { margin-top: 3px; font-size: 10px; color: #64748b; }
-    .drawer-nav { padding: 12px; overflow-y: auto; flex: 1; }
-    .drawer-nav .tab-btn {
-      width: 100%; justify-content: flex-start; margin-bottom: 6px;
-      padding: 11px 13px !important; border-radius: 10px !important;
-      background: transparent; color: #475569; text-align: left;
-    }
-    .drawer-nav .tab-btn:hover { background: #f1f5f9; color: #0f172a; }
-    .drawer-nav .tab-btn.active { background: #2563eb; color: white; }
-    .drawer-nav .tab-btn.today-tab.active { background:#22c55e; }
-    .drawer-nav .tab-btn.three-days-tab.active { background:#3b82f6; }
-    .drawer-nav .tab-btn.debtors-tab.active { background:#ef4444; }
-    .drawer-nav .tab-btn.partners-tab.active { background:#8b5cf6; }
-    .drawer-nav .tab-btn.print-tab.active { background:#f59e0b; }
-    .drawer-nav .tab-btn.income-tab.active { background:#0d9488; }
-    .drawer-nav .tab-btn.init-tab.active { background:#7c3aed; }
-    .bottom-nav { transition: padding-left .28s ease; }
-    .page-content { min-width: 0; }
-    table { max-width: 100%; }
-    .table-responsive, .overflow-x-auto { -webkit-overflow-scrolling: touch; }
-    input, select, textarea, button { max-width: 100%; }
-
-    @media (min-width: 1024px) {
-      body.drawer-active .bottom-nav { padding-left: 0; }
-    }
-
-    @media (max-width: 767px) {
-      body { font-size: 11px; padding-bottom: 76px !important; }
-      .drawer-toggle { top: 66px; width: 40px; height: 42px; }
-      .nav-drawer { width: min(86vw, 300px); --nav-drawer-width: min(86vw, 300px); }
-      .drawer-toggle.open { left: min(86vw, 300px); }
-      .drawer-header { padding: 14px 14px 10px; }
-      .drawer-nav { padding: 10px; }
-      .drawer-nav .tab-btn { padding: 10px 11px !important; font-size: 11px !important; }
-      .bottom-nav {
-        padding: 5px !important; height: auto; justify-content: flex-start !important;
-        overflow-x: auto; -webkit-overflow-scrolling: touch;
-      }
-      .bottom-nav > div { min-width: max-content; gap: 4px !important; }
-      .bottom-nav .tab-btn {
-        padding: 8px 10px !important; font-size: 10px !important; white-space: nowrap;
-      }
-      /* Верхняя панель на телефоне */
-      .top-toolbar-inner { flex-direction: column; align-items: stretch !important; gap: 8px !important; }
-      .top-toolbar-actions { justify-content: space-between; width: 100%; }
-      #searchInput { width: 100% !important; }
-      /* Контент не должен вылезать за экран */
-      .page-content, main, section { max-width: 100vw; }
-      .grid { min-width: 0 !important; }
-      .month-card-header { padding: 8px 10px; }
-      .month-card { margin-bottom: 12px; }
-      .print-contract { padding: 12px !important; font-size: 10px; }
-      /* Горизонтальная прокрутка широких таблиц вместо поломки страницы */
-      table { min-width: 620px; }
-      .income-table, .init-table { min-width: 760px; }
-      /* Кнопки/поля формы удобнее нажимать пальцем */
-      input:not([type="checkbox"]):not([type="radio"]), select, textarea { min-height: 38px; }
-      button { min-height: 36px; }
-      .modal-panel, #modal > div { max-height: 92vh !important; padding: 14px !important; }
-      /* Карточки и панели */
-      .client-item { padding: 10px 8px; }
-      .client-info { gap: 7px; }
-    }
-    @media (min-width: 768px) and (max-width: 1023px) {
-      .nav-drawer { width: 290px; }
-      .drawer-toggle.open { left: 290px; }
-    }
-
     /* === Утилиты === */
     .row-error { background-color: #fee2e2 !important; }
     .pay-paid { background-color: #22c55e; color: white; font-weight: bold; cursor: pointer; }
@@ -172,6 +77,142 @@
     }
     .print-contract h1 { font-size: 16px; font-weight: bold; text-align: center; text-transform: uppercase; margin-bottom: 12px; }
 
+
+    /* === Левая шторка навигации === */
+    .app-main {
+      transition: margin-left .28s ease;
+      min-height: calc(100vh - 80px);
+    }
+    .app-sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 290px;
+      z-index: 10000;
+      background: rgba(255,255,255,.98);
+      border-right: 1px solid #e2e8f0;
+      box-shadow: 12px 0 35px rgba(15,23,42,.16);
+      transform: translateX(-105%);
+      transition: transform .28s cubic-bezier(.4,0,.2,1);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    body.sidebar-open .app-sidebar { transform: translateX(0); }
+    body.sidebar-open .app-main { margin-left: 290px; }
+    .sidebar-header {
+      min-height: 78px;
+      padding: 18px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #e2e8f0;
+      background: linear-gradient(135deg,#f8fafc,#eef2ff);
+    }
+    .sidebar-brand { font-size: 18px; font-weight: 900; letter-spacing: .08em; color: #1e293b; }
+    .sidebar-caption { margin-top: 2px; font-size: 10px; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+    .sidebar-close-btn {
+      width: 36px; height: 36px; border: 0; border-radius: 10px;
+      background: #e2e8f0; color: #475569; font-size: 24px; line-height: 1;
+      cursor: pointer; transition: .2s;
+    }
+    .sidebar-close-btn:hover { background: #cbd5e1; color: #0f172a; }
+    .sidebar-nav {
+      padding: 14px 12px;
+      display: flex; flex-direction: column; gap: 6px;
+      overflow-y: auto; overscroll-behavior: contain;
+    }
+    .sidebar-tab {
+      width: 100%; min-height: 46px; padding: 10px 13px !important;
+      justify-content: flex-start; border-radius: 11px !important;
+      color: #475569 !important; background: transparent;
+      font-size: 13px !important; box-shadow: none !important;
+      border: 1px solid transparent;
+    }
+    .sidebar-tab:hover { background: #f1f5f9; color: #0f172a !important; }
+    .sidebar-tab.active {
+      color: #fff !important;
+      box-shadow: 0 5px 14px rgba(37,99,235,.18) !important;
+    }
+    .sidebar-tab.today-tab.active { background-color:#22c55e !important; }
+    .sidebar-tab.three-days-tab.active { background-color:#3b82f6 !important; }
+    .sidebar-tab.debtors-tab.active { background-color:#ef4444 !important; }
+    .sidebar-tab.partners-tab.active { background-color:#8b5cf6 !important; }
+    .sidebar-tab.print-tab.active { background-color:#f59e0b !important; }
+    .sidebar-tab.income-tab.active { background-color:#0d9488 !important; }
+    .sidebar-tab.init-tab.active { background-color:#7c3aed !important; }
+    .sidebar-icon { width: 26px; min-width: 26px; text-align:center; font-size: 18px; }
+    .sidebar-footer {
+      margin-top: auto; padding: 12px 16px; border-top: 1px solid #e2e8f0;
+      color: #94a3b8; font-size: 10px; line-height: 1.4;
+    }
+    .sidebar-open-btn {
+      position: fixed; left: 14px; top: 92px; z-index: 9998;
+      display: inline-flex; align-items: center; gap: 8px;
+      border: 1px solid #cbd5e1; background: rgba(255,255,255,.96);
+      color: #334155; border-radius: 12px; padding: 9px 12px;
+      box-shadow: 0 5px 18px rgba(15,23,42,.12); cursor:pointer;
+      font-size: 11px; font-weight: 800; transition: .2s;
+      backdrop-filter: blur(8px);
+    }
+    .sidebar-open-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 22px rgba(15,23,42,.16); }
+    body.sidebar-open .sidebar-open-btn { opacity: 0; pointer-events: none; transform: translateX(-20px); }
+    .sidebar-hamburger { display:flex; flex-direction:column; gap:3px; width:17px; }
+    .sidebar-hamburger i { display:block; height:2px; border-radius:2px; background:currentColor; width:100%; }
+    .sidebar-overlay {
+      position: fixed; inset: 0; z-index: 9999;
+      background: rgba(15,23,42,.38); opacity: 0; pointer-events:none;
+      transition: opacity .28s ease; backdrop-filter: blur(1px);
+    }
+    body.sidebar-open .sidebar-overlay { opacity: 1; pointer-events:auto; }
+
+    /* Верхняя панель не перекрывается мобильным меню */
+    .app-main { padding-bottom: 24px; }
+
+    @media (max-width: 900px) {
+      body.sidebar-open .app-main { margin-left: 0; }
+      .sidebar-open-btn { top: 82px; left: 10px; padding: 9px 10px; }
+      .sidebar-open-label { display:none; }
+      .app-sidebar { width: min(88vw, 320px); }
+      .app-main { padding: 10px !important; }
+    }
+
+    @media (max-width: 640px) {
+      .app-sidebar { width: 86vw; max-width: 310px; }
+      .sidebar-header { min-height: 68px; padding: 14px; }
+      .sidebar-nav { padding: 10px; gap: 5px; }
+      .sidebar-tab { min-height: 48px; font-size: 14px !important; }
+      .sidebar-footer { display:none; }
+
+      /* Мобильная верхняя панель */
+      body > .sticky.top-0 { position: sticky; }
+      body > .sticky.top-0 > div {
+        padding: 8px !important;
+        gap: 8px !important;
+      }
+      #searchInput { width: 100% !important; min-width: 0; order: 5; }
+      #addContractBtn, #addAccBtn, #addTakenBtn, #addIncomeExpBtn {
+        font-size: 11px; padding: 8px 10px;
+      }
+      .sync-indicator { max-width: 150px; overflow:hidden; }
+      #syncText { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+      /* Таблицы на телефоне остаются прокручиваемыми, а не ломают страницу */
+      .overflow-x-auto { -webkit-overflow-scrolling: touch; }
+      .taken-dashboard { gap: 10px; }
+      .kpi-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+      .kpi-card { padding: 12px; border-radius: 11px; }
+      .kpi-value { font-size: 18px; }
+      .kpi-label { font-size: 9px; }
+      .client-item { padding: 10px; }
+      .client-info { gap: 7px; }
+
+      /* Модальные окна */
+      #modal { padding: 8px !important; }
+      #modal > div { padding: 14px !important; border-radius: 12px; max-height: 96vh !important; }
+      input, select, textarea, button { touch-action: manipulation; }
+    }
     @media print {
       body * { visibility: hidden; }
       #printContent, #printContent * { visibility: visible; }
@@ -617,18 +658,7 @@
     }
   </style>
 </head>
-<body class="bg-slate-100 text-gray-800 text-xs min-h-screen pb-20">
-
-  <!-- МОБИЛЬНАЯ/БОКОВАЯ НАВИГАЦИЯ -->
-  <div id="navDrawerOverlay" class="nav-drawer-overlay no-print" onclick="toggleNavDrawer(false)"></div>
-  <button id="drawerToggle" class="drawer-toggle no-print" type="button" onclick="toggleNavDrawer()" aria-label="Открыть меню" title="Открыть меню">☰</button>
-  <aside id="navDrawer" class="nav-drawer no-print" aria-label="Навигация по страницам">
-    <div class="drawer-header">
-      <div class="drawer-title">📁 Разделы системы</div>
-      <div class="drawer-subtitle">Переключение страниц</div>
-    </div>
-    <nav id="drawerNav" class="drawer-nav"></nav>
-  </aside>
+<body class="bg-slate-100 text-gray-800 text-xs min-h-screen">
 
   <!-- ЭКРАН ЗАГРУЗКИ -->
   <div id="loadingScreen">
@@ -637,9 +667,66 @@
     <div class="sub">Загрузка данных из облака...</div>
   </div>
 
+
+  <!-- ЛЕВАЯ НАВИГАЦИЯ -->
+  <button type="button" id="sidebarOpenBtn" class="sidebar-open-btn no-print" onclick="toggleSidebar(true)"
+    aria-label="Открыть меню" aria-controls="appSidebar" aria-expanded="false">
+    <span class="sidebar-hamburger"><i></i><i></i><i></i></span>
+    <span class="sidebar-open-label">Меню</span>
+  </button>
+
+  <div id="sidebarOverlay" class="sidebar-overlay no-print" onclick="toggleSidebar(false)" aria-hidden="true"></div>
+
+  <aside id="appSidebar" class="app-sidebar no-print" aria-label="Навигация" aria-hidden="true">
+    <div class="sidebar-header">
+      <div>
+        <div class="sidebar-brand">YUSRA</div>
+        <div class="sidebar-caption">Разделы системы</div>
+      </div>
+      <button type="button" class="sidebar-close-btn" onclick="toggleSidebar(false)" aria-label="Закрыть меню">×</button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button type="button" onclick="switchTab('contracts')" id="tabBtnContracts" class="tab-btn active sidebar-tab">
+        <span class="sidebar-icon">📋</span><span>Договоры</span>
+      </button>
+      <button type="button" onclick="switchTab('accounting')" id="tabBtnAccounting" class="tab-btn sidebar-tab">
+        <span class="sidebar-icon">📊</span><span>Учет</span>
+      </button>
+      <button type="button" onclick="switchTab('taken')" id="tabBtnTaken" class="tab-btn sidebar-tab">
+        <span class="sidebar-icon">📙</span><span>Взяли</span>
+      </button>
+      <button type="button" onclick="switchTab('income')" id="tabBtnIncome" class="tab-btn income-tab sidebar-tab">
+        <span class="sidebar-icon">💵</span><span>Доход</span>
+      </button>
+      <button type="button" onclick="switchTab('init')" id="tabBtnInit" class="tab-btn init-tab sidebar-tab">
+        <span class="sidebar-icon">🏛️</span><span>Инвестиция</span>
+      </button>
+      <button type="button" onclick="switchTab('today')" id="tabBtnToday" class="tab-btn today-tab sidebar-tab">
+        <span class="sidebar-icon">📅</span><span>Сегодня</span>
+      </button>
+      <button type="button" onclick="switchTab('threeDays')" id="tabBtnThreeDays" class="tab-btn three-days-tab sidebar-tab">
+        <span class="sidebar-icon">⏰</span><span>3 дня</span>
+      </button>
+      <button type="button" onclick="switchTab('debtors')" id="tabBtnDebtors" class="tab-btn debtors-tab sidebar-tab">
+        <span class="sidebar-icon">🚫</span><span>Неплательщики</span>
+      </button>
+      <button type="button" onclick="switchTab('partners')" id="tabBtnPartners" class="tab-btn partners-tab sidebar-tab">
+        <span class="sidebar-icon">🤝</span><span>Партнёры</span>
+      </button>
+      <button type="button" onclick="switchTab('print')" id="tabBtnPrint" class="tab-btn print-tab sidebar-tab">
+        <span class="sidebar-icon">🖨️</span><span>Распечатка</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <span>☰</span> Меню можно открыть в любой момент
+    </div>
+  </aside>
+
   <!-- ВЕРХНЯЯ ПАНЕЛЬ -->
   <div class="sticky top-0 z-40 bg-white shadow-md border-b no-print">
-    <div class="p-3 max-w-[100vw] flex flex-wrap justify-between items-center gap-4 top-toolbar-inner">
+    <div class="p-3 max-w-[100vw] flex flex-wrap justify-between items-center gap-4">
       
       <div class="flex items-center gap-2 flex-wrap">
         <div class="flex bg-slate-200 rounded-lg p-1 gap-1">
@@ -669,7 +756,7 @@
         <input type="text" id="searchInput" oninput="handleSearch()" placeholder="Поиск..." class="p-1.5 border rounded-lg w-40 focus:ring-2 focus:ring-blue-400 outline-none">
       </div>
 
-      <div class="flex items-center gap-2 top-toolbar-actions">
+      <div class="flex items-center gap-2">
         <button type="button" id="addContractBtn" onclick="openCreateModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-1.5 rounded-lg shadow transition">
           + Новый Договор
         </button>
@@ -687,7 +774,7 @@
     </div>
   </div>
 
-  <div class="p-4 max-w-[100vw]">
+  <main id="appMain" class="app-main p-4 max-w-[100vw]">
     
     <!-- ================= Лист 1: Договоры ================= -->
     <div id="contractsTabContent" class="space-y-4">
@@ -1048,43 +1135,8 @@
       <div id="initMonthsContainer"></div>
     </div>
 
-  </div>
+  </main>
 
-  <!-- НИЖНЯЯ ПАНЕЛЬ ПЕРЕКЛЮЧЕНИЯ -->
-  <div class="bottom-nav fixed bottom-0 left-0 right-0 z-40 bg-white shadow-lg border-t px-4 py-2 flex justify-center items-center gap-2 overflow-x-auto no-print">
-    <div id="bottomNav" class="flex items-center gap-2 bg-slate-200 p-1 rounded-xl">
-      <button type="button" onclick="switchTab('contracts')" id="tabBtnContracts" class="tab-btn active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2">
-        📋 Договоры
-      </button>
-      <button type="button" onclick="switchTab('accounting')" id="tabBtnAccounting" class="tab-btn px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900">
-        📊 Учет
-      </button>
-      <button type="button" onclick="switchTab('taken')" id="tabBtnTaken" class="tab-btn px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900">
-        📙 Взяли
-      </button>
-      <button type="button" onclick="switchTab('income')" id="tabBtnIncome" class="tab-btn income-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900">
-        💵 Доход
-      </button>
-      <button type="button" onclick="switchTab('init')" id="tabBtnInit" class="tab-btn init-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900">
-        🏛️ Инвестиция
-      </button>
-      <button type="button" onclick="switchTab('today')" id="tabBtnToday" class="tab-btn today-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900">
-        📅 Сегодня
-      </button>
-      <button type="button" onclick="switchTab('threeDays')" id="tabBtnThreeDays" class="tab-btn three-days-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900">
-        ⏰ 3 дня
-      </button>
-      <button type="button" onclick="switchTab('debtors')" id="tabBtnDebtors" class="tab-btn debtors-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900">
-        🚫 Неплательщики
-      </button>
-      <button type="button" onclick="switchTab('partners')" id="tabBtnPartners" class="tab-btn partners-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900">
-        🤝 Партнёры
-      </button>
-      <button type="button" onclick="switchTab('print')" id="tabBtnPrint" class="tab-btn print-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900">
-        🖨️ Распечатка
-      </button>
-    </div>
-  </div>
 
   <!-- МОДАЛЬНЫЕ ОКНА -->
   <div id="modal" class="fixed inset-0 bg-black/60 hidden flex items-center justify-center p-4 z-50">
@@ -1558,7 +1610,24 @@
     // ================================================================
     // ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК
     // ================================================================
+
+    /* === Управление левой шторкой === */
+    window.toggleSidebar = function(open) {
+      document.body.classList.toggle('sidebar-open', !!open);
+      const sidebar = document.getElementById('appSidebar');
+      const openBtn = document.getElementById('sidebarOpenBtn');
+      const overlay = document.getElementById('sidebarOverlay');
+      if (sidebar) sidebar.setAttribute('aria-hidden', open ? 'false' : 'true');
+      if (openBtn) openBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (overlay) overlay.setAttribute('aria-hidden', open ? 'false' : 'true');
+    };
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') toggleSidebar(false);
+    });
+
     window.switchTab = function(tab) {
+      toggleSidebar(false);
       activeTab = tab;
       const cTab = document.getElementById('contractsTabContent');
       const aTab = document.getElementById('accountingTabContent');
@@ -4245,62 +4314,6 @@
     }
 
     initSync();
-  
-    // Синхронизация активной вкладки в боковой шторке с нижней навигацией
-    const _switchTabOriginal = window.switchTab;
-    window.switchTab = function(tab) {
-      const result = _switchTabOriginal(tab);
-      const bottom = document.getElementById('bottomNav');
-      const drawer = document.getElementById('drawerNav');
-      if (bottom && drawer) {
-        drawer.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        const active = drawer.querySelector('#tabBtn' + ({
-          contracts:'Contracts', accounting:'Accounting', taken:'Taken', income:'Income',
-          init:'Init', today:'Today', threeDays:'ThreeDays', debtors:'Debtors',
-          partners:'Partners', print:'Print'
-        }[tab] || 'Contracts'));
-        if (active) active.classList.add('active');
-      }
-      return result;
-    };
-    initNavDrawer();
-
-    // ================================================================
-    // БОКОВАЯ ШТОРКА НАВИГАЦИИ
-    // ================================================================
-    window.toggleNavDrawer = function(force) {
-      const drawer = document.getElementById('navDrawer');
-      const overlay = document.getElementById('navDrawerOverlay');
-      const toggle = document.getElementById('drawerToggle');
-      if (!drawer || !overlay || !toggle) return;
-      const open = typeof force === 'boolean' ? force : !drawer.classList.contains('open');
-      drawer.classList.toggle('open', open);
-      overlay.classList.toggle('open', open);
-      toggle.classList.toggle('open', open);
-      toggle.textContent = open ? '‹' : '☰';
-      toggle.setAttribute('aria-label', open ? 'Закрыть меню' : 'Открыть меню');
-      document.body.classList.toggle('drawer-active', open);
-    };
-
-    window.initNavDrawer = function() {
-      const drawerNav = document.getElementById('drawerNav');
-      const bottomNav = document.getElementById('bottomNav');
-      if (!drawerNav || !bottomNav || drawerNav.children.length) return;
-      drawerNav.innerHTML = bottomNav.innerHTML;
-      drawerNav.querySelectorAll('button').forEach(btn => {
-        btn.classList.remove('px-5','py-2');
-        btn.addEventListener('click', () => window.toggleNavDrawer(false));
-      });
-    };
-
-    document.addEventListener('DOMContentLoaded', () => {
-      initNavDrawer();
-      // Закрывать шторку клавишей Escape
-      document.addEventListener('keydown', e => {
-        if (e.key === 'Escape') toggleNavDrawer(false);
-      });
-    });
-
-</script>
+  </script>
 </body>
   </html>
