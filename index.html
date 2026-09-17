@@ -593,7 +593,47 @@
       .client-payment-table th,.client-payment-table td { padding:6px 5px; }
     }
 
-  </style>
+  
+    .partners-mobile-list { display:none; }
+    .partner-mobile-card { background:#fff; border:1px solid #e2e8f0; border-radius:16px; padding:14px; margin-bottom:10px; box-shadow:0 3px 12px rgba(15,23,42,.05); }
+    .partner-mobile-title { display:flex; justify-content:space-between; align-items:center; gap:8px; font-weight:900; color:#6d28d9; margin-bottom:12px; }
+    .partner-mobile-count { font-size:10px; background:#f3e8ff; color:#7e22ce; padding:4px 7px; border-radius:999px; }
+    .partner-mobile-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; }
+    .partner-mobile-grid > div { background:#f8fafc; border-radius:10px; padding:9px 7px; min-width:0; }
+    .partner-mobile-grid small { display:block; color:#64748b; font-size:9px; margin-bottom:3px; }
+    .partner-mobile-grid b { display:block; font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .partner-mobile-detail { width:100%; margin-top:10px; border:0; border-radius:10px; padding:9px; background:#7c3aed; color:#fff; font-size:11px; font-weight:800; }
+    @media (max-width: 640px) {
+      .sticky.top-0 { position:sticky; top:0; }
+      .drawer-spacer { width:38px; flex-basis:38px; }
+      .drawer-toggle { width:40px; height:40px; }
+      body { overflow-x:hidden; }
+      main { padding-left:8px !important; padding-right:8px !important; }
+      .partners-desktop-table { display:none; }
+      .partners-mobile-list { display:block; }
+      #partnersTabContent > .bg-white { padding:12px !important; border-radius:16px; }
+      #partnersTabContent .flex.justify-between.items-center.mb-4 { flex-direction:column; align-items:stretch; }
+      #partnersTabContent .flex.items-center.gap-4 { display:grid; grid-template-columns:1fr 1fr; gap:7px; }
+      #partnersTabContent .flex.items-center.gap-4 > .flex { min-width:0; }
+      #partnersTabContent input[type=date] { width:100%; min-height:36px; }
+      #partnersTabContent button { min-height:36px; }
+      .month-card { border-width:1px; border-radius:12px; }
+      .month-card-header { padding:10px; font-size:12px; }
+      .month-card-header .overall-pct { font-size:10px; padding:4px 7px; }
+      .month-card-header .hdr-btn { padding:7px 8px; font-size:10px; }
+      .init-table { min-width:920px; font-size:10px; }
+      #initMonthsContainer { overflow-x:hidden; }
+      #initMonthsContainer .overflow-x-auto { -webkit-overflow-scrolling:touch; border-radius:8px; }
+      .init-table input[type=number] { width:78px; min-height:30px; }
+      .client-summary { grid-template-columns:repeat(2,1fr); }
+      .client-summary-item:last-child { grid-column:1 / -1; }
+      .client-contract-head { align-items:flex-start; }
+      .client-contract-head .flex.items-center { width:100%; justify-content:space-between; }
+      .client-action-btn { min-height:36px; }
+      #clientsTabContent .p-4.sm\:p-5 { padding:12px !important; }
+      .client-list { max-height:none; }
+    }
+</style>
 </head>
 <body class="bg-slate-100 text-gray-800 text-xs min-h-screen">
 
@@ -1469,9 +1509,10 @@
       allAccounting = data.accounting || [];
       allTaken = data.taken || [];
       allIncomeExpenses = data.incomeExpenses || [];
-      if (data.accounts) customAccounts = data.accounts;
-      if (data.investors) initInvestors = data.investors;
-      if (data.monthlyReports) initMonthlyReports = data.monthlyReports;
+      if (Array.isArray(data.accounts) && data.accounts.length) customAccounts = data.accounts;
+      if (Array.isArray(data.investors) && data.investors.length) initInvestors = data.investors;
+      if (data.monthlyReports && typeof data.monthlyReports === 'object' && !Array.isArray(data.monthlyReports)) initMonthlyReports = data.monthlyReports;
+      normalizeInvestmentData();
 
       localStorage.setItem('contracts_db', JSON.stringify(allContracts));
       localStorage.setItem('accounting_db', JSON.stringify(allAccounting));
@@ -1512,6 +1553,7 @@
              emptyArr(data.accounting) && 
              emptyArr(data.taken) && 
              emptyArr(data.incomeExpenses) && 
+             emptyArr(data.investors) &&
              emptyObj(data.monthlyReports);
     }
 
@@ -1645,6 +1687,7 @@
         if (initTab) initTab.classList.remove('hidden');
         initBtn.className = "tab-btn init-tab active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
         renderInitPage();
+        requestAnimationFrame(() => renderInitPage());
       } else if (tab === 'today') {
         if (todayTab) todayTab.classList.remove('hidden');
         todayBtn.className = "tab-btn today-tab active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
@@ -2336,7 +2379,7 @@
             <div class="text-2xl font-bold text-red-700">${partners.reduce((sum, p) => sum + p.debtContracts, 0)}</div>
           </div>
         </div>
-        <div class="overflow-x-auto">
+        <div class="partners-desktop-table overflow-x-auto">
           <table class="w-full border-collapse">
             <thead>
               <tr class="bg-purple-700 text-white font-bold text-xs">
@@ -2367,6 +2410,16 @@
       });
       
       html += `</tbody></table></div>`;
+      html += `<div class="partners-mobile-list">${partners.map((partner, idx) => `
+        <div class="partner-mobile-card">
+          <div class="partner-mobile-title"><span>🤝 ${escapeClientHtml(partner.name)}</span><span class="partner-mobile-count">${partner.totalContracts} дог.</span></div>
+          <div class="partner-mobile-grid">
+            <div><small>В долг</small><b class="${partner.debtContracts > 0 ? 'text-red-600' : 'text-green-600'}">${partner.debtContracts}</b></div>
+            <div><small>Сумма долга</small><b>${partner.debtSum.toLocaleString('ru-RU')} ₽</b></div>
+            <div><small>Всего сумма</small><b>${partner.totalSum.toLocaleString('ru-RU')} ₽</b></div>
+          </div>
+          <button class="partner-mobile-detail" onclick="showPartnerDetails('${String(partner.name).replace(/'/g, "\\'")}')">📋 Открыть детали</button>
+        </div>`).join('')}</div>`;
       container.innerHTML = html;
     };
 
@@ -3854,6 +3907,34 @@
     // ================================================================
     // ИНВЕСТИЦИИ
     // ================================================================
+    function normalizeInvestmentData() {
+      if (!Array.isArray(initInvestors)) initInvestors = [];
+      initInvestors = initInvestors.filter(inv => inv && typeof inv === 'object' && inv.id && String(inv.name || '').trim());
+      if (!initInvestors.some(i => i.isOwner)) {
+        initInvestors.unshift({ id: 'owner', name: 'Владелец', percent: 100, isOwner: true });
+      }
+      if (!initInvestors.length) {
+        initInvestors.push({ id: 'owner', name: 'Владелец', percent: 100, isOwner: true });
+      }
+      if (!initMonthlyReports || typeof initMonthlyReports !== 'object' || Array.isArray(initMonthlyReports)) initMonthlyReports = {};
+      Object.keys(initMonthlyReports).forEach(key => {
+        const rep = initMonthlyReports[key];
+        if (!rep || typeof rep !== 'object') { delete initMonthlyReports[key]; return; }
+        const parts = String(key).split('-');
+        if (typeof rep.year !== 'number' && parts.length === 2) rep.year = Number(parts[0]);
+        if (typeof rep.month !== 'number' && parts.length === 2) rep.month = Number(parts[1]);
+        if (!rep.entries || typeof rep.entries !== 'object' || Array.isArray(rep.entries)) rep.entries = {};
+        if (!rep.startingCapital || typeof rep.startingCapital !== 'object' || Array.isArray(rep.startingCapital)) rep.startingCapital = {};
+        if (typeof rep.stopped !== 'boolean') rep.stopped = false;
+        if (typeof rep.overallProfitPercent !== 'number') rep.overallProfitPercent = 0;
+        initInvestors.forEach(inv => {
+          if (!rep.entries[inv.id] || typeof rep.entries[inv.id] !== 'object') {
+            rep.entries[inv.id] = { invested:0, dividends:0, withdrawn:0, profitActual:0, factPercent:0, stopValue:null, addedPercent:0, capital:0, capitalStart:0 };
+          }
+        });
+      });
+    }
+
     function saveInitData() {
       localStorage.setItem('investors_db', JSON.stringify(initInvestors));
       localStorage.setItem('monthly_reports_db', JSON.stringify(initMonthlyReports));
@@ -4460,6 +4541,7 @@
       keys.forEach((key) => {
         const report = initMonthlyReports[key];
         if (!report) return;
+        if (!report.entries || typeof report.entries !== 'object' || Array.isArray(report.entries)) report.entries = {};
         const year = report.year, month = report.month;
         if (!year || !month) return;
         const isFirstMonth = (key === oldestKey);
@@ -4584,10 +4666,7 @@
         if (!initInvestors.some(i => i && i.isOwner)) {
           initInvestors.unshift({ id: 'owner', name: 'Владелец', percent: 100, isOwner: true });
         }
-        if (!initInvestors.length) {
-          initInvestors.push({ id: 'inv_default_' + Date.now(), name: 'Инвестор 1', percent: 50, isOwner: false });
-        }
-        if (!initMonthlyReports || typeof initMonthlyReports !== 'object' || Array.isArray(initMonthlyReports)) initMonthlyReports = {};
+        normalizeInvestmentData();
         ensureNextMonthExists();
         recalculateInit();
         
