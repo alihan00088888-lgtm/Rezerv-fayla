@@ -74,15 +74,17 @@
     .side-drawer.open { transform:translateX(0); }
     .drawer-overlay { position:fixed; inset:0; background:rgba(15,23,42,.42); z-index:70; opacity:0; pointer-events:none; transition:opacity .2s ease; }
     .drawer-overlay.open { opacity:1; pointer-events:auto; }
-    .drawer-toggle { position:fixed; left:14px; top:14px; z-index:100;  width:46px; height:46px; border:0; border-radius:14px; background:#0f172a; color:white; box-shadow:0 8px 20px rgba(15,23,42,.22); cursor:pointer; font-size:21px; }
+    .drawer-toggle { position:fixed; left:14px; top:14px; z-index:100; width:48px; height:48px; border:0; border-radius:14px; background:#0f172a; color:white; box-shadow:0 8px 20px rgba(15,23,42,.22); cursor:pointer; font-size:22px; display:flex; align-items:center; justify-content:center; touch-action:manipulation; }
+    .drawer-toggle:hover { background:#1e293b; }
+    .drawer-toggle:focus-visible { outline:3px solid #60a5fa; outline-offset:2px; }
     .drawer-nav { overflow-y:auto; padding:8px 12px 24px; }
-    .drawer-nav .tab-btn { width:100%; justify-content:flex-start; margin:3px 0; padding:11px 13px !important; border-radius:11px; }
+    .drawer-nav .tab-btn { width:100%; justify-content:flex-start; margin:3px 0; padding:11px 13px !important; border-radius:11px; min-height:44px; }
     .drawer-head { padding:18px 16px 12px; border-bottom:1px solid #e5e7eb; }
-    .drawer-close { border:0; background:#f1f5f9; border-radius:10px; width:36px; height:36px; cursor:pointer; }
-    .app-main { padding:86px 16px 16px; max-width:100vw; }
+    .drawer-close { border:0; background:#f1f5f9; border-radius:10px; width:40px; height:40px; cursor:pointer; touch-action:manipulation; }
+    .app-main { padding:78px 16px 16px; max-width:100vw; }
     .client-card-button { cursor:pointer; text-align:left; width:100%; }
     .client-contract-card { border:1px solid #e5e7eb; border-radius:12px; padding:12px; background:#fff; }
-    @media (max-width:640px) { .app-main{padding:14px 8px 76px}.drawer-toggle{left:10px;top:auto;bottom:14px;width:50px;height:50px}.side-drawer{width:min(88vw,310px)}.client-item{padding:12px 10px}.client-info{gap:7px}.client-name{font-size:14px}.modal-inner{max-height:94vh!important;padding:14px!important}table{font-size:10px}input,select,textarea,button{max-width:100%} }
+    @media (max-width:640px) { .app-main{padding:12px 8px 82px}.drawer-toggle{left:12px;top:auto;bottom:14px;width:52px;height:52px;border-radius:16px;font-size:23px;z-index:100}.side-drawer{width:min(90vw,320px);height:100dvh}.drawer-nav .tab-btn{min-height:48px;font-size:13px}.client-item{padding:12px 10px}.client-info{gap:7px}.client-name{font-size:14px}.modal-inner{max-height:94dvh!important;padding:14px!important}table{font-size:10px}input,select,textarea,button{max-width:100%} }
 
     /* === Печать договора === */
     .print-contract {
@@ -1457,113 +1459,80 @@
     // ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК
     // ================================================================
     window.switchTab = function(tab) {
+      // Навигация полностью управляется боковой шторкой. Не обращаемся
+      // к старым кнопкам нижней/верхней навигации, которых больше нет.
       normalizeContractNumbers();
       activeTab = tab;
-      const cTab = document.getElementById('contractsTabContent');
-      const aTab = document.getElementById('accountingTabContent');
-      const tTab = document.getElementById('takenTabContent');
-      const iTab = document.getElementById('incomeTabContent');
-      const todayTab = document.getElementById('todayTabContent');
-      const threeDaysTab = document.getElementById('threeDaysTabContent');
-      const debtorsTab = document.getElementById('debtorsTabContent');
-      const partnersTab = document.getElementById('partnersTabContent');
-      const printTab = document.getElementById('printTabContent');
-      const initTab = document.getElementById('initTabContent');
-      const clientsTab = document.getElementById('clientsTabContent');
 
-      const cBtn = document.getElementById('tabBtnContracts');
-      const aBtn = document.getElementById('tabBtnAccounting');
-      const tBtn = document.getElementById('tabBtnTaken');
-      const iBtn = document.getElementById('tabBtnIncome');
-      const initBtn = document.getElementById('tabBtnInit');
-      const todayBtn = document.getElementById('tabBtnToday');
-      const threeDaysBtn = document.getElementById('tabBtnThreeDays');
-      const debtorsBtn = document.getElementById('tabBtnDebtors');
-      const partnersBtn = document.getElementById('tabBtnPartners');
-      const printBtn = document.getElementById('tabBtnPrint');
+      const tabIds = [
+        'contractsTabContent', 'clientsTabContent', 'accountingTabContent',
+        'takenTabContent', 'incomeTabContent', 'initTabContent',
+        'todayTabContent', 'threeDaysTabContent', 'debtorsTabContent',
+        'partnersTabContent', 'printTabContent'
+      ];
+      tabIds.forEach(id => document.getElementById(id)?.classList.add('hidden'));
 
-      const addC = document.getElementById('addContractBtn');
-      const addA = document.getElementById('addAccBtn');
-      const addT = document.getElementById('addTakenBtn');
-      const addI = document.getElementById('addIncomeExpBtn');
+      const addButtons = ['addContractBtn', 'addAccBtn', 'addTakenBtn', 'addIncomeExpBtn'];
+      addButtons.forEach(id => document.getElementById(id)?.classList.add('hidden'));
 
-      cTab.classList.add('hidden');
-      aTab.classList.add('hidden');
-      tTab.classList.add('hidden');
-      iTab.classList.add('hidden');
-      todayTab.classList.add('hidden');
-      threeDaysTab.classList.add('hidden');
-      debtorsTab.classList.add('hidden');
-      partnersTab.classList.add('hidden');
-      printTab.classList.add('hidden');
-      initTab.classList.add('hidden');
-      clientsTab.classList.add('hidden');
-      addC.classList.add('hidden');
-      addA.classList.add('hidden');
-      addT.classList.add('hidden');
-      addI.classList.add('hidden');
+      const drawerButtons = {
+        contracts: 'drawerBtnContracts', clients: 'drawerBtnClients',
+        accounting: 'drawerBtnAccounting', taken: 'drawerBtnTaken',
+        income: 'drawerBtnIncome', init: 'drawerBtnInit',
+        today: 'drawerBtnToday', threeDays: 'drawerBtnThreeDays',
+        debtors: 'drawerBtnDebtors', partners: 'drawerBtnPartners',
+        print: 'drawerBtnPrint'
+      };
+      Object.values(drawerButtons).forEach(id => document.getElementById(id)?.classList.remove('active'));
 
-      if (cBtn) cBtn.className = "tab-btn px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
-      if (aBtn) aBtn.className = "tab-btn px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
-      if (tBtn) tBtn.className = "tab-btn px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
-      if (iBtn) iBtn.className = "tab-btn income-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
-      iniif (tBtn) tBtn.className = "tab-btn init-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
-      if (todayBtn) todayBtn.className = "tab-btn today-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
-      if (threeDaysBtn) threeDaysBtn.className = "tab-btn three-days-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
-      if (debtorsBtn) debtorsBtn.className = "tab-btn debtors-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
-      if (partnersBtn) partnersBtn.className = "tab-btn partners-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
-      prinif (tBtn) tBtn.className = "tab-btn print-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
-      ['Contracts','Clients','Accounting','Taken','Income','Init','Today','ThreeDays','Debtors','Partners','Print'].forEach(x => { const b=document.getElementById('drawerBtn'+x); if(b)b.classList.remove('active'); });
+      const show = id => document.getElementById(id)?.classList.remove('hidden');
+      const activeDrawer = document.getElementById(drawerButtons[tab]);
+      if (activeDrawer) activeDrawer.classList.add('active');
 
       if (tab === 'contracts') {
-        cTab.classList.remove('hidden');
-        if (cBtn) cBtn.className = "tab-btn active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
-        addC.classList.remove('hidden');
+        show('contractsTabContent');
+        document.getElementById('addContractBtn')?.classList.remove('hidden');
       } else if (tab === 'clients') {
-        clientsTab.classList.remove('hidden');
+        show('clientsTabContent');
         renderClientsPage();
       } else if (tab === 'accounting') {
-        aTab.classList.remove('hidden');
-        if (aBtn) aBtn.className = "tab-btn active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
-        addA.classList.remove('hidden');
+        show('accountingTabContent');
+        document.getElementById('addAccBtn')?.classList.remove('hidden');
       } else if (tab === 'taken') {
-        tTab.classList.remove('hidden');
-        if (tBtn) tBtn.className = "tab-btn active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
-        addT.classList.remove('hidden');
+        show('takenTabContent');
+        document.getElementById('addTakenBtn')?.classList.remove('hidden');
         renderTakenSheet();
       } else if (tab === 'income') {
-        iTab.classList.remove('hidden');
-        if (iBtn) iBtn.className = "tab-btn income-tab active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
-        addI.classList.remove('hidden');
+        show('incomeTabContent');
+        document.getElementById('addIncomeExpBtn')?.classList.remove('hidden');
         renderIncomePage();
       } else if (tab === 'init') {
-        initTab.classList.remove('hidden');
-        iniif (tBtn) tBtn.className = "tab-btn init-tab active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
+        show('initTabContent');
         renderInitPage();
       } else if (tab === 'today') {
-        todayTab.classList.remove('hidden');
-        if (todayBtn) todayBtn.className = "tab-btn today-tab active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
+        show('todayTabContent');
         renderTodayClients();
       } else if (tab === 'threeDays') {
-        threeDaysTab.classList.remove('hidden');
-        if (threeDaysBtn) threeDaysBtn.className = "tab-btn three-days-tab active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
+        show('threeDaysTabContent');
         renderThreeDaysClients();
       } else if (tab === 'debtors') {
-        debtorsTab.classList.remove('hidden');
-        if (debtorsBtn) debtorsBtn.className = "tab-btn debtors-tab active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
+        show('debtorsTabContent');
         renderDebtorsClients();
       } else if (tab === 'partners') {
-        partnersTab.classList.remove('hidden');
-        if (partnersBtn) partnersBtn.className = "tab-btn partners-tab active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
+        show('partnersTabContent');
         renderPartners();
       } else if (tab === 'print') {
-        printTab.classList.remove('hidden');
-        prinif (tBtn) tBtn.className = "tab-btn print-tab active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
+        show('printTabContent');
         updatePrintSelect();
         loadContractForPrint();
+      } else {
+        // Защита от случайного неизвестного значения: возвращаемся к договорам.
+        activeTab = 'contracts';
+        show('contractsTabContent');
+        document.getElementById('drawerBtnContracts')?.classList.add('active');
+        document.getElementById('addContractBtn')?.classList.remove('hidden');
       }
-      const map={contracts:'Contracts',clients:'Clients',accounting:'Accounting',taken:'Taken',income:'Income',init:'Init',today:'Today',threeDays:'ThreeDays',debtors:'Debtors',partners:'Partners',print:'Print'};
-      const activeDrawer=document.getElementById('drawerBtn'+(map[tab]||'')); if(activeDrawer) activeDrawer.classList.add('active');
+
       closeDrawer();
       handleSearch();
     };
@@ -2429,9 +2398,8 @@
 
     function normalizeContractNumbers(){ let max=allContracts.reduce((m,c)=>Math.max(m,Number(c.contractNum)||0),0); allContracts.forEach(c=>{if(!Number(c.contractNum)||Number(c.contractNum)<1)c.contractNum=++max;}); }
     function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));}
-    window.toggleDrawer=function(){ const d=document.getElementById('sideDrawer'), o=document.getElementById('drawerOverlay'); if(d&&o){ const open=!d.classList.contains('open'); d.classList.toggle('open',open); o.classList.toggle('open',open); document.body.classList.toggle('drawer-open',open); } };
-    window.closeDrawer=function(){ const d=document.getElementById('sideDrawer'), o=document.getElementById('drawerOverlay'); if(d&&o){ d.classList.remove('open'); o.classList.remove('open'); document.body.classList.remove('drawer-open'); } };
-    document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeDrawer(); });
+    window.toggleDrawer=function(){document.getElementById('sideDrawer').classList.toggle('open');document.getElementById('drawerOverlay').classList.toggle('open');};
+    window.closeDrawer=function(){document.getElementById('sideDrawer').classList.remove('open');document.getElementById('drawerOverlay').classList.remove('open');};
     document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer();});
     function getUniqueClients(){const map=new Map();allContracts.forEach(c=>{const key=(c.fio||'').trim().toLowerCase()||('phone:'+(c.phone||'').replace(/\D/g,''));if(!key)return;if(!map.has(key))map.set(key,{fio:c.fio||'Без ФИО',phone:c.phone||'',contracts:[]});map.get(key).contracts.push(c);if(!map.get(key).phone&&c.phone)map.get(key).phone=c.phone;});return [...map.values()].sort((a,b)=>a.fio.localeCompare(b.fio,'ru'));}
     window.renderClientsPage=function(){const box=document.getElementById('clientsPageList');if(!box)return;const q=(document.getElementById('clientsSearch')?.value||'').trim().toLowerCase();const clients=getUniqueClients().filter(c=>!q||c.fio.toLowerCase().includes(q)||c.phone.toLowerCase().includes(q));if(!clients.length){box.innerHTML='<div class="col-span-full text-center text-slate-500 py-10">👤 Клиенты не найдены</div>';return;}box.innerHTML=clients.map(c=>{let overdue=0,rest=0;c.contracts.forEach(x=>{const m=calculateContractMetrics(x);overdue+=Number(m.overdueSum||0);rest+=Number(m.rest||0);});return `<button type="button" class="client-contract-card client-card-button hover:border-indigo-400 hover:shadow-md transition" onclick="openClientDetails(${JSON.stringify(c.fio)})"><div class="flex items-start justify-between gap-2"><div class="font-black text-indigo-700 text-base">${escapeHtml(c.fio)}</div><span class="text-[10px] bg-indigo-50 text-indigo-700 px-2 py-1 rounded-full">${c.contracts.length} дог.</span></div><div class="text-xs text-slate-500 mt-1">📞 ${escapeHtml(c.phone||'—')}</div><div class="grid grid-cols-2 gap-2 mt-3"><div class="bg-slate-50 rounded-lg p-2"><div class="text-[10px] text-slate-500">Остаток</div><div class="font-bold">${rest.toLocaleString('ru-RU')} ₽</div></div><div class="bg-red-50 rounded-lg p-2"><div class="text-[10px] text-red-500">Просрочка</div><div class="font-bold text-red-600">${overdue.toLocaleString('ru-RU')} ₽</div></div></div></button>`;}).join('');};
@@ -2492,142 +2460,6 @@
         notification.remove();
       }, 3000);
     }
-
-    window.sendWhatsAppToday = function() {
-      const today = new Date();
-      const todayStr = today.toISOString().slice(0, 10);
-      const clients = getClientsForDate(todayStr);
-      
-      if (clients.length === 0) {
-        alert('📭 Нет клиентов, которые должны оплатить сегодня');
-        return;
-      }
-      
-      let message = '🔔 *Напоминание об оплате сегодня!*\n\n';
-      let phoneNumbers = [];
-      
-      clients.forEach((client, index) => {
-        const phone = client.phone.replace(/[^0-9]/g, '');
-        if (phone) phoneNumbers.push(phone);
-        
-        const monthInfo = client.monthInfo || getMonthStatus(client);
-        let overdueSum = 0;
-        monthInfo.months.forEach(m => {
-          if (m.status === 'overdue' && !m.isPaid) overdueSum += m.amount;
-        });
-        
-        message += `${index + 1}. *${client.fio}*\n`;
-        message += `   💰 Сумма: ${client.monthlyPay} ₽\n`;
-        message += `   📱 WhatsApp: wa.me/7${phone}\n`;
-        if (overdueSum > 0) {
-          message += `   ⚠️ Просрочка: ${overdueSum} ₽\n`;
-        }
-        message += `   📊 Остаток: ${client.rest} ₽\n\n`;
-      });
-      
-      message += `\n📅 Дата платежа: ${todayStr}\n`;
-      message += `👥 Всего клиентов: ${clients.length}`;
-      
-      const phoneList = phoneNumbers.map(p => `7${p}`).join(', ');
-      navigator.clipboard.writeText(phoneList).then(() => {
-        showCopyNotification(`✅ Скопировано ${phoneNumbers.length} номеров для рассылки!`);
-      }).catch(() => {
-        showCopyNotification(`⚠️ Найдено ${phoneNumbers.length} клиентов.`);
-      });
-      
-      window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
-    };
-
-    window.sendWhatsAppThreeDays = function() {
-      const today = new Date();
-      const threeDaysLater = new Date(today);
-      threeDaysLater.setDate(today.getDate() + 3);
-      const threeDaysStr = threeDaysLater.toISOString().slice(0, 10);
-      const clients = getClientsForDate(threeDaysStr);
-      
-      if (clients.length === 0) {
-        alert('📭 Нет клиентов, которым нужно оплатить через 3 дня');
-        return;
-      }
-      
-      let message = '🔔 *Напоминание об оплате через 3 дня!*\n\n';
-      let phoneNumbers = [];
-      
-      clients.forEach((client, index) => {
-        const phone = client.phone.replace(/[^0-9]/g, '');
-        if (phone) phoneNumbers.push(phone);
-        
-        const monthInfo = client.monthInfo || getMonthStatus(client);
-        let overdueSum = 0;
-        monthInfo.months.forEach(m => {
-          if (m.status === 'overdue' && !m.isPaid) overdueSum += m.amount;
-        });
-        
-        message += `${index + 1}. *${client.fio}*\n`;
-        message += `   💰 Сумма: ${client.monthlyPay} ₽\n`;
-        message += `   📱 WhatsApp: wa.me/7${phone}\n`;
-        if (overdueSum > 0) {
-          message += `   ⚠️ Просрочка: ${overdueSum} ₽\n`;
-        }
-        message += `   📊 Остаток: ${client.rest} ₽\n\n`;
-      });
-      
-      message += `\n📅 Дата платежа: ${threeDaysStr}\n`;
-      message += `👥 Всего клиентов: ${clients.length}`;
-      
-      const phoneList = phoneNumbers.map(p => `7${p}`).join(', ');
-      navigator.clipboard.writeText(phoneList).then(() => {
-        showCopyNotification(`✅ Скопировано ${phoneNumbers.length} номеров!`);
-      }).catch(() => {
-        showCopyNotification(`⚠️ Найдено ${phoneNumbers.length} клиентов.`);
-      });
-      
-      window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
-    };
-
-    window.sendWhatsAppDebtors = function() {
-      const clients = getDebtors();
-      
-      if (clients.length === 0) {
-        alert('📭 Нет клиентов с просрочкой');
-        return;
-      }
-      
-      let message = '🚫 *Напоминание о просроченной задолженности!*\n\n';
-      let phoneNumbers = [];
-      
-      clients.forEach((client, index) => {
-        const phone = client.phone.replace(/[^0-9]/g, '');
-        if (phone) phoneNumbers.push(phone);
-        
-        const monthInfo = client.monthInfo || getMonthStatus(client);
-        let overdueSum = 0;
-        let overdueMonths = [];
-        monthInfo.months.forEach(m => {
-          if (m.status === 'overdue' && !m.isPaid) {
-            overdueSum += m.amount;
-            overdueMonths.push(`${m.month}-й (${m.date})`);
-          }
-        });
-        
-        message += `${index + 1}. *${client.fio}*\n`;
-        message += `   💰 Сумма: ${client.monthlyPay} ₽\n`;
-        message += `   📱 WhatsApp: wa.me/7${phone}\n`;
-        message += `   ⚠️ Просрочка: ${overdueSum} ₽ (${overdueMonths.join(', ')})\n`;
-        message += `   📊 Остаток: ${client.rest} ₽\n\n`;
-      });
-      
-      message += `\n👥 Всего должников: ${clients.length}`;
-      
-      const phoneList = phoneNumbers.map(p => `7${p}`).join(', ');
-      navigator.clipboard.writeText(phoneList).then(() => {
-        showCopyNotification(`✅ Скопировано ${phoneNumbers.length} номеров!`);
-      }).catch(() => {
-        showCopyNotification(`⚠️ Найдено ${phoneNumbers.length} должников.`);
-      });
-      
-      window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
-    };
 
     window.validateFinance = function() {
       const months = Number(document.getElementById('monthsCount').value) || 0;
