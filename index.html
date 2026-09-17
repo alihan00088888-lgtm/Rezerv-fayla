@@ -594,6 +594,94 @@
       .app-sidebar.open + .sidebar-overlay { opacity: 1; pointer-events:auto; }
     }
 
+    /* === Главная: финансовый дашборд === */
+    .dashboard-shell { display:flex; flex-direction:column; gap:18px; }
+    .dashboard-hero {
+      position:relative; overflow:hidden; border-radius:20px; padding:20px 22px;
+      background:linear-gradient(135deg,#0f172a 0%,#1e3a8a 55%,#2563eb 100%);
+      color:#fff; box-shadow:0 14px 35px rgba(15,23,42,.18);
+    }
+    .dashboard-hero:after { content:''; position:absolute; width:220px; height:220px; right:-70px; top:-95px; border-radius:50%; background:rgba(255,255,255,.08); }
+    .dashboard-hero-inner { position:relative; z-index:1; display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; }
+    .dashboard-kicker { font-size:10px; font-weight:900; letter-spacing:.16em; text-transform:uppercase; opacity:.7; }
+    .dashboard-title { font-size:26px; line-height:1.1; font-weight:900; margin-top:5px; letter-spacing:-.5px; }
+    .dashboard-subtitle { font-size:11px; opacity:.78; margin-top:6px; }
+    .dashboard-period-box { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .dashboard-period-select,.dashboard-date-input { border:1px solid rgba(255,255,255,.2); background:rgba(255,255,255,.12); color:#fff; border-radius:10px; padding:9px 11px; font-size:11px; font-weight:800; outline:none; }
+    .dashboard-period-select option { color:#0f172a; background:#fff; }
+    .dashboard-date-input::-webkit-calendar-picker-indicator { filter:invert(1); }
+    .dashboard-custom-range { display:none; gap:8px; align-items:center; flex-wrap:wrap; }
+    .dashboard-custom-range.show { display:flex; }
+    .dashboard-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; }
+    .dashboard-card { background:#fff; border:1px solid #e2e8f0; border-radius:16px; box-shadow:0 5px 18px rgba(15,23,42,.06); overflow:hidden; }
+    .dashboard-metric { padding:16px; min-height:112px; display:flex; flex-direction:column; justify-content:space-between; }
+    .dashboard-metric-top { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; }
+    .dashboard-metric-label { font-size:10px; font-weight:900; color:#64748b; text-transform:uppercase; letter-spacing:.055em; }
+    .dashboard-metric-icon { width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; background:#f1f5f9; }
+    .dashboard-metric-value { margin-top:8px; font-size:21px; line-height:1.05; font-weight:900; letter-spacing:-.45px; color:#0f172a; word-break:break-word; }
+    .dashboard-metric-note { margin-top:5px; font-size:9px; color:#94a3b8; font-weight:700; }
+    .dashboard-metric.green .dashboard-metric-value { color:#059669; }
+    .dashboard-metric.red .dashboard-metric-value { color:#dc2626; }
+    .dashboard-metric.blue .dashboard-metric-value { color:#2563eb; }
+    .dashboard-metric.amber .dashboard-metric-value { color:#d97706; }
+    .dashboard-section { padding:0; }
+    .dashboard-section-head { padding:14px 16px; border-bottom:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; }
+    .dashboard-section-title { font-size:12px; font-weight:900; color:#0f172a; display:flex; align-items:center; gap:7px; }
+    .dashboard-section-sub { font-size:9px; color:#94a3b8; font-weight:700; }
+    .dashboard-two-col { display:grid; grid-template-columns:1.35fr 1fr; gap:14px; }
+    .dashboard-three-col { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+    .dashboard-list { padding:4px 0; }
+    .dashboard-row { display:flex; justify-content:space-between; align-items:center; gap:10px; padding:10px 16px; border-bottom:1px solid #f1f5f9; }
+    .dashboard-row:last-child { border-bottom:0; }
+    .dashboard-row-label { font-size:10px; color:#64748b; font-weight:800; }
+    .dashboard-row-value { font-size:12px; color:#0f172a; font-weight:900; text-align:right; }
+    .dashboard-row-value.green { color:#059669; }
+    .dashboard-row-value.red { color:#dc2626; }
+    .dashboard-row-value.blue { color:#2563eb; }
+    .dashboard-row-value.amber { color:#d97706; }
+    .dashboard-installment { padding:18px; }
+    .dashboard-installment-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+    .dashboard-big-box { border:1px solid #e2e8f0; border-radius:14px; padding:14px; background:#f8fafc; }
+    .dashboard-big-label { font-size:9px; font-weight:900; color:#64748b; text-transform:uppercase; letter-spacing:.05em; }
+    .dashboard-big-value { margin-top:5px; font-size:22px; font-weight:900; color:#0f172a; }
+    .dashboard-big-value.blue { color:#2563eb; }
+    .dashboard-big-value.green { color:#059669; }
+    .dashboard-profit-strip { margin-top:10px; padding:10px 12px; border-radius:10px; background:#ecfdf5; color:#047857; display:flex; justify-content:space-between; gap:8px; font-size:10px; font-weight:900; }
+    .dashboard-chart-wrap { padding:12px 16px 16px; }
+    .dashboard-chart { height:190px; display:flex; align-items:flex-end; gap:7px; border-bottom:1px solid #e2e8f0; padding:8px 4px 0; overflow-x:auto; }
+    .dashboard-chart-month { min-width:46px; height:100%; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; gap:4px; }
+    .dashboard-chart-bars { width:100%; height:145px; display:flex; align-items:flex-end; justify-content:center; gap:3px; }
+    .dashboard-chart-bar { width:10px; min-height:2px; border-radius:4px 4px 0 0; background:#2563eb; }
+    .dashboard-chart-bar.expense { background:#ef4444; }
+    .dashboard-chart-label { font-size:8px; color:#94a3b8; font-weight:800; white-space:nowrap; }
+    .dashboard-chart-value { font-size:7px; color:#64748b; font-weight:800; white-space:nowrap; }
+    .dashboard-quick-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; padding:14px 16px 16px; }
+    .dashboard-quick-btn { border:1px solid #e2e8f0; background:#fff; border-radius:12px; padding:11px 10px; cursor:pointer; font-size:10px; font-weight:900; color:#334155; transition:all .15s; }
+    .dashboard-quick-btn:hover { background:#f8fafc; border-color:#bfdbfe; transform:translateY(-1px); }
+    .dashboard-footnote { font-size:9px; color:#94a3b8; padding:0 16px 14px; line-height:1.45; }
+    @media (max-width: 1000px) {
+      .dashboard-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .dashboard-two-col { grid-template-columns:1fr; }
+      .dashboard-three-col { grid-template-columns:1fr 1fr; }
+      .dashboard-quick-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    }
+    @media (max-width: 640px) {
+      .dashboard-hero { padding:16px; border-radius:16px; }
+      .dashboard-title { font-size:22px; }
+      .dashboard-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+      .dashboard-metric { padding:12px; min-height:102px; }
+      .dashboard-metric-value { font-size:16px; }
+      .dashboard-metric-icon { width:30px; height:30px; font-size:15px; }
+      .dashboard-three-col { grid-template-columns:1fr; }
+      .dashboard-installment-grid { grid-template-columns:1fr; }
+      .dashboard-big-value { font-size:19px; }
+      .dashboard-quick-grid { grid-template-columns:1fr 1fr; padding:12px; }
+      .dashboard-period-box { width:100%; }
+      .dashboard-period-select { width:100%; }
+      .dashboard-custom-range { width:100%; }
+      .dashboard-date-input { flex:1; min-width:0; width:100%; }
+    }
+
   </style>
 </head>
 <body class="bg-slate-100 text-gray-800 text-xs min-h-screen">
@@ -657,6 +745,157 @@
   </div>
 
   <div class="p-4 max-w-[100vw]">
+
+    <!-- ================= Главная ================= -->
+    <div id="homeTabContent" class="dashboard-shell">
+      <section class="dashboard-hero">
+        <div class="dashboard-hero-inner">
+          <div>
+            <div class="dashboard-kicker">YUSRA · Финансовый центр</div>
+            <div class="dashboard-title">Главная</div>
+            <div id="dashboardPeriodCaption" class="dashboard-subtitle">Показатели за всё время</div>
+          </div>
+          <div class="dashboard-period-box">
+            <select id="dashboardPeriod" class="dashboard-period-select" onchange="changeDashboardPeriod(this.value)">
+              <option value="all">Все время</option>
+              <option value="month">Этот месяц</option>
+              <option value="prevMonth">Прошлый месяц</option>
+              <option value="year">Этот год</option>
+              <option value="custom">Свой период</option>
+            </select>
+            <div id="dashboardCustomRange" class="dashboard-custom-range">
+              <input type="date" id="dashboardDateFrom" class="dashboard-date-input" onchange="renderDashboard()" aria-label="Дата начала">
+              <span class="text-[10px] font-bold opacity-70">—</span>
+              <input type="date" id="dashboardDateTo" class="dashboard-date-input" onchange="renderDashboard()" aria-label="Дата окончания">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="dashboard-grid">
+        <div class="dashboard-card dashboard-metric blue">
+          <div class="dashboard-metric-top"><span class="dashboard-metric-label">Общий доход</span><span class="dashboard-metric-icon">📈</span></div>
+          <div id="dashTotalProfit" class="dashboard-metric-value">0 ₽</div>
+          <div class="dashboard-metric-note">без вычета расходов</div>
+        </div>
+        <div class="dashboard-card dashboard-metric red">
+          <div class="dashboard-metric-top"><span class="dashboard-metric-label">Общие расходы</span><span class="dashboard-metric-icon">📉</span></div>
+          <div id="dashGeneralExpense" class="dashboard-metric-value">0 ₽</div>
+          <div class="dashboard-metric-note">дивиденды здесь не учитываются</div>
+        </div>
+        <div class="dashboard-card dashboard-metric green">
+          <div class="dashboard-metric-top"><span class="dashboard-metric-label">Доход с расходами</span><span class="dashboard-metric-icon">💰</span></div>
+          <div id="dashProfitAfterExpenses" class="dashboard-metric-value">0 ₽</div>
+          <div class="dashboard-metric-note">после общих расходов и дивидендов</div>
+        </div>
+        <div class="dashboard-card dashboard-metric amber">
+          <div class="dashboard-metric-top"><span class="dashboard-metric-label">Ожидаемый доход</span><span class="dashboard-metric-icon">⏳</span></div>
+          <div id="dashExpectedProfit" class="dashboard-metric-value">0 ₽</div>
+          <div class="dashboard-metric-note">прибыль, которая ещё ожидается</div>
+        </div>
+        <div class="dashboard-card dashboard-metric green">
+          <div class="dashboard-metric-top"><span class="dashboard-metric-label">Оплаченный доход</span><span class="dashboard-metric-icon">✅</span></div>
+          <div id="dashPaidProfit" class="dashboard-metric-value">0 ₽</div>
+          <div class="dashboard-metric-note">прибыль по фактически внесённым деньгам</div>
+        </div>
+        <div class="dashboard-card dashboard-metric blue">
+          <div class="dashboard-metric-top"><span class="dashboard-metric-label">Общие платежи</span><span class="dashboard-metric-icon">💳</span></div>
+          <div id="dashPayments" class="dashboard-metric-value">0 ₽</div>
+          <div class="dashboard-metric-note">предоплаты + внесённые платежи</div>
+        </div>
+        <div class="dashboard-card dashboard-metric red">
+          <div class="dashboard-metric-top"><span class="dashboard-metric-label">Просрочка</span><span class="dashboard-metric-icon">⚠️</span></div>
+          <div id="dashOverdue" class="dashboard-metric-value">0 ₽</div>
+          <div class="dashboard-metric-note">текущая просроченная сумма</div>
+        </div>
+        <div class="dashboard-card dashboard-metric amber">
+          <div class="dashboard-metric-top"><span class="dashboard-metric-label">Неплательщики</span><span class="dashboard-metric-icon">👥</span></div>
+          <div id="dashDebtors" class="dashboard-metric-value">0</div>
+          <div class="dashboard-metric-note">можно открыть из меню</div>
+        </div>
+      </section>
+
+      <section class="dashboard-two-col">
+        <div class="dashboard-card dashboard-section">
+          <div class="dashboard-section-head">
+            <div><div class="dashboard-section-title">📊 Рассрочка</div><div id="dashInstallmentCaption" class="dashboard-section-sub">Текущий месяц</div></div>
+          </div>
+          <div class="dashboard-installment">
+            <div class="dashboard-installment-grid">
+              <div class="dashboard-big-box">
+                <div class="dashboard-big-label">Себестоимость рассрочки</div>
+                <div id="dashInstallmentCost" class="dashboard-big-value">0 ₽</div>
+              </div>
+              <div class="dashboard-big-box">
+                <div class="dashboard-big-label">Итоговая сумма рассрочки</div>
+                <div id="dashInstallmentTotal" class="dashboard-big-value blue">0 ₽</div>
+              </div>
+            </div>
+            <div class="dashboard-profit-strip"><span>Доход от рассрочки</span><span id="dashInstallmentProfit">0 ₽</span></div>
+          </div>
+        </div>
+
+        <div class="dashboard-card dashboard-section">
+          <div class="dashboard-section-head"><div class="dashboard-section-title">📋 Договоры</div><div class="dashboard-section-sub">За выбранный период</div></div>
+          <div class="dashboard-list">
+            <div class="dashboard-row"><span class="dashboard-row-label">Всего договоров</span><span id="dashContracts" class="dashboard-row-value">0</span></div>
+            <div class="dashboard-row"><span class="dashboard-row-label">Действующие</span><span id="dashActiveContracts" class="dashboard-row-value blue">0</span></div>
+            <div class="dashboard-row"><span class="dashboard-row-label">Закрытые</span><span id="dashClosedContracts" class="dashboard-row-value green">0</span></div>
+            <div class="dashboard-row"><span class="dashboard-row-label">Средний срок</span><span id="dashAverageMonths" class="dashboard-row-value">0 мес.</span></div>
+            <div class="dashboard-row"><span class="dashboard-row-label">Средний процент прибыли</span><span id="dashAveragePercent" class="dashboard-row-value blue">0%</span></div>
+            <div class="dashboard-row"><span class="dashboard-row-label">Остаток по договорам</span><span id="dashOutstanding" class="dashboard-row-value amber">0 ₽</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="dashboard-three-col">
+        <div class="dashboard-card dashboard-section">
+          <div class="dashboard-section-head"><div class="dashboard-section-title">💸 Расходы</div><div class="dashboard-section-sub">Раздельно</div></div>
+          <div class="dashboard-list">
+            <div class="dashboard-row"><span class="dashboard-row-label">Общие расходы</span><span id="dashExpenseDetail" class="dashboard-row-value red">0 ₽</span></div>
+            <div class="dashboard-row"><span class="dashboard-row-label">Дивиденды инвесторам</span><span id="dashDividends" class="dashboard-row-value red">0 ₽</span></div>
+            <div class="dashboard-row"><span class="dashboard-row-label">Всего с дивидендами</span><span id="dashExpensesWithDividends" class="dashboard-row-value">0 ₽</span></div>
+          </div>
+        </div>
+        <div class="dashboard-card dashboard-section">
+          <div class="dashboard-section-head"><div class="dashboard-section-title">🤝 Инвестиции</div><div class="dashboard-section-sub">Текущая картина</div></div>
+          <div class="dashboard-list">
+            <div class="dashboard-row"><span class="dashboard-row-label">Вложено инвесторами</span><span id="dashInvestorInvested" class="dashboard-row-value blue">0 ₽</span></div>
+            <div class="dashboard-row"><span class="dashboard-row-label">Вложено нами</span><span id="dashOwnerInvested" class="dashboard-row-value blue">0 ₽</span></div>
+            <div class="dashboard-row"><span class="dashboard-row-label">Вложено всего</span><span id="dashTotalInvested" class="dashboard-row-value">0 ₽</span></div>
+            <div class="dashboard-row"><span class="dashboard-row-label">Капитал сейчас</span><span id="dashCurrentCapital" class="dashboard-row-value green">0 ₽</span></div>
+          </div>
+        </div>
+        <div class="dashboard-card dashboard-section">
+          <div class="dashboard-section-head"><div class="dashboard-section-title">🏦 Касса и контроль</div><div class="dashboard-section-sub">Текущее состояние</div></div>
+          <div class="dashboard-list">
+            <div class="dashboard-row"><span class="dashboard-row-label">Касса</span><span id="dashCash" class="dashboard-row-value green">0 ₽</span></div>
+            <div class="dashboard-row"><span class="dashboard-row-label">Взяли</span><span id="dashTaken" class="dashboard-row-value red">0 ₽</span></div>
+            <div class="dashboard-row"><span class="dashboard-row-label">Положили</span><span id="dashPut" class="dashboard-row-value green">0 ₽</span></div>
+            <div class="dashboard-row"><span class="dashboard-row-label">Общий средний %</span><span id="dashOverallPercent" class="dashboard-row-value blue">0%</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="dashboard-card dashboard-section">
+        <div class="dashboard-section-head">
+          <div><div class="dashboard-section-title">📈 Динамика</div><div class="dashboard-section-sub">Доход без расходов и общие расходы по месяцам</div></div>
+          <div class="flex items-center gap-3 text-[9px] font-bold text-slate-500"><span>■ Доход</span><span class="text-red-500">■ Расход</span></div>
+        </div>
+        <div id="dashboardChart" class="dashboard-chart-wrap"></div>
+      </section>
+
+      <section class="dashboard-card dashboard-section">
+        <div class="dashboard-section-head"><div class="dashboard-section-title">⚡ Быстрые действия</div><div class="dashboard-section-sub">Частые операции</div></div>
+        <div class="dashboard-quick-grid">
+          <button class="dashboard-quick-btn" onclick="openCreateModal()">＋ Новый договор</button>
+          <button class="dashboard-quick-btn" onclick="switchTab('clients')">👥 Клиенты</button>
+          <button class="dashboard-quick-btn" onclick="openAccModal()">＋ Запись учёта</button>
+          <button class="dashboard-quick-btn" onclick="openIncomeExpModal()">＋ Добавить расход</button>
+        </div>
+        <div class="dashboard-footnote">Главная показывает финансовую картину, а подробная работа с договорами, клиентами, платежами и инвестициями остаётся на существующих страницах.</div>
+      </section>
+    </div>
     
     <!-- ================= Лист 1: Договоры ================= -->
     <div id="contractsTabContent" class="space-y-4">
@@ -1041,7 +1280,8 @@
     <button type="button" class="sidebar-close" onclick="closeSidebar()" aria-label="Закрыть меню">×</button>
     <div class="sidebar-section">
       <div class="sidebar-title">Основное</div>
-      <button type="button" onclick="switchTab('contracts')" id="tabBtnContracts" class="tab-btn active flex items-center gap-2">📋 Договоры</button>
+      <button type="button" onclick="switchTab('home')" id="tabBtnHome" class="tab-btn active flex items-center gap-2">🏠 Главная</button>
+      <button type="button" onclick="switchTab('contracts')" id="tabBtnContracts" class="tab-btn flex items-center gap-2">📋 Договоры</button>
       <button type="button" onclick="switchTab('today')" id="tabBtnToday" class="tab-btn flex items-center gap-2">📅 Сегодня</button>
       <button type="button" onclick="switchTab('threeDays')" id="tabBtnThreeDays" class="tab-btn flex items-center gap-2">⏰ Через 3 дня</button>
       <button type="button" onclick="switchTab('debtors')" id="tabBtnDebtors" class="tab-btn flex items-center gap-2">🚫 Неплательщики</button>
@@ -1452,7 +1692,7 @@
       });
     }
 
-    let activeTab = 'contracts';
+    let activeTab = 'home';
     let undoStack = [];
     let redoStack = [];
 
@@ -1507,6 +1747,7 @@
         renderTable(allContracts);
         renderAccountingTable(allAccounting);
         renderTakenSheet();
+        if (activeTab === 'home') renderDashboard();
         if (activeTab === 'income') renderIncomePage();
         if (activeTab === 'init') renderInitPage();
         if (activeTab === 'today') renderTodayClients();
@@ -1626,6 +1867,7 @@
         btn.classList.remove('active');
         btn.removeAttribute('aria-current');
       });
+      const homeTab = document.getElementById('homeTabContent');
       const cTab = document.getElementById('contractsTabContent');
       const aTab = document.getElementById('accountingTabContent');
       const tTab = document.getElementById('takenTabContent');
@@ -1638,6 +1880,7 @@
       const printTab = document.getElementById('printTabContent');
       const initTab = document.getElementById('initTabContent');
 
+      const homeBtn = document.getElementById('tabBtnHome');
       const cBtn = document.getElementById('tabBtnContracts');
       const aBtn = document.getElementById('tabBtnAccounting');
       const tBtn = document.getElementById('tabBtnTaken');
@@ -1655,6 +1898,7 @@
       const addT = document.getElementById('addTakenBtn');
       const addI = document.getElementById('addIncomeExpBtn');
 
+      homeTab.classList.add('hidden');
       cTab.classList.add('hidden');
       aTab.classList.add('hidden');
       tTab.classList.add('hidden');
@@ -1671,6 +1915,7 @@
       addT.classList.add('hidden');
       addI.classList.add('hidden');
 
+      homeBtn.className = "tab-btn px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
       cBtn.className = "tab-btn px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
       aBtn.className = "tab-btn px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
       tBtn.className = "tab-btn px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
@@ -1683,7 +1928,11 @@
       partnersBtn.className = "tab-btn partners-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
       printBtn.className = "tab-btn print-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
 
-      if (tab === 'contracts') {
+      if (tab === 'home') {
+        homeTab.classList.remove('hidden');
+        homeBtn.className = "tab-btn active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
+        renderDashboard();
+      } else if (tab === 'contracts') {
         cTab.classList.remove('hidden');
         cBtn.className = "tab-btn active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
         addC.classList.remove('hidden');
@@ -1733,7 +1982,7 @@
         loadContractForPrint();
       }
       const activeButton = document.getElementById({
-        contracts:'tabBtnContracts', accounting:'tabBtnAccounting', taken:'tabBtnTaken',
+        home:'tabBtnHome', contracts:'tabBtnContracts', accounting:'tabBtnAccounting', taken:'tabBtnTaken',
         income:'tabBtnIncome', init:'tabBtnInit', today:'tabBtnToday', threeDays:'tabBtnThreeDays',
         debtors:'tabBtnDebtors', clients:'tabBtnClients', partners:'tabBtnPartners', print:'tabBtnPrint'
       }[tab]);
@@ -1820,6 +2069,7 @@
       renderTable(allContracts);
       renderAccountingTable(allAccounting);
       renderTakenSheet();
+      if (activeTab === 'home') renderDashboard();
       if (activeTab === 'income') renderIncomePage();
       if (activeTab === 'init') renderInitPage();
       if (activeTab === 'today') renderTodayClients();
@@ -1857,6 +2107,7 @@
       renderTable(allContracts);
       renderAccountingTable(allAccounting);
       renderTakenSheet();
+      if (activeTab === 'home') renderDashboard();
       if (activeTab === 'income') renderIncomePage();
       if (activeTab === 'init') renderInitPage();
       if (activeTab === 'today') renderTodayClients();
@@ -1873,6 +2124,332 @@
       handleSearch();
       pushToCloud();
     };
+
+    // ================================================================
+    // ГЛАВНАЯ — ФИНАНСОВЫЙ ДАШБОРД
+    // ================================================================
+    let dashboardPeriodMode = 'all';
+
+    function dashDateString(date) {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, '0');
+      const d = String(date.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    function dashParseDate(value) {
+      if (!value) return null;
+      const parts = String(value).split('-').map(Number);
+      if (parts.length !== 3 || parts.some(n => !Number.isFinite(n))) return null;
+      const d = new Date(parts[0], parts[1] - 1, parts[2]);
+      d.setHours(0, 0, 0, 0);
+      return isNaN(d.getTime()) ? null : d;
+    }
+
+    function dashFormatMoney(value) {
+      return `${Math.round(Number(value) || 0).toLocaleString('ru-RU')} ₽`;
+    }
+
+    function dashInRange(dateValue, range) {
+      if (!range) return true;
+      const d = dashParseDate(dateValue);
+      if (!d) return false;
+      if (range.from && d < range.from) return false;
+      if (range.to && d > range.to) return false;
+      return true;
+    }
+
+    function getDashboardRange() {
+      const now = new Date();
+      now.setHours(0,0,0,0);
+      if (dashboardPeriodMode === 'all') return null;
+      if (dashboardPeriodMode === 'month') {
+        return { from: new Date(now.getFullYear(), now.getMonth(), 1), to: new Date(now.getFullYear(), now.getMonth() + 1, 0) };
+      }
+      if (dashboardPeriodMode === 'prevMonth') {
+        return { from: new Date(now.getFullYear(), now.getMonth() - 1, 1), to: new Date(now.getFullYear(), now.getMonth(), 0) };
+      }
+      if (dashboardPeriodMode === 'year') {
+        return { from: new Date(now.getFullYear(), 0, 1), to: new Date(now.getFullYear(), 11, 31) };
+      }
+      const from = dashParseDate(document.getElementById('dashboardDateFrom')?.value);
+      const to = dashParseDate(document.getElementById('dashboardDateTo')?.value);
+      return { from, to };
+    }
+
+    function dashboardRangeCaption(range) {
+      const names = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+      if (!range) return 'Показатели за всё время';
+      if (range.from && range.to && range.from.getFullYear() === range.to.getFullYear() && range.from.getMonth() === range.to.getMonth()) {
+        return `Показатели за ${names[range.from.getMonth()]} ${range.from.getFullYear()}`;
+      }
+      const fromText = range.from ? dashDateString(range.from) : 'начала';
+      const toText = range.to ? dashDateString(range.to) : 'сегодня';
+      return `Показатели: ${fromText} — ${toText}`;
+    }
+
+    function getDashboardContractMetrics(contracts) {
+      let totalProfit = 0;
+      let expectedProfit = 0;
+      let paidProfit = 0;
+      let payments = 0;
+      let outstanding = 0;
+      let overdue = 0;
+      let totalMonths = 0;
+      let totalMarginBase = 0;
+      let active = 0;
+      let closed = 0;
+
+      contracts.forEach(c => {
+        const total = Number(c.totalCost) || 0;
+        const cost = Number(c.costPrice) || 0;
+        const down = Number(c.downPayment) || 0;
+        const contractProfit = total - cost;
+        const metrics = calculateContractMetrics(c);
+        totalProfit += contractProfit;
+        outstanding += metrics.rest;
+        totalMonths += Number(c.monthsCount) || 0;
+        totalMarginBase += cost;
+        if (metrics.isClosed) closed++; else active++;
+
+        const margin = total > 0 ? contractProfit / total : 0;
+        const paidDown = Math.max(0, down);
+        payments += paidDown;
+        paidProfit += paidDown * margin;
+
+        Object.values(c.installments || {}).forEach(p => {
+          const amount = Number(p?.amount) || 0;
+          if (amount <= 0) return;
+          payments += amount;
+          paidProfit += amount * margin;
+        });
+
+        expectedProfit += Math.max(0, metrics.rest) * margin;
+        overdue += metrics.overdueSum;
+      });
+
+      const averageMonths = contracts.length ? totalMonths / contracts.length : 0;
+      const averagePercent = totalMarginBase > 0 ? (totalProfit / totalMarginBase) * 100 : 0;
+      return { totalProfit, expectedProfit, paidProfit, payments, outstanding, overdue, averageMonths, averagePercent, active, closed };
+    }
+
+    function getDashboardExpenses(range) {
+      return allIncomeExpenses.reduce((sum, e) => sum + (dashInRange(e.date, range) ? (Number(e.amount) || 0) : 0), 0);
+    }
+
+    function getDashboardDividends(range) {
+      let sum = 0;
+      Object.keys(initMonthlyReports).forEach(key => {
+        const rep = initMonthlyReports[key];
+        if (!rep || !rep.entries) return;
+        const monthDate = `${rep.year}-${String(rep.month).padStart(2,'0')}-01`;
+        if (!dashInRange(monthDate, range)) return;
+        initInvestors.forEach(inv => {
+          const e = rep.entries[inv.id];
+          if (e) sum += Number(e.dividends || 0);
+        });
+      });
+      return sum;
+    }
+
+    function getDashboardInvestments(range) {
+      let investorInvested = 0, ownerInvested = 0, totalInvested = 0;
+      Object.keys(initMonthlyReports).forEach(key => {
+        const rep = initMonthlyReports[key];
+        if (!rep || !rep.entries) return;
+        const monthDate = `${rep.year}-${String(rep.month).padStart(2,'0')}-01`;
+        if (!dashInRange(monthDate, range)) return;
+        initInvestors.forEach(inv => {
+          const e = rep.entries[inv.id];
+          const value = Number(e?.invested || 0);
+          totalInvested += value;
+          if (inv.isOwner) ownerInvested += value;
+          else investorInvested += value;
+        });
+      });
+      return { investorInvested, ownerInvested, totalInvested };
+    }
+
+    function getDashboardCurrentCapital() {
+      const keys = Object.keys(initMonthlyReports).sort();
+      if (!keys.length) return 0;
+      const latest = initMonthlyReports[keys[keys.length - 1]];
+      let total = 0;
+      initInvestors.forEach(inv => total += Number(latest?.entries?.[inv.id]?.capital || 0));
+      return total;
+    }
+
+    function getDashboardCash() {
+      let sumTaken = 0, sumPut = 0, totalDownPayments = 0, totalInstallments = 0, totalCostPrice = 0, totalIncomeExpenses = 0;
+      allTaken.forEach(item => {
+        sumTaken += Number(item.takenAmount || 0);
+        sumPut += Number(item.putAmount || 0);
+      });
+      allContracts.forEach(c => {
+        if (c.shopPaid) {
+          totalDownPayments += Number(c.downPayment || 0);
+          totalCostPrice += Number(c.costPrice || 0);
+        }
+        Object.values(c.installments || {}).forEach(p => totalInstallments += Number(p?.amount || 0));
+      });
+      allIncomeExpenses.forEach(e => totalIncomeExpenses += Number(e.amount || 0));
+
+      let totalInvested = 0, totalDividends = 0, totalWithdrawn = 0, totalStartingCapital = 0;
+      const keys = Object.keys(initMonthlyReports).sort();
+      keys.forEach((key, idx) => {
+        const rep = initMonthlyReports[key];
+        if (!rep?.entries) return;
+        initInvestors.forEach(inv => {
+          const e = rep.entries[inv.id];
+          if (e) {
+            totalInvested += Number(e.invested || 0);
+            totalDividends += Number(e.dividends || 0);
+            totalWithdrawn += Number(e.withdrawn || 0);
+          }
+        });
+        if (idx === 0 && rep.startingCapital) {
+          initInvestors.forEach(inv => totalStartingCapital += Number(rep.startingCapital[inv.id] || 0));
+        }
+      });
+      const investImpact = totalInvested - totalDividends - totalWithdrawn + totalStartingCapital;
+      return totalDownPayments + totalInstallments - totalCostPrice - sumTaken + sumPut - totalIncomeExpenses + investImpact;
+    }
+
+    function getDashboardInstallmentScope(range) {
+      if (dashboardPeriodMode !== 'all') return range;
+      const now = new Date();
+      return { from: new Date(now.getFullYear(), now.getMonth(), 1), to: new Date(now.getFullYear(), now.getMonth() + 1, 0) };
+    }
+
+    function getDashboardChartMonths(range) {
+      const now = new Date();
+      let end = range?.to ? new Date(range.to) : new Date(now.getFullYear(), now.getMonth(), 1);
+      end.setDate(1);
+      let start = range?.from ? new Date(range.from) : new Date(end.getFullYear(), end.getMonth() - 11, 1);
+      start.setDate(1);
+      if (!range && start < new Date(now.getFullYear(), now.getMonth() - 11, 1)) start = new Date(now.getFullYear(), now.getMonth() - 11, 1);
+      const months = [];
+      const cursor = new Date(start);
+      const limit = new Date(end);
+      while (cursor <= limit && months.length < 24) {
+        months.push({ year: cursor.getFullYear(), month: cursor.getMonth() + 1 });
+        cursor.setMonth(cursor.getMonth() + 1);
+      }
+      return months;
+    }
+
+    function getDashboardMonthData(year, month) {
+      let profit = 0, expense = 0;
+      allContracts.forEach(c => {
+        const d = dashParseDate(c.buyDate);
+        if (d && d.getFullYear() === year && d.getMonth() + 1 === month) {
+          profit += (Number(c.totalCost) || 0) - (Number(c.costPrice) || 0);
+        }
+      });
+      allIncomeExpenses.forEach(e => {
+        const d = dashParseDate(e.date);
+        if (d && d.getFullYear() === year && d.getMonth() + 1 === month) expense += Number(e.amount) || 0;
+      });
+      return { profit, expense };
+    }
+
+    function renderDashboardChart(range) {
+      const container = document.getElementById('dashboardChart');
+      if (!container) return;
+      const months = getDashboardChartMonths(range);
+      const data = months.map(m => ({ ...m, ...getDashboardMonthData(m.year, m.month) }));
+      const maxValue = Math.max(1, ...data.flatMap(x => [x.profit, x.expense]));
+      const monthNames = ['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'];
+      container.innerHTML = `<div class="dashboard-chart">${data.map(item => {
+        const hProfit = Math.max(2, Math.round((item.profit / maxValue) * 130));
+        const hExpense = Math.max(2, Math.round((item.expense / maxValue) * 130));
+        return `<div class="dashboard-chart-month">
+          <div class="dashboard-chart-bars" title="${monthNames[item.month-1]} ${item.year}: доход ${dashFormatMoney(item.profit)}, расход ${dashFormatMoney(item.expense)}">
+            <div class="dashboard-chart-bar" style="height:${hProfit}px"></div>
+            <div class="dashboard-chart-bar expense" style="height:${hExpense}px"></div>
+          </div>
+          <div class="dashboard-chart-value">${item.profit > 999999 ? Math.round(item.profit/1000000)+'м' : item.profit > 999 ? Math.round(item.profit/1000)+'к' : Math.round(item.profit)}</div>
+          <div class="dashboard-chart-label">${monthNames[item.month-1]}</div>
+        </div>`;
+      }).join('')}</div>`;
+    }
+
+    window.changeDashboardPeriod = function(mode) {
+      dashboardPeriodMode = mode || 'all';
+      const custom = document.getElementById('dashboardCustomRange');
+      if (custom) custom.classList.toggle('show', dashboardPeriodMode === 'custom');
+      const from = document.getElementById('dashboardDateFrom');
+      const to = document.getElementById('dashboardDateTo');
+      if (dashboardPeriodMode === 'custom') {
+        const now = new Date();
+        if (from && !from.value) from.value = `${now.getFullYear()}-01-01`;
+        if (to && !to.value) to.value = dashDateString(now);
+      }
+      renderDashboard();
+    };
+
+    function renderDashboard() {
+      const range = getDashboardRange();
+      const contracts = allContracts.filter(c => !range || dashInRange(c.buyDate, range));
+      const metrics = getDashboardContractMetrics(contracts);
+      const generalExpense = getDashboardExpenses(range);
+      const dividends = getDashboardDividends(range);
+      const totalExpensesWithDividends = generalExpense + dividends;
+      const profitAfterExpenses = metrics.totalProfit - totalExpensesWithDividends;
+      const investments = getDashboardInvestments(range);
+      const currentCapital = getDashboardCurrentCapital();
+      const cash = getDashboardCash();
+      const debtors = getDebtors();
+      const installRange = getDashboardInstallmentScope(range);
+      const installmentContracts = allContracts.filter(c => !installRange || dashInRange(c.buyDate, installRange));
+      const installmentCost = installmentContracts.reduce((sum,c) => sum + (Number(c.costPrice)||0), 0);
+      const installmentTotal = installmentContracts.reduce((sum,c) => sum + (Number(c.totalCost)||0), 0);
+      const installmentProfit = installmentTotal - installmentCost;
+
+      const set = (id, value) => { const el = document.getElementById(id); if (el) el.textContent = value; };
+      set('dashboardPeriodCaption', dashboardRangeCaption(range));
+      set('dashTotalProfit', dashFormatMoney(metrics.totalProfit));
+      set('dashGeneralExpense', dashFormatMoney(generalExpense));
+      set('dashProfitAfterExpenses', dashFormatMoney(profitAfterExpenses));
+      set('dashExpectedProfit', dashFormatMoney(metrics.expectedProfit));
+      set('dashPaidProfit', dashFormatMoney(metrics.paidProfit));
+      set('dashPayments', dashFormatMoney(metrics.payments));
+      set('dashOverdue', dashFormatMoney(metrics.overdue));
+      set('dashDebtors', String(debtors.length));
+      set('dashContracts', String(contracts.length));
+      set('dashActiveContracts', String(metrics.active));
+      set('dashClosedContracts', String(metrics.closed));
+      set('dashAverageMonths', `${metrics.averageMonths.toFixed(2)} мес.`);
+      set('dashAveragePercent', `${metrics.averagePercent.toFixed(2)}%`);
+      set('dashOutstanding', dashFormatMoney(metrics.outstanding));
+      set('dashInstallmentCost', dashFormatMoney(installmentCost));
+      set('dashInstallmentTotal', dashFormatMoney(installmentTotal));
+      set('dashInstallmentProfit', dashFormatMoney(installmentProfit));
+      set('dashExpenseDetail', dashFormatMoney(generalExpense));
+      set('dashDividends', dashFormatMoney(dividends));
+      set('dashExpensesWithDividends', dashFormatMoney(totalExpensesWithDividends));
+      set('dashInvestorInvested', dashFormatMoney(investments.investorInvested));
+      set('dashOwnerInvested', dashFormatMoney(investments.ownerInvested));
+      set('dashTotalInvested', dashFormatMoney(investments.totalInvested));
+      set('dashCurrentCapital', dashFormatMoney(currentCapital));
+      set('dashCash', dashFormatMoney(cash));
+      set('dashTaken', dashFormatMoney(allTaken.reduce((s,x)=>s+(Number(x.takenAmount)||0),0)));
+      set('dashPut', dashFormatMoney(allTaken.reduce((s,x)=>s+(Number(x.putAmount)||0),0)));
+      set('dashOverallPercent', `${metrics.averagePercent.toFixed(2)}%`);
+
+      const caption = document.getElementById('dashInstallmentCaption');
+      if (caption) {
+        const now = new Date();
+        if (installRange && installRange.from && installRange.to && installRange.from.getMonth() === installRange.to.getMonth() && installRange.from.getFullYear() === installRange.to.getFullYear()) {
+          caption.textContent = `За ${['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'][installRange.from.getMonth()]} ${installRange.from.getFullYear()}`;
+        } else if (dashboardPeriodMode === 'all') {
+          caption.textContent = `Текущий месяц · ${now.getFullYear()}`;
+        } else {
+          caption.textContent = 'За выбранный период';
+        }
+      }
+      renderDashboardChart(range);
+    }
 
     // ================================================================
     // ДОГОВОРЫ
@@ -4644,10 +5221,12 @@
     // СТАРТ
     // ================================================================
     try {
+      renderDashboard();
       renderTable(allContracts);
       renderAccountingTable(allAccounting);
       renderTakenSheet();
       updateHistoryButtons();
+      switchTab('home');
     } catch (e) {
       console.error('Ошибка начальной инициализации:', e);
     }
