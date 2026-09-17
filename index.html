@@ -1537,6 +1537,8 @@
         
         isCloudLoaded = true;
         setSyncStatus('synced', 'Синхронизировано');
+        // Re-render investments after cloud data is loaded so saved records never depend on a button click.
+        if (activeTab === 'init') renderInitPage();
         hideLoadingScreen();
         
         onSnapshot(DOC_REF, (docSnap) => {
@@ -4325,13 +4327,16 @@
       pushToCloud();
     };
 
-    window.copyMonthReport = function(year, month) {
+    function buildInvestorMonthReportText(year, month, investorIds) {
       const report = getMonthlyReport(year, month);
       const monthNames = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
-      let txt = `📅 ${monthNames[month-1]} ${year}\n`;
+      const selected = new Set(investorIds || initInvestors.map(inv => inv.id));
+      const investors = initInvestors.filter(inv => selected.has(inv.id));
+      let txt = `📅 ${monthNames[month - 1]} ${year}\n`;
       txt += `━━━━━━━━━━━━━━━━━━━━━━\n`;
       txt += `Общий % прибыли: ${(report.overallProfitPercent || 0).toFixed(2)}%\n\n`;
-      initInvestors.forEach(inv => {
+
+      investors.forEach(inv => {
         const e = report.entries[inv.id] || {};
         txt += `${inv.name}${inv.isOwner ? ' (Вы)' : ''}:\n`;
         txt += `  Капитал: ${Number(e.capital || 0).toLocaleString('ru-RU')} ₽\n`;
@@ -4341,9 +4346,100 @@
         txt += `  Прибыль: ${Number(e.profitActual || 0).toLocaleString('ru-RU')} ₽\n`;
         txt += `  Факт %: ${Number(e.factPercent || 0).toFixed(2)}%\n\n`;
       });
-      navigator.clipboard.writeText(txt).then(() => {
-        showCopyNotification('✅ Отчёт скопирован в буфер');
-      }).catch(() => alert('Не удалось скопировать'));
+      return txt.trim();
+    }
+
+    async function copyTextRobust(text) {
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+          return true;
+        }
+      } catch (e) { console.warn('Clipboard API:', e); }
+
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        ta.setSelectionRange(0, ta.value.length);
+        const ok = document.execCommand('copy');
+        ta.remove();
+        return ok;
+      } catch (e) {
+        console.error('Fallback copy:', e);
+        return false;
+      }
+    }
+
+    window.openInvestorCopyMenu = function(year, month) {
+      const old = document.getElementById('investorCopyMenu');
+      if (old) old.remove();
+
+      const menu = document.createElement('div');
+      menu.id = 'investorCopyMenu';
+      menu.style.cssText = `
+        position:fixed; z-index:99999; min-width:280px; max-width:calc(100vw - 24px);
+        background:#fff; border:1px solid #d8dee9; border-radius:14px; padding:10px;
+        box-shadow:0 18px 50px rgba(15,23,42,.20); font-size:13px;
+      `;
+      menu.innerHTML = `
+        <div style="font-weight:800;color:#4c1d95;padding:6px 8px 9px;">Копировать ${['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'][month-1]} ${year}</div>
+        <button type="button" data-copy-mode="all" style="display:block;width:100%;text-align:left;padding:10px 9px;border:0;border-radius:9px;background:#f8fafc;margin-bottom:5px;cursor:pointer;font-weight:700;">📋 Все инвесторы — весь месяц</button>
+        <div style="font-size:11px;color:#64748b;padding:7px 9px 5px;">Или выбрать конкретного инвестора:</div>
+        <div id="investorCopyList"></div>
+        <button type="button" data-close="1" style="display:block;width:100%;margin-top:7px;padding:8px;border:0;background:#f1f5f9;border-radius:9px;cursor:pointer;color:#475569;">Отмена</button>
+      `;
+      document.body.appendChild(menu);
+
+      const list = menu.querySelector('#investorCopyList');
+      initInvestors.forEach(inv => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = `👤 ${inv.name}${inv.isOwner ? ' (Вы)' : ''}`;
+        btn.style.cssText = 'display:block;width:100%;text-align:left;padding:9px;border:0;border-radius:9px;background:#fff;cursor:pointer;';
+        btn.addEventListener('mouseenter', () => btn.style.background = '#f5f3ff');
+        btn.addEventListener('mouseleave', () => btn.style.background = '#fff');
+        btn.addEventListener('click', () => performInvestorCopy(year, month, [inv.id]));
+        list.appendChild(btn);
+      });
+
+      menu.querySelector('[data-copy-mode="all"]').addEventListener('click', () => {
+        performInvestorCopy(year, month, initInvestors.map(inv => inv.id));
+      });
+      menu.querySelector('[data-close]').addEventListener('click', () => menu.remove());
+
+      const closeOutside = (e) => {
+        if (!menu.contains(e.target)) {
+          menu.remove();
+          document.removeEventListener('mousedown', closeOutside);
+        }
+      };
+      setTimeout(() => document.addEventListener('mousedown', closeOutside), 0);
+
+      // Keep the menu inside the viewport on mobile and desktop.
+      const rect = menu.getBoundingClientRect();
+      const margin = 10;
+      let left = Math.min(window.innerWidth - rect.width - margin, Math.max(margin, window.innerWidth - rect.width - 24));
+      let top = Math.min(window.innerHeight - rect.height - margin, Math.max(margin, window.innerHeight / 2 - rect.height / 2));
+      menu.style.left = `${left}px`;
+      menu.style.top = `${top}px`;
+    };
+
+    async function performInvestorCopy(year, month, investorIds) {
+      const text = buildInvestorMonthReportText(year, month, investorIds);
+      const ok = await copyTextRobust(text);
+      const menu = document.getElementById('investorCopyMenu');
+      if (menu) menu.remove();
+      showCopyNotification(ok ? '✅ Отчёт скопирован в буфер' : '⚠️ Не удалось скопировать отчёт');
+    }
+
+    // Backward-compatible entry point for any old buttons or saved markup.
+    window.copyMonthReport = function(year, month) {
+      openInvestorCopyMenu(year, month);
     };
 
     function renderMonthlyReports() {
@@ -4446,7 +4542,7 @@
             <span>📅 ${monthNames[month-1]} ${year}</span>
             <div class="flex items-center gap-2 flex-wrap">
               <span class="overall-pct">Общий % прибыли: ${overallPct}%</span>
-              <button class="hdr-btn" onclick="copyMonthReport(${year},${month})">📋 Скопировать</button>
+              <button class="hdr-btn" onclick="openInvestorCopyMenu(${year},${month})">📋 Скопировать</button>
               ${report.stopped 
                 ? `<button class="hdr-btn" onclick="unstopMonth(${year},${month})">🔓 Разблокировать</button>`
                 : ''
@@ -4483,6 +4579,15 @@
 
     function renderInitPage() {
       try {
+        // The investments page must be renderable immediately, even while cloud sync is still finishing.
+        if (!Array.isArray(initInvestors)) initInvestors = [];
+        if (!initInvestors.some(i => i && i.isOwner)) {
+          initInvestors.unshift({ id: 'owner', name: 'Владелец', percent: 100, isOwner: true });
+        }
+        if (!initInvestors.length) {
+          initInvestors.push({ id: 'inv_default_' + Date.now(), name: 'Инвестор 1', percent: 50, isOwner: false });
+        }
+        if (!initMonthlyReports || typeof initMonthlyReports !== 'object' || Array.isArray(initMonthlyReports)) initMonthlyReports = {};
         ensureNextMonthExists();
         recalculateInit();
         
