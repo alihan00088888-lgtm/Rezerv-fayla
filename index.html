@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Система Учета и Договоров</title>
+  <title>RESERV — Учёт и договоры</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     /* === Утилиты === */
@@ -520,39 +520,21 @@
       .accounts-grid { grid-template-columns: 1fr; }
       .account-cube-balance { font-size: 20px; }
     }
-  </style>
+  
+/* RESERV UI refresh */
+:root{--sidebar:248px}
+body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+.app-sidebar{position:fixed;inset:0 auto 0 0;width:var(--sidebar);background:#0f172a;color:#cbd5e1;z-index:60;display:flex;flex-direction:column;border-right:1px solid #1e293b}
+.app-brand{padding:20px 18px;border-bottom:1px solid #1e293b}.app-brand-mark{width:38px;height:38px;border-radius:11px;background:#2563eb;color:#fff;display:grid;place-items:center;font-weight:900;font-size:18px;box-shadow:0 8px 20px rgba(37,99,235,.25)}
+.app-nav{padding:12px 10px;overflow-y:auto;flex:1}.app-nav-section{padding:12px 10px 6px;font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:#64748b;font-weight:800}
+.app-nav-btn{width:100%;display:flex;align-items:center;gap:10px;padding:10px 12px;margin:2px 0;border:0;border-radius:9px;color:#cbd5e1;background:transparent;font-weight:700;font-size:12px;text-align:left;transition:.16s;cursor:pointer}.app-nav-btn:hover{background:#1e293b;color:#fff}.app-nav-btn.active{background:#2563eb;color:#fff;box-shadow:0 5px 14px rgba(37,99,235,.18)}.nav-icon{width:22px;text-align:center;font-size:15px}
+.app-sidebar-footer{padding:12px 10px;border-top:1px solid #1e293b}.app-main{margin-left:var(--sidebar);min-height:100vh}.app-topbar{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.94);backdrop-filter:blur(12px);border-bottom:1px solid #e2e8f0}.app-topbar-inner{min-height:66px;padding:10px 22px;display:flex;align-items:center;gap:12px}.mobile-menu-btn{display:none;width:38px;height:38px;border:1px solid #e2e8f0;border-radius:9px;background:#fff;font-size:18px}
+.global-search{flex:1;max-width:620px;position:relative}.global-search input{width:100%;height:40px;border:1px solid #e2e8f0;background:#f8fafc;border-radius:10px;padding:0 14px 0 40px;outline:none;font-size:12px}.global-search input:focus{background:#fff;border-color:#93c5fd;box-shadow:0 0 0 3px rgba(59,130,246,.1)}.global-search-icon{position:absolute;left:13px;top:11px;color:#94a3b8}.top-actions{margin-left:auto;display:flex;align-items:center;gap:7px}.top-action{height:38px;padding:0 12px;border-radius:9px;border:1px solid #e2e8f0;background:#fff;font-weight:700;font-size:11px;transition:.15s}.top-action:hover{background:#f8fafc}.primary-action{background:#2563eb;color:#fff;border-color:#2563eb}.primary-action:hover{background:#1d4ed8}
+.app-content{padding:22px;max-width:1800px;margin:auto}.page-heading{margin-bottom:18px;display:flex;justify-content:space-between;align-items:flex-end;gap:12px}.page-heading h1{font-size:22px;font-weight:850;color:#0f172a;letter-spacing:-.02em}.page-heading p{margin-top:4px;color:#64748b;font-size:12px}.dashboard-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.kpi-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:16px;box-shadow:0 3px 12px rgba(15,23,42,.04)}.kpi-label{color:#64748b;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.07em}.kpi-value{margin-top:7px;font-size:22px;line-height:1.1;font-weight:900;color:#0f172a}.kpi-meta{margin-top:7px;font-size:10px;color:#94a3b8}.dashboard-columns{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(320px,.8fr);gap:14px;margin-top:14px}.dash-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;box-shadow:0 3px 12px rgba(15,23,42,.04);overflow:hidden}.dash-card-header{padding:14px 16px;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;gap:10px}.dash-card-title{font-size:12px;font-weight:850;color:#0f172a}.dash-card-body{padding:15px 16px}.dashboard-chart-bar{min-height:6px}.quick-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.quick-btn{padding:12px;border:1px solid #e2e8f0;border-radius:10px;background:#f8fafc;text-align:left;font-weight:800;font-size:11px;transition:.15s}.quick-btn:hover{background:#eff6ff;border-color:#bfdbfe;transform:translateY(-1px)}.alert-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #f1f5f9}.alert-row:last-child{border-bottom:0}.alert-dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto;background:#f59e0b}.alert-dot.red{background:#ef4444}.alert-dot.blue{background:#3b82f6}.alert-main{font-weight:800;color:#334155;font-size:11px}.alert-sub{color:#94a3b8;font-size:10px;margin-top:2px}.mini-link{color:#2563eb;font-weight:800;font-size:10px}.client-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.client-card{background:#fff;border:1px solid #e2e8f0;border-radius:13px;padding:14px;box-shadow:0 3px 12px rgba(15,23,42,.04);cursor:pointer;transition:.15s}.client-card:hover{border-color:#93c5fd;box-shadow:0 8px 22px rgba(15,23,42,.08);transform:translateY(-1px)}.client-avatar{width:34px;height:34px;border-radius:10px;background:#eff6ff;color:#2563eb;display:grid;place-items:center;font-weight:900}.status-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 7px;border-radius:999px;font-size:9px;font-weight:800}.status-active{background:#dcfce7;color:#15803d}.status-overdue{background:#fee2e2;color:#b91c1c}.status-closed{background:#f1f5f9;color:#64748b}.section-toolbar{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:11px;display:flex;flex-wrap:wrap;align-items:center;gap:8px}.filter-chip{border:1px solid #e2e8f0;background:#fff;padding:7px 10px;border-radius:8px;font-size:10px;font-weight:800;color:#475569}.filter-chip.active{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8}
+@media(max-width:1100px){.dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.dashboard-columns{grid-template-columns:1fr}.client-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:760px){:root{--sidebar:0px}.app-sidebar{transform:translateX(-100%);transition:.2s;width:260px;box-shadow:12px 0 30px rgba(15,23,42,.18)}body.sidebar-open .app-sidebar{transform:translateX(0)}.app-main{margin-left:0}.mobile-menu-btn{display:grid;place-items:center}.app-topbar-inner{padding:9px 12px;flex-wrap:wrap}.global-search{order:3;flex-basis:100%;max-width:none}.top-actions{margin-left:0}.hide-mobile{display:none}.app-content{padding:14px}.dashboard-grid,.client-cards{grid-template-columns:1fr}.page-heading h1{font-size:19px}}
+</style>
 </head>
 <body class="bg-slate-100 text-gray-800 text-xs min-h-screen pb-20">
-
-
-  <div id="drawerBackdrop" class="drawer-backdrop" onclick="closeSideNav()"></div>
-  <aside id="sideNav" class="side-nav no-print">
-    <div class="side-brand"><div class="brand-mark">Y</div><div><div class="brand-title">YUSRA</div><div class="brand-sub">Учёт рассрочки</div></div></div>
-    <div class="side-scroll">
-      <div class="side-section">Работа</div>
-      <button class="side-btn active" data-side-tab="dashboard" onclick="switchTab('dashboard')"><span class="side-icon">🏠</span>Главная</button>
-      <button class="side-btn" data-side-tab="clients" onclick="switchTab('clients')"><span class="side-icon">👥</span>Клиенты</button>
-      <button class="side-btn" data-side-tab="contracts" onclick="switchTab('contracts')"><span class="side-icon">📑</span>Договоры</button>
-      <button class="side-btn" data-side-tab="payments" onclick="switchTab('payments')"><span class="side-icon">💳</span>Платежи</button>
-      <button class="side-btn" data-side-tab="debtors" onclick="switchTab('debtors')"><span class="side-icon">⚠️</span>Просрочки <span id="sideDebtorBadge" class="side-badge">0</span></button>
-      <div class="side-section">Управление</div>
-      <button class="side-btn" data-side-tab="today" onclick="switchTab('today')"><span class="side-icon">📅</span>Сегодня</button>
-      <button class="side-btn" data-side-tab="threeDays" onclick="switchTab('threeDays')"><span class="side-icon">⏰</span>Через 3 дня</button>
-      <button class="side-btn" data-side-tab="partners" onclick="switchTab('partners')"><span class="side-icon">🏪</span>Магазины</button>
-      <button class="side-btn" data-side-tab="print" onclick="switchTab('print')"><span class="side-icon">🖨️</span>Печать</button>
-      <div class="side-section">Аналитика</div>
-      <button class="side-btn" data-side-tab="reports" onclick="switchTab('reports')"><span class="side-icon">📊</span>Отчёты</button>
-      <button class="side-btn" data-side-tab="audit" onclick="switchTab('audit')"><span class="side-icon">🕒</span>История действий</button>
-      <div class="side-section">Существующие разделы</div>
-      <button class="side-btn" data-side-tab="accounting" onclick="switchTab('accounting')"><span class="side-icon">📒</span>Учёт</button>
-      <button class="side-btn" data-side-tab="taken" onclick="switchTab('taken')"><span class="side-icon">💼</span>Взяли / Положили</button>
-      <button class="side-btn" data-side-tab="income" onclick="switchTab('income')"><span class="side-icon">💵</span>Доход / Расход</button>
-      <button class="side-btn" data-side-tab="init" onclick="switchTab('init')"><span class="side-icon">🤝</span>Инвесторы</button>
-      <div class="side-section">Система</div>
-      <button class="side-btn" data-side-tab="settings" onclick="switchTab('settings')"><span class="side-icon">⚙️</span>Настройки</button>
-    </div>
-    <div class="side-footer"><button class="side-btn" onclick="exportData()"><span class="side-icon">💾</span>Резервная копия</button><button class="side-btn" onclick="document.getElementById('importFile').click()"><span class="side-icon">📂</span>Восстановить базу</button></div>
-  </aside>
 
   <!-- ЭКРАН ЗАГРУЗКИ -->
   <div id="loadingScreen">
@@ -561,91 +543,44 @@
     <div class="sub">Загрузка данных из облака...</div>
   </div>
 
-  <!-- ВЕРХНЯЯ ПАНЕЛЬ -->
-  <div class="sticky top-0 z-40 bg-white shadow-md border-b no-print topbar-v2">
-    <div class="p-3 max-w-[100vw] flex flex-wrap justify-between items-center gap-4">
-      <button type="button" class="mobile-menu-btn" onclick="toggleSideNav()" aria-label="Меню">☰</button>
-      
-      <div class="flex items-center gap-2 flex-wrap">
-        <div class="flex bg-slate-200 rounded-lg p-1 gap-1">
-          <button type="button" id="undoBtn" onclick="undo()" disabled title="Шаг назад (Ctrl+Z)" 
-            class="px-3 py-1.5 rounded text-xs font-bold text-gray-400 bg-gray-100 cursor-not-allowed transition">
-            ↺ Назад
-          </button>
-          <button type="button" id="redoBtn" onclick="redo()" disabled title="Шаг вперед (Ctrl+Y)" 
-            class="px-3 py-1.5 rounded text-xs font-bold text-gray-400 bg-gray-100 cursor-not-allowed transition">
-            ↻ Вперед
-          </button>
-        </div>
-
-        <button type="button" onclick="exportData()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-3 py-1.5 rounded-lg text-xs transition shadow-sm">
-          💾 Скачать базу
-        </button>
-        <input type="file" id="importFile" onchange="importData(event)" class="hidden" accept=".json">
-        <button type="button" onclick="document.getElementById('importFile').click()" class="bg-slate-600 hover:bg-slate-700 text-white font-medium px-3 py-1.5 rounded-lg text-xs transition shadow-sm">
-          📂 Загрузить базу
-        </button>
-
-        <div id="syncIndicator" class="sync-indicator synced" title="Статус синхронизации с облаком">
-          <span class="sync-dot"></span>
-          <span id="syncText">Синхронизировано</span>
-        </div>
-
-        <input type="text" id="searchInput" oninput="handleSearch()" placeholder="Поиск..." class="p-1.5 border rounded-lg w-40 focus:ring-2 focus:ring-blue-400 outline-none">
+  <aside class="app-sidebar no-print" id="appSidebar">
+    <div class="app-brand"><div class="flex items-center gap-3"><div class="app-brand-mark">R</div><div><div class="text-white font-black tracking-tight text-base">RESERV</div><div class="text-[9px] text-slate-500 uppercase tracking-widest">Учёт и договоры</div></div></div></div>
+    <nav class="app-nav">
+      <div class="app-nav-section">Рабочая область</div>
+      <button id="tabBtnDashboard" class="app-nav-btn active" onclick="switchTab('dashboard')"><span class="nav-icon">🏠</span>Главная</button>
+      <button id="tabBtnClients" class="app-nav-btn" onclick="switchTab('clients')"><span class="nav-icon">👥</span>Клиенты</button>
+      <button id="tabBtnContracts" class="app-nav-btn" onclick="switchTab('contracts')"><span class="nav-icon">📄</span>Договоры</button>
+      <div class="app-nav-section">Финансы</div>
+      <button id="tabBtnAccounting" class="app-nav-btn" onclick="switchTab('accounting')"><span class="nav-icon">📒</span>Учет</button>
+      <button id="tabBtnTaken" class="app-nav-btn" onclick="switchTab('taken')"><span class="nav-icon">↔️</span>Движение денег</button>
+      <button id="tabBtnIncome" class="app-nav-btn" onclick="switchTab('income')"><span class="nav-icon">💵</span>Доход / Расход</button>
+      <div class="app-nav-section">Контроль</div>
+      <button id="tabBtnToday" class="app-nav-btn" onclick="switchTab('today')"><span class="nav-icon">📅</span>Сегодня</button>
+      <button id="tabBtnThreeDays" class="app-nav-btn" onclick="switchTab('threeDays')"><span class="nav-icon">⏰</span>Предстоящие платежи</button>
+      <button id="tabBtnDebtors" class="app-nav-btn" onclick="switchTab('debtors')"><span class="nav-icon">⚠️</span>Просрочка</button>
+      <button id="tabBtnPartners" class="app-nav-btn" onclick="switchTab('partners')"><span class="nav-icon">🏪</span>Партнеры</button>
+      <div class="app-nav-section">Аналитика</div>
+      <button id="tabBtnInit" class="app-nav-btn" onclick="switchTab('init')"><span class="nav-icon">👤</span>Инвесторы</button>
+      <button id="tabBtnPrint" class="app-nav-btn" onclick="switchTab('print')"><span class="nav-icon">🖨️</span>Печать договора</button>
+    </nav>
+    <div class="app-sidebar-footer"><div class="flex items-center justify-between text-[9px]"><span class="text-slate-500">Облачная синхронизация</span><span id="sidebarSyncDot" class="w-2 h-2 rounded-full bg-emerald-500"></span></div></div>
+  </aside>
+  <div class="app-main">
+    <header class="app-topbar no-print"><div class="app-topbar-inner">
+      <button class="mobile-menu-btn" onclick="document.body.classList.toggle('sidebar-open')">☰</button>
+      <div class="global-search"><span class="global-search-icon">🔎</span><input type="text" id="searchInput" oninput="handleSearch()" placeholder="Поиск клиента, договора, телефона..."></div>
+      <div class="top-actions">
+        <div id="syncIndicator" class="sync-indicator synced"><span class="sync-dot"></span><span id="syncText">Синхронизировано</span></div>
+        <button id="undoBtn" onclick="undo()" disabled class="top-action" title="Ctrl+Z">↺</button><button id="redoBtn" onclick="redo()" disabled class="top-action" title="Ctrl+Y">↻</button>
+        <button onclick="exportData()" class="top-action hide-mobile">💾 Резерв</button><input type="file" id="importFile" onchange="importData(event)" class="hidden" accept=".json"><button onclick="document.getElementById('importFile').click()" class="top-action hide-mobile">📂 Импорт</button>
+        <button id="addContractBtn" onclick="openCreateModal()" class="top-action primary-action">+ Договор</button><button id="addAccBtn" onclick="openAccModal()" class="hidden top-action">+ Операция</button><button id="addTakenBtn" onclick="openTakenModal()" class="hidden top-action">+ Движение</button><button id="addIncomeExpBtn" onclick="openIncomeExpModal()" class="hidden top-action">+ Расход</button>
       </div>
+    </div></header>
+    <main class="app-content">
 
-      <div class="flex items-center gap-2">
-        <button type="button" id="addContractBtn" onclick="openCreateModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-1.5 rounded-lg shadow transition">
-          + Новый Договор
-        </button>
-        <button type="button" id="addAccBtn" onclick="openAccModal()" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-lg shadow transition">
-          + Новая Запись Учета
-        </button>
-        <button type="button" id="addTakenBtn" onclick="openTakenModal()" class="hidden bg-amber-600 hover:bg-amber-700 text-white font-bold px-3 py-1.5 rounded-lg shadow transition">
-          + Запись Взяли / Положили
-        </button>
-        <button type="button" id="addIncomeExpBtn" onclick="openIncomeExpModal()" class="hidden bg-teal-600 hover:bg-teal-700 text-white font-bold px-3 py-1.5 rounded-lg shadow transition">
-          + Добавить расход
-        </button>
-      </div>
-
-    </div>
-  </div>
-
-  <div class="p-4 max-w-[100vw] main-pad">
     
-
-    <!-- ================= V2: Главная ================= -->
-    <div id="dashboardTabContent" class="page-section space-y-5">
-      <div class="flex justify-between items-end gap-3"><div><div class="page-title">Добро пожаловать в YUSRA</div><div class="page-sub">Сводка бизнеса и действия, требующие внимания.</div></div><div class="text-[10px] text-slate-400 font-bold" id="dashboardDate"></div></div>
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 grid-cols-4-v2">
-        <div class="v2-card v2-kpi"><div class="orb"></div><div class="label">Активные договоры</div><div class="value" id="v2ActiveContracts">0</div><div class="mini" id="v2TotalContracts">Всего: 0</div></div>
-        <div class="v2-card v2-kpi"><div class="orb"></div><div class="label">Остаток долга</div><div class="value" id="v2Debt">0</div><div class="mini">По всем активным договорам</div></div>
-        <div class="v2-card v2-kpi"><div class="orb"></div><div class="label">Просрочка</div><div class="value" id="v2Overdue">0</div><div class="mini" id="v2OverdueCount">0 клиентов</div></div>
-        <div class="v2-card v2-kpi"><div class="orb"></div><div class="label">Платежей сегодня</div><div class="value" id="v2TodaySum">0</div><div class="mini" id="v2TodayCount">0 платежей</div></div>
-      </div>
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div class="v2-card lg:col-span-2"><div class="profile-head"><div><div class="font-black text-sm">🔴 Требует внимания</div><div class="client-meta">Самые важные задачи на сегодня</div></div><button class="quick-btn" onclick="switchTab('debtors')">Все просрочки →</button></div><div id="dashboardAlerts" class="px-4 pb-4"></div></div>
-        <div class="v2-card"><div class="profile-head"><div><div class="font-black text-sm">⚡ Быстрые действия</div><div class="client-meta">Часто используемые операции</div></div></div><div class="p-4 grid grid-cols-2 gap-2"><button class="quick-btn" onclick="openCreateModal()">＋ Договор</button><button class="quick-btn" onclick="switchTab('payments')">💳 Платёж</button><button class="quick-btn" onclick="switchTab('clients')">👥 Клиенты</button><button class="quick-btn" onclick="switchTab('reports')">📊 Отчёты</button></div></div>
-      </div>
-      <div class="v2-card"><div class="profile-head"><div><div class="font-black text-sm">📅 Ближайшие платежи</div><div class="client-meta">Плановые платежи на ближайшие дни</div></div><button class="quick-btn" onclick="switchTab('payments')">Открыть платежи →</button></div><div class="v2-table-wrap"><table class="v2-table"><thead><tr><th>Клиент</th><th>Дата</th><th>Сумма</th><th>Статус</th><th>Действие</th></tr></thead><tbody id="dashboardUpcoming"></tbody></table></div></div>
-    </div>
-
-    <!-- ================= V2: Клиенты ================= -->
-    <div id="clientsTabContent" class="hidden page-section space-y-4"><div class="flex justify-between items-end gap-3"><div><div class="page-title">Клиенты</div><div class="page-sub">Единая карточка клиента со всеми договорами и платежами.</div></div><button class="quick-btn" onclick="openCreateModal()">＋ Новый договор</button></div><div class="v2-card p-3"><input id="v2ClientSearch" oninput="renderV2Clients()" class="w-full p-2.5 border rounded-xl outline-none focus:ring-2 focus:ring-blue-200" placeholder="Поиск по ФИО, телефону, адресу..." /></div><div id="v2ClientsGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3"></div></div>
-
-    <!-- ================= V2: Платежи ================= -->
-    <div id="paymentsTabContent" class="hidden page-section space-y-4"><div class="flex justify-between items-end gap-3"><div><div class="page-title">Платежи</div><div class="page-sub">Плановые и фактические платежи из существующей базы договоров.</div></div><button class="quick-btn" onclick="switchTab('today')">Сегодня →</button></div><div class="grid grid-cols-2 md:grid-cols-4 gap-3"><div class="v2-card v2-kpi"><div class="label">Сегодня</div><div class="value" id="payTodayTotal">0</div></div><div class="v2-card v2-kpi"><div class="label">Факт сегодня</div><div class="value" id="payFactToday">0</div></div><div class="v2-card v2-kpi"><div class="label">Через 3 дня</div><div class="value" id="payThreeDayTotal">0</div></div><div class="v2-card v2-kpi"><div class="label">Просрочено</div><div class="value" id="payOverdueTotal">0</div></div></div><div class="v2-card"><div class="v2-table-wrap"><table class="v2-table"><thead><tr><th>Клиент</th><th>Договор</th><th>Дата</th><th>План</th><th>Факт</th><th>Статус</th><th></th></tr></thead><tbody id="v2PaymentsTable"></tbody></table></div></div></div>
-
-    <!-- ================= V2: Отчёты ================= -->
-    <div id="reportsTabContent" class="hidden page-section space-y-4"><div><div class="page-title">Отчёты</div><div class="page-sub">Операционная аналитика по договорам и платежам. Финансовый модуль оставлен без изменений.</div></div><div class="v2-card p-4"><div class="grid grid-cols-1 md:grid-cols-3 gap-3"><div><label class="text-[9px] font-bold text-slate-500 uppercase">Период от</label><input type="date" id="reportFrom" class="w-full p-2 border rounded-lg"></div><div><label class="text-[9px] font-bold text-slate-500 uppercase">Период до</label><input type="date" id="reportTo" class="w-full p-2 border rounded-lg"></div><div class="flex items-end"><button class="w-full bg-blue-600 text-white font-bold p-2 rounded-lg" onclick="renderV2Reports()">Обновить отчёт</button></div></div></div><div id="v2ReportsBody"></div></div>
-
-    <!-- ================= V2: История ================= -->
-    <div id="auditTabContent" class="hidden page-section space-y-4"><div><div class="page-title">История действий</div><div class="page-sub">Локальная история изменений интерфейса. Она не меняет существующую структуру данных.</div></div><div class="v2-card p-4"><div class="flex justify-between items-center"><div class="font-black">Журнал</div><button class="quick-btn" onclick="clearAuditLog()">Очистить журнал</button></div><div id="auditList" class="timeline mt-4"></div></div></div>
-
-    <!-- ================= V2: Настройки ================= -->
-    <div id="settingsTabContent" class="hidden page-section space-y-4"><div><div class="page-title">Настройки</div><div class="page-sub">Локальные настройки интерфейса и резервного копирования.</div></div><div class="v2-card p-4"><div class="settings-row"><div><div class="font-black">Автообновление сводки</div><div class="client-meta">Пересчитывать показатели при открытии разделов</div></div><div id="setAutoDash" class="toggle on" onclick="toggleSetting('autoDash')"></div></div><div class="settings-row"><div><div class="font-black">Компактный режим таблиц</div><div class="client-meta">Уменьшает вертикальные отступы</div></div><div id="setCompact" class="toggle" onclick="toggleSetting('compact')"></div></div><div class="settings-row"><div><div class="font-black">Резервная копия</div><div class="client-meta">Экспортирует текущую базу в JSON</div></div><button class="quick-btn" onclick="exportData()">💾 Скачать</button></div><div class="settings-row"><div><div class="font-black">Восстановление</div><div class="client-meta">Загрузить ранее сохранённую JSON-базу</div></div><button class="quick-btn" onclick="document.getElementById('importFile').click()">📂 Загрузить</button></div></div></div>
-
+    <div id="dashboardTabContent" class="space-y-4"><div class="page-heading"><div><h1>Главная</h1><p>Ключевые показатели и задачи на сегодня</p></div><span id="dashboardDate" class="text-[10px] text-slate-400 font-bold"></span></div><div class="dashboard-grid"><div class="kpi-card"><div class="kpi-label">Касса</div><div id="dashKassa" class="kpi-value">0 ₽</div><div class="kpi-meta">Расчётный остаток</div></div><div class="kpi-card"><div class="kpi-label">Дебиторская задолженность</div><div id="dashDebt" class="kpi-value">0 ₽</div><div class="kpi-meta">Остаток активных договоров</div></div><div class="kpi-card"><div class="kpi-label">Прибыль</div><div id="dashProfit" class="kpi-value">0 ₽</div><div class="kpi-meta">Продажи минус себестоимость</div></div><div class="kpi-card"><div class="kpi-label">Активные договоры</div><div id="dashActive" class="kpi-value">0</div><div id="dashActiveMeta" class="kpi-meta">из 0 всего</div></div></div><div class="dashboard-columns"><div class="dash-card"><div class="dash-card-header"><span class="dash-card-title">Платежи сегодня</span><a href="#" class="mini-link" onclick="switchTab('today');return false;">Все →</a></div><div class="dash-card-body" id="dashboardTodayList"></div></div><div class="dash-card"><div class="dash-card-header"><span class="dash-card-title">Быстрые действия</span></div><div class="dash-card-body"><div class="quick-grid"><button class="quick-btn" onclick="openCreateModal()">📄<br>Новый договор</button><button class="quick-btn" onclick="openPayModalFromDashboard()">💵<br>Принять платеж</button><button class="quick-btn" onclick="openIncomeExpModal()">➕<br>Добавить расход</button><button class="quick-btn" onclick="openTakenModal()">↔️<br>Движение денег</button></div></div></div></div><div class="dashboard-columns"><div class="dash-card"><div class="dash-card-header"><span class="dash-card-title">Сводка</span></div><div class="dash-card-body" id="dashboardSummaryRows"></div></div><div class="dash-card"><div class="dash-card-header"><span class="dash-card-title">Требует внимания</span><a href="#" class="mini-link" onclick="switchTab('debtors');return false;">Открыть →</a></div><div class="dash-card-body" id="dashboardAlerts"></div></div></div><div class="dash-card"><div class="dash-card-header"><span class="dash-card-title">Финансовая динамика</span><span class="text-[9px] text-slate-400">Последние 6 месяцев</span></div><div class="dash-card-body"><div id="dashboardChart" class="grid grid-cols-6 gap-3 items-end h-40"></div></div></div></div>
+    <div id="clientsTabContent" class="hidden space-y-4"><div class="page-heading"><div><h1>Клиенты</h1><p>Единый список клиентов и их обязательств</p></div><button onclick="openCreateModal()" class="primary-action text-white font-bold px-3 py-2 rounded-lg text-xs">+ Новый договор</button></div><div class="section-toolbar"><button class="filter-chip active" onclick="setClientFilter('all',this)">Все</button><button class="filter-chip" onclick="setClientFilter('today',this)">Сегодня</button><button class="filter-chip" onclick="setClientFilter('overdue',this)">Просрочка</button><button class="filter-chip" onclick="setClientFilter('closed',this)">Закрытые</button></div><div id="clientsGrid" class="client-cards"></div></div>
     <!-- ================= Лист 1: Договоры ================= -->
     <div id="contractsTabContent" class="space-y-4">
       <div class="bg-white shadow-xl rounded-xl overflow-x-auto max-h-[78vh] border">
@@ -1007,40 +942,7 @@
 
   </div>
 
-  <!-- НИЖНЯЯ ПАНЕЛЬ ПЕРЕКЛЮЧЕНИЯ -->
-  <div class="fixed bottom-0 left-0 right-0 z-40 bg-white shadow-lg border-t px-4 py-2 flex justify-center items-center gap-2 overflow-x-auto no-print desktop-old-bottom">
-    <div class="flex items-center gap-2 bg-slate-200 p-1 rounded-xl">
-      <button type="button" onclick="switchTab('contracts')" id="tabBtnContracts" class="tab-btn active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2">
-        📋 Договоры
-      </button>
-      <button type="button" onclick="switchTab('accounting')" id="tabBtnAccounting" class="tab-btn px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900">
-        📊 Учет
-      </button>
-      <button type="button" onclick="switchTab('taken')" id="tabBtnTaken" class="tab-btn px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900">
-        📙 Взяли
-      </button>
-      <button type="button" onclick="switchTab('income')" id="tabBtnIncome" class="tab-btn income-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900">
-        💵 Доход
-      </button>
-      <button type="button" onclick="switchTab('init')" id="tabBtnInit" class="tab-btn init-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900">
-        🏛️ Инвестиция
-      </button>
-      <button type="button" onclick="switchTab('today')" id="tabBtnToday" class="tab-btn today-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900">
-        📅 Сегодня
-      </button>
-      <button type="button" onclick="switchTab('threeDays')" id="tabBtnThreeDays" class="tab-btn three-days-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900">
-        ⏰ 3 дня
-      </button>
-      <button type="button" onclick="switchTab('debtors')" id="tabBtnDebtors" class="tab-btn debtors-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900">
-        🚫 Неплательщики
-      </button>
-      <button type="button" onclick="switchTab('partners')" id="tabBtnPartners" class="tab-btn partners-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900">
-        🤝 Партнёры
-      </button>
-      <button type="button" onclick="switchTab('print')" id="tabBtnPrint" class="tab-btn print-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900">
-        🖨️ Распечатка
-      </button>
-    </div>
+    </main>
   </div>
 
   <!-- МОДАЛЬНЫЕ ОКНА -->
@@ -1517,16 +1419,8 @@
     // ================================================================
     window.switchTab = function(tab) {
       activeTab = tab;
-      const newTabs = ['dashboard','clients','payments','reports','audit','settings'];
-      newTabs.forEach(t => { const el=document.getElementById(t+'TabContent'); if(el) el.classList.add('hidden'); });
-      document.querySelectorAll('.side-btn[data-side-tab]').forEach(b=>b.classList.toggle('active', b.dataset.sideTab===tab));
-      if(newTabs.includes(tab)){
-        ['contracts','accounting','taken','income','today','threeDays','debtors','partners','print','init'].forEach(t=>document.getElementById(t+'TabContent')?.classList.add('hidden'));
-        ['addContractBtn','addAccBtn','addTakenBtn','addIncomeExpBtn'].forEach(id=>document.getElementById(id)?.classList.add('hidden'));
-        if(tab==='dashboard'||tab==='clients') document.getElementById('addContractBtn')?.classList.remove('hidden');
-        const el=document.getElementById(tab+'TabContent'); if(el) el.classList.remove('hidden');
-        renderV2Section(tab); handleSearch(); closeSideNav(); return;
-      }
+      const dashboardTab = document.getElementById('dashboardTabContent');
+      const clientsTab = document.getElementById('clientsTabContent');
       const cTab = document.getElementById('contractsTabContent');
       const aTab = document.getElementById('accountingTabContent');
       const tTab = document.getElementById('takenTabContent');
@@ -1538,6 +1432,8 @@
       const printTab = document.getElementById('printTabContent');
       const initTab = document.getElementById('initTabContent');
 
+      const dashboardBtn = document.getElementById('tabBtnDashboard');
+      const clientsBtn = document.getElementById('tabBtnClients');
       const cBtn = document.getElementById('tabBtnContracts');
       const aBtn = document.getElementById('tabBtnAccounting');
       const tBtn = document.getElementById('tabBtnTaken');
@@ -1554,6 +1450,8 @@
       const addT = document.getElementById('addTakenBtn');
       const addI = document.getElementById('addIncomeExpBtn');
 
+      dashboardTab.classList.add('hidden');
+      clientsTab.classList.add('hidden');
       cTab.classList.add('hidden');
       aTab.classList.add('hidden');
       tTab.classList.add('hidden');
@@ -1569,66 +1467,69 @@
       addT.classList.add('hidden');
       addI.classList.add('hidden');
 
-      cBtn.className = "tab-btn px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
-      aBtn.className = "tab-btn px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
-      tBtn.className = "tab-btn px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
-      iBtn.className = "tab-btn income-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
-      initBtn.className = "tab-btn init-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
-      todayBtn.className = "tab-btn today-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
-      threeDaysBtn.className = "tab-btn three-days-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
-      debtorsBtn.className = "tab-btn debtors-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
-      partnersBtn.className = "tab-btn partners-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
-      printBtn.className = "tab-btn print-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
+      cBtn.className = 'app-nav-btn';
+      aBtn.className = 'app-nav-btn';
+      tBtn.className = 'app-nav-btn';
+      iBtn.className = 'app-nav-btn';
+      initBtn.className = 'app-nav-btn';
+      todayBtn.className = 'app-nav-btn';
+      threeDaysBtn.className = 'app-nav-btn';
+      debtorsBtn.className = 'app-nav-btn';
+      partnersBtn.className = 'app-nav-btn';
+      printBtn.className = 'app-nav-btn';
 
-      if (tab === 'contracts') {
+      if (tab === 'dashboard') {
+        dashboardTab.classList.remove('hidden'); dashboardBtn.className = 'app-nav-btn active'; renderDashboard();
+      } else if (tab === 'clients') {
+        clientsTab.classList.remove('hidden'); clientsBtn.className = 'app-nav-btn active'; renderClientsPage();
+      } else if (tab === 'contracts') {
         cTab.classList.remove('hidden');
-        cBtn.className = "tab-btn active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
+        cBtn.className = 'app-nav-btn active';
         addC.classList.remove('hidden');
       } else if (tab === 'accounting') {
         aTab.classList.remove('hidden');
-        aBtn.className = "tab-btn active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
+        aBtn.className = 'app-nav-btn active';
         addA.classList.remove('hidden');
       } else if (tab === 'taken') {
         tTab.classList.remove('hidden');
-        tBtn.className = "tab-btn active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
+        tBtn.className = 'app-nav-btn active';
         addT.classList.remove('hidden');
         renderTakenSheet();
       } else if (tab === 'income') {
         iTab.classList.remove('hidden');
-        iBtn.className = "tab-btn income-tab active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
+        iBtn.className = 'app-nav-btn active';
         addI.classList.remove('hidden');
         renderIncomePage();
       } else if (tab === 'init') {
         initTab.classList.remove('hidden');
-        initBtn.className = "tab-btn init-tab active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
+        initBtn.className = 'app-nav-btn active';
         renderInitPage();
       } else if (tab === 'today') {
         todayTab.classList.remove('hidden');
-        todayBtn.className = "tab-btn today-tab active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
+        todayBtn.className = 'app-nav-btn active';
         renderTodayClients();
       } else if (tab === 'threeDays') {
         threeDaysTab.classList.remove('hidden');
-        threeDaysBtn.className = "tab-btn three-days-tab active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
+        threeDaysBtn.className = 'app-nav-btn active';
         renderThreeDaysClients();
       } else if (tab === 'debtors') {
         debtorsTab.classList.remove('hidden');
-        debtorsBtn.className = "tab-btn debtors-tab active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
+        debtorsBtn.className = 'app-nav-btn active';
         renderDebtorsClients();
       } else if (tab === 'partners') {
         partnersTab.classList.remove('hidden');
-        partnersBtn.className = "tab-btn partners-tab active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
+        partnersBtn.className = 'app-nav-btn active';
         renderPartners();
       } else if (tab === 'print') {
         printTab.classList.remove('hidden');
-        printBtn.className = "tab-btn print-tab active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
+        printBtn.className = 'app-nav-btn active';
         updatePrintSelect();
         loadContractForPrint();
       }
-      handleSearch();
+      handleSearch(); document.body.classList.remove('sidebar-open');
     };
 
     window.saveState = function() {
-      addAudit("Изменение данных сохранено");
       const stateSnapshot = {
         contracts: JSON.parse(JSON.stringify(allContracts)),
         accounting: JSON.parse(JSON.stringify(allAccounting)),
@@ -1702,7 +1603,7 @@
       localStorage.setItem('monthly_reports_db', JSON.stringify(initMonthlyReports));
       renderTable(allContracts);
       renderAccountingTable(allAccounting);
-      renderV2Dashboard();
+      renderDashboard();
       renderTakenSheet();
       if (activeTab === 'income') renderIncomePage();
       if (activeTab === 'init') renderInitPage();
@@ -1714,7 +1615,6 @@
         updatePrintSelect();
         loadContractForPrint();
       }
-      if (['dashboard','clients','payments','reports','audit','settings'].includes(activeTab)) renderV2Section(activeTab);
       updateHistoryButtons();
       pushToCloud();
     }
@@ -2085,6 +1985,23 @@
       window.print();
     };
 
+    let clientFilter='all';
+    function fmtMoney(v){return Number(v||0).toLocaleString('ru-RU')+' ₽';}
+    function renderDashboard(){
+      const now=new Date(), today=now.toISOString().slice(0,10); let active=0,debt=0,profit=0,plan=0,fact=0,todayCount=0,overdue=0;
+      allContracts.forEach(c=>{const m=calculateContractMetrics(c);if(!m.isClosed){active++;debt+=Math.max(0,m.rest);}profit+=Number(c.totalCost||0)-Number(c.costPrice||0);const mi=getMonthStatus(c);(mi.months||[]).forEach(x=>{if(x.status==='overdue'&&!x.isPaid)overdue++;});Object.values(c.installments||{}).forEach(p=>{if(p.date===today){fact+=Number(p.amount||0);todayCount++;}});calculatePaymentDates(c).forEach(pd=>{if(pd.dateStr===today&&!(c.installments||{})[pd.index])plan+=Number(c.monthlyPay||0);});});
+      let down=0,inst=0,cost=0;allContracts.forEach(c=>{if(c.shopPaid){down+=Number(c.downPayment||0);cost+=Number(c.costPrice||0);}Object.values(c.installments||{}).forEach(p=>inst+=Number(p.amount||0));});let taken=0,put=0;allTaken.forEach(x=>{taken+=Number(x.takenAmount||0);put+=Number(x.putAmount||0);});let exp=0;allIncomeExpenses.forEach(x=>exp+=Number(x.amount||0));let invested=0,div=0,withd=0,start=0;Object.keys(initMonthlyReports).sort().forEach((k,i)=>{const r=initMonthlyReports[k];if(!r||!r.entries)return;initInvestors.forEach(inv=>{const e=r.entries[inv.id];if(e){invested+=Number(e.invested||0);div+=Number(e.dividends||0);withd+=Number(e.withdrawn||0);}});if(i===0&&r.startingCapital)initInvestors.forEach(inv=>start+=Number(r.startingCapital[inv.id]||0));});const kassa=down+inst-cost-taken+put-exp+invested-div-withd+start;
+      document.getElementById('dashKassa').textContent=fmtMoney(kassa);document.getElementById('dashDebt').textContent=fmtMoney(debt);document.getElementById('dashProfit').textContent=fmtMoney(profit);document.getElementById('dashActive').textContent=active;document.getElementById('dashActiveMeta').textContent=`из ${allContracts.length} всего`;document.getElementById('dashboardDate').textContent=now.toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+      const clients=getClientsForDate(today), list=document.getElementById('dashboardTodayList'); list.innerHTML=clients.length?clients.slice(0,7).map(c=>`<div class="alert-row"><span class="alert-dot blue"></span><div class="flex-1"><div class="alert-main">${c.fio}</div><div class="alert-sub">План: ${fmtMoney(c.monthlyPay)} · ${c.phone||'телефон не указан'}</div></div><button class="mini-link" onclick="openPayModal('${c.id}')">Принять</button></div>`).join(''):`<div class="text-center py-7 text-slate-400 text-[11px]">✓ На сегодня нет ожидаемых платежей</div>`;
+      document.getElementById('dashboardSummaryRows').innerHTML=`<div class="grid grid-cols-2 gap-3"><div class="p-3 rounded-lg bg-slate-50"><div class="text-[9px] text-slate-400 uppercase font-bold">План сегодня</div><div class="text-base font-black mt-1">${fmtMoney(plan)}</div></div><div class="p-3 rounded-lg bg-slate-50"><div class="text-[9px] text-slate-400 uppercase font-bold">Факт сегодня</div><div class="text-base font-black mt-1 text-emerald-600">${fmtMoney(fact)}</div></div><div class="p-3 rounded-lg bg-slate-50"><div class="text-[9px] text-slate-400 uppercase font-bold">Платежей сегодня</div><div class="text-base font-black mt-1">${todayCount}</div></div><div class="p-3 rounded-lg bg-slate-50"><div class="text-[9px] text-slate-400 uppercase font-bold">Просроченных</div><div class="text-base font-black mt-1 text-red-600">${overdue}</div></div></div>`;
+      document.getElementById('dashboardAlerts').innerHTML=overdue?`<div class="alert-row"><span class="alert-dot red"></span><div><div class="alert-main">${overdue} просроченных платежей</div><div class="alert-sub">Откройте раздел «Просрочка» для работы с клиентами</div></div></div>`:`<div class="text-center py-7 text-slate-400 text-[11px]">✓ Критичных задач нет</div>`;
+      const chartEl=document.getElementById('dashboardChart'); const months=[]; for(let i=5;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);const key=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');let sum=0;allContracts.forEach(c=>Object.values(c.installments||{}).forEach(p=>{if(String(p.date||'').slice(0,7)===key)sum+=Number(p.amount||0);}));months.push({label:d.toLocaleDateString('ru-RU',{month:'short'}).replace('.',''),sum});} const maxChart=Math.max(1,...months.map(x=>x.sum)); chartEl.innerHTML=months.map(x=>`<div class="h-full flex flex-col justify-end items-center gap-2"><div class="text-[8px] text-slate-400 font-bold">${x.sum?fmtMoney(x.sum):'—'}</div><div title="${x.sum?fmtMoney(x.sum):'Нет платежей'}" class="w-full max-w-14 rounded-t-md bg-blue-500" style="height:${Math.max(6,(x.sum/maxChart)*105)}px"></div><div class="text-[9px] text-slate-500 font-bold">${x.label}</div></div>`).join('');
+    }
+    function openPayModalFromDashboard(){const c=getClientsForDate(new Date().toISOString().slice(0,10))[0];if(c)openPayModal(c.id);else switchTab('contracts');}
+    function renderClientsPage(){const map=new Map();allContracts.forEach(c=>{const k=((c.fio||'Без имени').trim().toLowerCase())+'|'+(c.phone||'');if(!map.has(k))map.set(k,{fio:c.fio||'Без имени',phone:c.phone||'',address:c.address||'',contracts:[]});map.get(k).contracts.push(c);});let clients=[...map.values()].map(x=>{x.total=0;x.overdue=0;x.closed=0;x.contracts.forEach(c=>{const m=calculateContractMetrics(c);x.total+=Math.max(0,m.rest);x.overdue+=m.overdueSum||0;if(m.isClosed)x.closed++;});return x;});if(clientFilter==='overdue')clients=clients.filter(x=>x.overdue>0);if(clientFilter==='closed')clients=clients.filter(x=>x.closed===x.contracts.length);if(clientFilter==='today'){const ids=new Set(getClientsForDate(new Date().toISOString().slice(0,10)).map(x=>x.id));clients=clients.filter(x=>x.contracts.some(c=>ids.has(c.id)));}const q=(document.getElementById('searchInput')?.value||'').toLowerCase();if(q)clients=clients.filter(x=>(x.fio+' '+x.phone+' '+x.address).toLowerCase().includes(q)||x.contracts.some(c=>String(c.contractNum).includes(q)));const grid=document.getElementById('clientsGrid');if(!clients.length){grid.innerHTML='<div class="dash-card p-10 text-center text-slate-400 col-span-full">📭 Клиенты не найдены</div>';return;}grid.innerHTML=clients.map(x=>{const st=x.overdue?'overdue':x.total<=0?'closed':'active';const initials=(x.fio||'?').split(/\s+/).slice(0,2).map(v=>v[0]||'').join('').toUpperCase();return `<div class="client-card" onclick="openClientContracts('${encodeURIComponent(x.fio)}')"><div class="flex items-start justify-between gap-3"><div class="flex items-center gap-3"><div class="client-avatar">${initials}</div><div><div class="font-black text-slate-800 text-sm">${x.fio}</div><div class="text-[10px] text-slate-400 mt-1">${x.phone||'Телефон не указан'}</div></div></div><span class="status-pill ${st==='overdue'?'status-overdue':st==='closed'?'status-closed':'status-active'}">● ${st==='overdue'?'Просрочка':st==='closed'?'Закрыт':'Активен'}</span></div><div class="grid grid-cols-2 gap-2 mt-4"><div><div class="text-[9px] text-slate-400">Договоров</div><div class="font-black mt-1">${x.contracts.length}</div></div><div><div class="text-[9px] text-slate-400">Остаток</div><div class="font-black mt-1">${fmtMoney(x.total)}</div></div></div>${x.overdue?`<div class="mt-3 text-[10px] font-bold text-red-600">Просрочка: ${fmtMoney(x.overdue)}</div>`:''}</div>`;}).join('');}
+    function setClientFilter(filter,btn){clientFilter=filter;document.querySelectorAll('#clientsTabContent .filter-chip').forEach(x=>x.classList.remove('active'));btn.classList.add('active');renderClientsPage();}
+    function openClientContracts(encoded){document.getElementById('searchInput').value=decodeURIComponent(encoded);switchTab('contracts');handleSearch();}
+
     function renderIncomePage() {
       const tbody = document.getElementById('incomeTableBody');
       tbody.innerHTML = '';
@@ -2347,18 +2264,7 @@
       const detailsWindow = window.open('', '_blank', 'width=600,height=400');
       detailsWindow.document.write(`
         <html><head><title>Детали: ${partnerName}</title>
-        <style>body { font-family: Arial; padding: 20px; white-space: pre-wrap; }
-    /* ===== YUSRA PROFESSIONAL UI V2 ===== */
-    :root{--sidebar:270px;--accent:#2563eb;--surface:#fff;--bg:#f5f7fb;--muted:#64748b;--line:#e2e8f0}
-    body{background:var(--bg)!important;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;padding-bottom:24px!important}
-    .app-shell{min-height:100vh}
-    .side-nav{position:fixed;z-index:55;left:0;top:0;bottom:0;width:var(--sidebar);background:#0f172a;color:#fff;display:flex;flex-direction:column;padding:18px 14px;box-shadow:10px 0 30px rgba(15,23,42,.08);transition:transform .25s ease,width .25s ease}
-    .side-brand{display:flex;align-items:center;gap:11px;padding:8px 10px 20px;border-bottom:1px solid rgba(255,255,255,.09);margin-bottom:12px}.brand-mark{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#3b82f6,#6366f1);display:grid;place-items:center;font-weight:900;font-size:17px}.brand-title{font-size:16px;font-weight:900;letter-spacing:.04em}.brand-sub{font-size:9px;color:#94a3b8;text-transform:uppercase;letter-spacing:.12em;margin-top:2px}
-    .side-scroll{overflow:auto;flex:1;padding-right:3px}.side-section{font-size:9px;color:#64748b;font-weight:900;text-transform:uppercase;letter-spacing:.14em;padding:13px 10px 7px}.side-btn{width:100%;display:flex;align-items:center;gap:11px;padding:10px 11px;border:0;border-radius:10px;color:#cbd5e1;background:transparent;font-size:12px;font-weight:700;text-align:left;cursor:pointer;transition:.15s}.side-btn:hover{background:#1e293b;color:#fff}.side-btn.active{background:#2563eb;color:#fff;box-shadow:0 5px 16px rgba(37,99,235,.25)}.side-icon{width:20px;text-align:center;font-size:15px}.side-badge{margin-left:auto;min-width:21px;height:20px;padding:0 6px;border-radius:999px;background:#ef4444;color:#fff;font-size:9px;display:grid;place-items:center}.side-footer{border-top:1px solid rgba(255,255,255,.09);padding-top:10px;margin-top:10px}.app-main{margin-left:var(--sidebar);min-width:0}.topbar-v2{position:sticky!important;top:0!important;z-index:45!important;background:rgba(255,255,255,.94)!important;backdrop-filter:blur(12px);border-bottom:1px solid var(--line)!important;box-shadow:0 4px 20px rgba(15,23,42,.04)!important}.main-pad{padding:20px!important;max-width:1600px!important;margin:0 auto}.desktop-old-bottom{display:none!important}.mobile-menu-btn{display:none}.page-title{font-size:22px;font-weight:900;color:#0f172a}.page-sub{font-size:11px;color:#64748b;margin-top:3px}.v2-card{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 8px 28px rgba(15,23,42,.045)}.v2-kpi{padding:16px;position:relative;overflow:hidden}.v2-kpi .label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:800;color:#64748b}.v2-kpi .value{font-size:25px;font-weight:900;color:#0f172a;margin-top:6px}.v2-kpi .mini{font-size:10px;color:#64748b;margin-top:3px}.v2-kpi .orb{position:absolute;right:-16px;top:-18px;width:70px;height:70px;border-radius:50%;background:#eff6ff}.v2-table-wrap{overflow:auto}.v2-table{width:100%;border-collapse:collapse;min-width:760px}.v2-table th{background:#f8fafc;color:#64748b;text-transform:uppercase;font-size:9px;letter-spacing:.06em;padding:11px;text-align:left;white-space:nowrap}.v2-table td{padding:11px;border-top:1px solid #eef2f7;font-size:11px;vertical-align:middle}.status-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 8px;border-radius:999px;font-size:9px;font-weight:800}.status-ok{background:#dcfce7;color:#166534}.status-warn{background:#fef3c7;color:#92400e}.status-danger{background:#fee2e2;color:#991b1b}.status-info{background:#dbeafe;color:#1d4ed8}.quick-btn{border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px 11px;font-size:10px;font-weight:800;color:#334155;cursor:pointer;transition:.15s}.quick-btn:hover{border-color:#93c5fd;background:#eff6ff}.drawer-backdrop{display:none;position:fixed;inset:0;background:rgba(2,6,23,.5);z-index:54}.drawer-backdrop.open{display:block}.page-section{animation:fadeIn .18s ease}@keyframes fadeIn{from{opacity:.4;transform:translateY(3px)}to{opacity:1;transform:none}}
-    .profile-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;padding:18px}.avatar{width:46px;height:46px;border-radius:14px;background:#dbeafe;color:#1d4ed8;display:grid;place-items:center;font-weight:900}.client-name{font-size:15px;font-weight:900}.client-meta{font-size:10px;color:#64748b;margin-top:3px}.empty-v2{padding:40px;text-align:center;color:#94a3b8;font-size:12px}.timeline{position:relative;padding-left:18px}.timeline:before{content:"";position:absolute;left:4px;top:4px;bottom:4px;width:2px;background:#e2e8f0}.timeline-item{position:relative;padding:0 0 14px 10px}.timeline-item:before{content:"";position:absolute;left:-1px;top:3px;width:10px;height:10px;border-radius:50%;background:#3b82f6;border:2px solid #fff;box-shadow:0 0 0 1px #bfdbfe}.settings-row{display:flex;justify-content:space-between;gap:15px;align-items:center;padding:13px 0;border-bottom:1px solid #eef2f7}.settings-row:last-child{border-bottom:0}.toggle{width:42px;height:24px;border-radius:999px;background:#cbd5e1;position:relative;cursor:pointer}.toggle:after{content:"";position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;left:3px;top:3px;transition:.15s}.toggle.on{background:#2563eb}.toggle.on:after{left:21px}
-    @media(max-width:900px){:root{--sidebar:0px}.side-nav{width:270px;transform:translateX(-100%)}.side-nav.open{transform:translateX(0)}.app-main{margin-left:0}.mobile-menu-btn{display:grid;place-items:center;width:38px;height:38px;border:1px solid var(--line);background:#fff;border-radius:10px;font-size:18px}.main-pad{padding:12px!important}.topbar-v2 .p-3{padding:10px!important}.topbar-v2 .p-3>div:first-child{gap:8px}.topbar-v2 #searchInput{width:145px!important}.page-title{font-size:19px}}
-    @media(max-width:640px){.v2-kpi .value{font-size:20px}.grid-cols-4-v2{grid-template-columns:repeat(2,minmax(0,1fr))}.hide-mobile{display:none!important}.topbar-v2 .p-3{align-items:center}.topbar-v2 .p-3>div:last-child{width:100%}.topbar-v2 #addContractBtn,.topbar-v2 #addAccBtn,.topbar-v2 #addTakenBtn,.topbar-v2 #addIncomeExpBtn{margin-left:auto}.v2-card{border-radius:13px}}
-</style>
+        <style>body { font-family: Arial; padding: 20px; white-space: pre-wrap; }</style>
         </head><body>${message.replace(/\n/g, '<br>')}</body></html>
       `);
       detailsWindow.document.close();
@@ -3440,8 +3346,10 @@
 
     window.handleSearch = function() {
       const q = document.getElementById('searchInput').value.toLowerCase();
-      if (activeTab === 'contracts') {
-        renderTable(allContracts.filter(c => c.fio.toLowerCase().includes(q) || String(c.contractNum).includes(q)));
+      if (activeTab === 'dashboard') { renderDashboard();
+      } else if (activeTab === 'clients') { renderClientsPage();
+      } else if (activeTab === 'contracts') {
+        renderTable(allContracts.filter(c => (c.fio || '').toLowerCase().includes(q) || String(c.contractNum).includes(q) || (c.phone || '').toLowerCase().includes(q)));
       } else if (activeTab === 'accounting') {
         renderAccountingTable(allAccounting.filter(a => a.note.toLowerCase().includes(q) || a.account.toLowerCase().includes(q) || a.date.includes(q)));
       } else if (activeTab === 'taken') {
@@ -4212,26 +4120,6 @@
         }
       }
     }
-
-
-    // ================================================================
-    // YUSRA V2: представления, клиенты, платежи, отчёты, журнал
-    // ================================================================
-    function moneyV2(n){ return (Number(n)||0).toLocaleString('ru-RU',{maximumFractionDigits:2}) + ' ₽'; }
-    function escV2(v){ return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
-    function addAudit(message){ try{ const a=JSON.parse(localStorage.getItem('yusra_audit')||'[]'); a.unshift({id:Date.now()+Math.random(),date:new Date().toISOString(),message}); localStorage.setItem('yusra_audit',JSON.stringify(a.slice(0,200))); }catch(e){} }
-    function clearAuditLog(){ if(!confirm('Очистить историю действий?')) return; localStorage.removeItem('yusra_audit'); renderAudit(); }
-    function renderAudit(){ const el=document.getElementById('auditList'); if(!el)return; const a=JSON.parse(localStorage.getItem('yusra_audit')||'[]'); el.innerHTML=a.length?a.map(x=>`<div class="timeline-item"><div class="font-bold text-[11px]">${escV2(x.message)}</div><div class="text-[9px] text-slate-400 mt-1">${new Date(x.date).toLocaleString('ru-RU')}</div></div>`).join(''):'<div class="empty-v2">История пока пуста.</div>'; }
-    function clientMapV2(){ const m=new Map(); allContracts.forEach(c=>{const key=(c.phone||c.fio||c.id||'').trim().toLowerCase(); if(!key)return; if(!m.has(key))m.set(key,{key,fio:c.fio||'Без имени',phone:c.phone||'',address:c.address||'',contracts:[]}); m.get(key).contracts.push(c);}); return [...m.values()]; }
-    function renderV2Clients(){ const el=document.getElementById('v2ClientsGrid'); if(!el)return; const q=(document.getElementById('v2ClientSearch')?.value||'').toLowerCase().trim(); const arr=clientMapV2().filter(x=>!q||`${x.fio} ${x.phone} ${x.address}`.toLowerCase().includes(q)); if(!arr.length){el.innerHTML='<div class="v2-card empty-v2 md:col-span-3">Клиенты не найдены.</div>';return;} el.innerHTML=arr.map(x=>{let debt=0,over=0,paid=0; x.contracts.forEach(c=>{const m=calculateContractMetrics(c);debt+=Number(m.remaining||0);over+=Number(m.overdueSum||0);paid+=Number(m.paid||0)}); return `<div class="v2-card"><div class="profile-head"><div class="flex gap-3"><div class="avatar">${escV2((x.fio||'?').split(' ').map(a=>a[0]).slice(0,2).join(''))}</div><div><div class="client-name">${escV2(x.fio)}</div><div class="client-meta">${escV2(x.phone||'Телефон не указан')}</div><div class="client-meta">${escV2(x.address||'Адрес не указан')}</div></div></div><button class="quick-btn" onclick="openCreateModal()">＋</button></div><div class="px-4 pb-4 grid grid-cols-3 gap-2 text-center"><div class="bg-slate-50 rounded-lg p-2"><div class="text-[9px] text-slate-400">Договоров</div><b>${x.contracts.length}</b></div><div class="bg-slate-50 rounded-lg p-2"><div class="text-[9px] text-slate-400">Остаток</div><b>${moneyV2(debt)}</b></div><div class="bg-slate-50 rounded-lg p-2"><div class="text-[9px] text-slate-400">Просрочка</div><b class="${over?'text-red-600':''}">${moneyV2(over)}</b></div></div><div class="px-4 pb-4"><div class="text-[9px] text-slate-400 uppercase font-bold mb-2">Договоры</div>${x.contracts.slice(0,3).map(c=>`<div class="flex justify-between py-1.5 border-t text-[10px]"><span>${escV2(c.product||'Товар')} · ${escV2(c.store||'')}</span><span class="font-bold">${moneyV2(c.totalCost)}</span></div>`).join('')}</div></div>`}).join(''); }
-    function paymentRowsV2(){ const rows=[]; allContracts.forEach(c=>{ const dates=calculatePaymentDates(c); dates.forEach(pd=>{const p=(c.installments||{})[pd.index]||{}; const plan=Number(c.monthlyPay||0); const fact=Number(p.amount||0); rows.push({c,pd,p,plan,fact,paid:fact>0,date:pd.date});});}); return rows.sort((a,b)=>a.date.localeCompare(b.date)); }
-    function renderV2Payments(){ const tbody=document.getElementById('v2PaymentsTable'); if(!tbody)return; const rows=paymentRowsV2(); const now=new Date(); const today=now.toISOString().slice(0,10); const d3=new Date(now);d3.setDate(d3.getDate()+3);const three=d3.toISOString().slice(0,10); let todaySum=0,fact=0,threeSum=0,over=0; rows.forEach(r=>{if(r.date===today){todaySum+=r.plan; if(r.paid)fact+=r.fact} if(r.date===three&&!r.paid)threeSum+=r.plan; if(r.date<today&&!r.paid)over+=r.plan}); document.getElementById('payTodayTotal').textContent=moneyV2(todaySum);document.getElementById('payFactToday').textContent=moneyV2(fact);document.getElementById('payThreeDayTotal').textContent=moneyV2(threeSum);document.getElementById('payOverdueTotal').textContent=moneyV2(over); const view=rows.filter(r=>!r.paid||r.date>=today).slice(0,200); tbody.innerHTML=view.length?view.map(r=>{const status=r.paid?'<span class="status-pill status-ok">✓ Оплачен</span>':r.date<today?'<span class="status-pill status-danger">Просрочка</span>':r.date===today?'<span class="status-pill status-warn">Сегодня</span>':'<span class="status-pill status-info">Запланирован</span>';return `<tr><td><b>${escV2(r.c.fio)}</b><div class="text-[9px] text-slate-400">${escV2(r.c.phone||'')}</div></td><td>${escV2(r.c.product||'Договор')}</td><td>${r.date}</td><td>${moneyV2(r.plan)}</td><td>${r.paid?moneyV2(r.fact):'—'}</td><td>${status}</td><td><button class="quick-btn" onclick="openPayModal('${r.c.id}')">＋ Взнос</button></td></tr>`}).join(''):'<tr><td colspan="7" class="empty-v2">Нет платежей.</td></tr>'; }
-    function renderV2Dashboard(){ const all=allContracts;let active=0,debt=0,over=0;all.forEach(c=>{const m=calculateContractMetrics(c);if(!m.isClosed)active++;debt+=Number(m.remaining||0);over+=Number(m.overdueSum||0)});const debtors=getDebtors();const today=getClientsForDate(new Date().toISOString().slice(0,10));document.getElementById('v2ActiveContracts').textContent=active;document.getElementById('v2TotalContracts').textContent='Всего: '+all.length;document.getElementById('v2Debt').textContent=moneyV2(debt);document.getElementById('v2Overdue').textContent=moneyV2(over);document.getElementById('v2OverdueCount').textContent=debtors.length+' клиентов';let tsum=0;today.forEach(x=>tsum+=Number(x.planAmount||0));document.getElementById('v2TodaySum').textContent=moneyV2(tsum);document.getElementById('v2TodayCount').textContent=today.length+' платежей';document.getElementById('dashboardDate').textContent=new Date().toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long',year:'numeric'});const alerts=document.getElementById('dashboardAlerts');alerts.innerHTML=debtors.length?debtors.slice(0,5).map(d=>`<div class="flex justify-between items-center py-2 border-b last:border-0"><div><b class="text-[11px]">${escV2(d.fio)}</b><div class="text-[9px] text-slate-400">Просрочка ${moneyV2(d.overdue||0)}</div></div><button class="quick-btn" onclick="openPayModal('${d.id}')">Оплата</button></div>`).join(''):'<div class="empty-v2">🎉 Просрочек не найдено.</div>';const up=document.getElementById('dashboardUpcoming');const rows=paymentRowsV2().filter(r=>!r.paid&&r.date>=new Date().toISOString().slice(0,10)).slice(0,8);up.innerHTML=rows.length?rows.map(r=>`<tr><td><b>${escV2(r.c.fio)}</b></td><td>${r.date}</td><td>${moneyV2(r.plan)}</td><td><span class="status-pill ${r.date===new Date().toISOString().slice(0,10)?'status-warn':'status-info'}">${r.date===new Date().toISOString().slice(0,10)?'Сегодня':'План'}</span></td><td><button class="quick-btn" onclick="openPayModal('${r.c.id}')">＋ Взнос</button></td></tr>`).join(''):'<tr><td colspan="5" class="empty-v2">Ближайших платежей нет.</td></tr>';document.getElementById('sideDebtorBadge').textContent=debtors.length;}
-    function renderV2Reports(){ const el=document.getElementById('v2ReportsBody');if(!el)return;const from=document.getElementById('reportFrom').value;const to=document.getElementById('reportTo').value;const rows=paymentRowsV2().filter(r=>(!from||r.date>=from)&&(!to||r.date<=to));let plan=0,fact=0,paidCount=0,unpaid=0;rows.forEach(r=>{plan+=r.plan;if(r.paid){fact+=r.fact;paidCount++}else unpaid+=r.plan});const unique=new Set(rows.map(r=>r.c.id)).size;el.innerHTML=`<div class="grid grid-cols-2 md:grid-cols-4 gap-3"><div class="v2-card v2-kpi"><div class="label">План</div><div class="value">${moneyV2(plan)}</div></div><div class="v2-card v2-kpi"><div class="label">Факт</div><div class="value">${moneyV2(fact)}</div></div><div class="v2-card v2-kpi"><div class="label">Оплачено</div><div class="value">${paidCount}</div></div><div class="v2-card v2-kpi"><div class="label">Не оплачено</div><div class="value">${moneyV2(unpaid)}</div></div></div><div class="v2-card p-4 mt-4"><div class="font-black text-sm mb-3">Договоры, попавшие в период: ${unique}</div><div class="text-[10px] text-slate-500">Отчёт построен по графикам и фактическим платежам существующей базы. Разделы «Учёт», «Доход» и инвестиционная логика не изменяются.</div></div>`;}
-    function renderV2Section(tab){ if(tab==='dashboard')renderV2Dashboard();if(tab==='clients')renderV2Clients();if(tab==='payments')renderV2Payments();if(tab==='reports')renderV2Reports();if(tab==='audit')renderAudit();if(tab==='settings'){const st=JSON.parse(localStorage.getItem('yusra_settings')||'{}');document.getElementById('setAutoDash')?.classList.toggle('on',st.autoDash!==false);document.getElementById('setCompact')?.classList.toggle('on',!!st.compact);}}
-    function toggleSideNav(){document.getElementById('sideNav')?.classList.toggle('open');document.getElementById('drawerBackdrop')?.classList.toggle('open');}
-    function closeSideNav(){document.getElementById('sideNav')?.classList.remove('open');document.getElementById('drawerBackdrop')?.classList.remove('open');}
-    function toggleSetting(k){const st=JSON.parse(localStorage.getItem('yusra_settings')||'{}');st[k]=k==='autoDash'?(st[k]===false):!st[k];localStorage.setItem('yusra_settings',JSON.stringify(st));renderV2Section('settings');}
 
     // ================================================================
     // СТАРТ
