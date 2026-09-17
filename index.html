@@ -620,18 +620,21 @@
         <button type="button" onclick="toggleDrawer(false)" class="w-9 h-9 rounded-lg bg-slate-100 text-slate-600 font-bold">✕</button>
       </div>
       <div id="drawerNav" class="drawer-nav">
-        <div class="drawer-section">Работа</div>
+        <div class="drawer-section">Основное</div>
         <button class="drawer-link active" data-tab="contracts" onclick="switchTab('contracts'); toggleDrawer(false)">📋 <span>Договоры</span></button>
-        <button class="drawer-link" data-tab="clients" onclick="switchTab('clients'); toggleDrawer(false)">👥 <span>Клиенты</span></button>
-        <button class="drawer-link" data-tab="accounting" onclick="switchTab('accounting'); toggleDrawer(false)">📊 <span>Учет</span></button>
-        <button class="drawer-link" data-tab="taken" onclick="switchTab('taken'); toggleDrawer(false)">📙 <span>Взяли</span></button>
-        <button class="drawer-link" data-tab="income" onclick="switchTab('income'); toggleDrawer(false)">💵 <span>Доход</span></button>
-        <div class="drawer-section">Контроль</div>
-        <button class="drawer-link" data-tab="init" onclick="switchTab('init'); toggleDrawer(false)">🏛️ <span>Инвестиция</span></button>
         <button class="drawer-link" data-tab="today" onclick="switchTab('today'); toggleDrawer(false)">📅 <span>Сегодня</span></button>
         <button class="drawer-link" data-tab="threeDays" onclick="switchTab('threeDays'); toggleDrawer(false)">⏰ <span>Через 3 дня</span></button>
         <button class="drawer-link" data-tab="debtors" onclick="switchTab('debtors'); toggleDrawer(false)">🚫 <span>Неплательщики</span></button>
+        <button class="drawer-link" data-tab="clients" onclick="switchTab('clients'); toggleDrawer(false)">👥 <span>Клиенты</span></button>
+
+        <div class="drawer-section">Учёт</div>
+        <button class="drawer-link" data-tab="accounting" onclick="switchTab('accounting'); toggleDrawer(false)">📊 <span>Учет</span></button>
+        <button class="drawer-link" data-tab="taken" onclick="switchTab('taken'); toggleDrawer(false)">📙 <span>Взяли</span></button>
+        <button class="drawer-link" data-tab="income" onclick="switchTab('income'); toggleDrawer(false)">💵 <span>Доход</span></button>
+
+        <div class="drawer-section">Партнёры</div>
         <button class="drawer-link" data-tab="partners" onclick="switchTab('partners'); toggleDrawer(false)">🤝 <span>Партнёры</span></button>
+        <button class="drawer-link" data-tab="init" onclick="switchTab('init'); toggleDrawer(false)">🏛️ <span>Инвестиции</span></button>
         <button class="drawer-link" data-tab="print" onclick="switchTab('print'); toggleDrawer(false)">🖨️ <span>Распечатка</span></button>
       </div>
     </aside>
@@ -1558,6 +1561,11 @@
     // ================================================================
     window.switchTab = function(tab) {
       activeTab = tab;
+      // Всегда синхронизируем подсветку бокового меню с текущей страницей.
+      // Это предотвращает «залипание» синей отметки на предыдущем пункте.
+      document.querySelectorAll('#drawerNav .drawer-link').forEach(link => {
+        link.classList.toggle('active', link.dataset.tab === tab);
+      });
       const cTab = document.getElementById('contractsTabContent');
       const aTab = document.getElementById('accountingTabContent');
       const tTab = document.getElementById('takenTabContent');
@@ -1660,15 +1668,7 @@
         updatePrintSelect();
         loadContractForPrint();
       }
-      // Надёжно синхронизируем активный пункт боковой шторки с текущей страницей.
-      // Не используем сохранённый класс active: он может оставаться после повторных кликов.
-      const drawerLinks = document.querySelectorAll('#drawerNav .drawer-link[data-tab]');
-      drawerLinks.forEach(btn => {
-        const isCurrent = btn.dataset.tab === tab;
-        btn.classList.remove('active');
-        btn.setAttribute('aria-current', isCurrent ? 'page' : 'false');
-        if (isCurrent) btn.classList.add('active');
-      });
+      document.querySelectorAll('.drawer-link').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tab));
       if (tab === 'contracts') contractsCurrentPage = Math.max(1, contractsCurrentPage);
       handleSearch();
     };
@@ -1680,20 +1680,6 @@
       drawer.classList.toggle('open', open);
       drawer.setAttribute('aria-hidden', String(!open));
     };
-
-    // Дополнительная синхронизация по клику: визуальная отметка всегда
-    // переходит именно на тот пункт, который был нажат.
-    document.addEventListener('click', e => {
-      const btn = e.target.closest('#drawerNav .drawer-link[data-tab]');
-      if (!btn) return;
-      document.querySelectorAll('#drawerNav .drawer-link[data-tab]').forEach(item => {
-        const isCurrent = item === btn;
-        item.classList.remove('active');
-        item.setAttribute('aria-current', isCurrent ? 'page' : 'false');
-        if (isCurrent) item.classList.add('active');
-      });
-    });
-
     document.addEventListener('keydown', e => { if (e.key === 'Escape') toggleDrawer(false); });
 
     window.saveState = function() {
