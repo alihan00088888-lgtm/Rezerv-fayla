@@ -1660,7 +1660,15 @@
         updatePrintSelect();
         loadContractForPrint();
       }
-      document.querySelectorAll('.drawer-link').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tab));
+      // Надёжно синхронизируем активный пункт боковой шторки с текущей страницей.
+      // Не используем сохранённый класс active: он может оставаться после повторных кликов.
+      const drawerLinks = document.querySelectorAll('#drawerNav .drawer-link[data-tab]');
+      drawerLinks.forEach(btn => {
+        const isCurrent = btn.dataset.tab === tab;
+        btn.classList.remove('active');
+        btn.setAttribute('aria-current', isCurrent ? 'page' : 'false');
+        if (isCurrent) btn.classList.add('active');
+      });
       if (tab === 'contracts') contractsCurrentPage = Math.max(1, contractsCurrentPage);
       handleSearch();
     };
@@ -1672,6 +1680,20 @@
       drawer.classList.toggle('open', open);
       drawer.setAttribute('aria-hidden', String(!open));
     };
+
+    // Дополнительная синхронизация по клику: визуальная отметка всегда
+    // переходит именно на тот пункт, который был нажат.
+    document.addEventListener('click', e => {
+      const btn = e.target.closest('#drawerNav .drawer-link[data-tab]');
+      if (!btn) return;
+      document.querySelectorAll('#drawerNav .drawer-link[data-tab]').forEach(item => {
+        const isCurrent = item === btn;
+        item.classList.remove('active');
+        item.setAttribute('aria-current', isCurrent ? 'page' : 'false');
+        if (isCurrent) item.classList.add('active');
+      });
+    });
+
     document.addEventListener('keydown', e => { if (e.key === 'Escape') toggleDrawer(false); });
 
     window.saveState = function() {
