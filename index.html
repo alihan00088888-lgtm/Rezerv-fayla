@@ -2625,6 +2625,14 @@
     // ================================================================
     // КЛИЕНТЫ
     // ================================================================
+    function escapeClientHtml(value) {
+      return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    function clientJsArg(value) {
+      return JSON.stringify(String(value ?? '')).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\"/g, '&quot;');
+    }
+
     function getClientGroups() {
       const map = new Map();
       allContracts.forEach(contract => {
@@ -2670,12 +2678,12 @@
         const closed = client.contracts.length - active;
         const rest = client.contracts.reduce((sum,c) => sum + Number(calculateContractMetrics(c).rest || 0), 0);
         const phoneText = client.phone ? `📞 ${client.phone}` : '📞 Телефон не указан';
-        return `<button type="button" class="client-card text-left w-full" onclick="openClientDetail(${JSON.stringify(client.fio)})">
+        return `<button type="button" class="client-card text-left w-full" onclick="openClientDetail(${clientJsArg(client.fio)})">
           <div class="flex justify-between items-start gap-2">
-            <div class="font-black text-slate-900 text-sm">${index + 1}. ${client.fio}</div>
+            <div class="font-black text-slate-900 text-sm">${index + 1}. ${escapeClientHtml(client.fio)}</div>
             <span class="client-status ${active ? 'active' : 'closed'}">${active ? '● Активный' : '● Нет активных'}</span>
           </div>
-          <div class="text-xs text-slate-500 mt-2">${phoneText}${client.extraPhone ? ` · ${client.extraPhone}` : ''}</div>
+          <div class="text-xs text-slate-500 mt-2">${phoneText}${client.extraPhone ? ` · ${escapeClientHtml(client.extraPhone)}` : ''}</div>
           <div class="flex flex-wrap gap-2 mt-3 text-[10px] font-bold">
             <span class="bg-blue-50 text-blue-700 px-2 py-1 rounded-full">Договоров: ${client.contracts.length}</span>
             <span class="bg-green-50 text-green-700 px-2 py-1 rounded-full">Активных: ${active}</span>
@@ -2727,7 +2735,7 @@
     }
 
     window.openClientWhatsApp = function(fio, mode) {
-      const client = getClientGroups().find(c => c.fio === fio);
+      const client = getClientGroups().find(c => String(c.fio) === String(fio));
       if (!client) return;
       let contracts = client.contracts;
       if (mode === 'active') contracts = contracts.filter(c => clientContractStatus(c) === 'active');
@@ -2747,7 +2755,7 @@
     };
 
     window.openClientDetail = function(fio) {
-      const client = getClientGroups().find(c => c.fio === fio);
+      const client = getClientGroups().find(c => String(c.fio) === String(fio));
       if (!client) return;
       document.getElementById('clientDetailName').textContent = client.fio;
       document.getElementById('clientDetailContacts').textContent =
@@ -2788,7 +2796,7 @@
               <thead><tr><th>Месяц</th><th>Дата</th><th>Сумма</th><th>Статус</th></tr></thead><tbody>
                 ${info.months.map(m => `<tr><td>${m.month}-й</td><td>${formatClientDate(m.date)}</td><td>${Number(m.amount || 0).toLocaleString('ru-RU')} ₽</td><td>${m.isPaid ? '<span class="paid-mark">✓ Оплачено</span>' : (m.status === 'overdue' ? '<span class="unpaid-mark">⚠ Просрочка</span>' : '<span class="text-slate-500">⏳ Ожидает</span>')}</td></tr>`).join('')}
               </tbody></table></div>
-            <button type="button" onclick="selectClientWhatsAppContract(${JSON.stringify(client.fio)}, '${String(contract.id).replace(/'/g,"\\'")}')" class="w-full mt-2 bg-green-50 hover:bg-green-100 text-green-700 px-3 py-2 rounded-lg font-bold">💬 Отправить этот договор</button>
+            <button type="button" onclick="selectClientWhatsAppContract(${clientJsArg(client.fio)}, ${clientJsArg(contract.id)})" class="w-full mt-2 bg-green-50 hover:bg-green-100 text-green-700 px-3 py-2 rounded-lg font-bold">💬 Отправить этот договор</button>
           </div>
         </section>`;
       });
@@ -2796,11 +2804,11 @@
         <div id="clientWhatsAppOptions" class="hidden mt-5 border-t pt-4">
           <h3 class="font-black text-sm mb-3">WhatsApp — выберите вариант</h3>
           <div class="copy-option-grid">
-            <button type="button" onclick="openClientWhatsApp(${JSON.stringify(client.fio)}, 'one')" class="p-3 rounded-lg border border-green-200 bg-green-50 text-green-700 font-bold">1. Конкретный договор</button>
-            <button type="button" onclick="openClientWhatsApp(${JSON.stringify(client.fio)}, 'active')" class="p-3 rounded-lg border border-green-200 bg-green-50 text-green-700 font-bold">2. Все активные</button>
-            <button type="button" onclick="openClientWhatsApp(${JSON.stringify(client.fio)}, 'all')" class="p-3 rounded-lg border border-green-200 bg-green-50 text-green-700 font-bold">3. Все договоры</button>
+            <button type="button" onclick="openClientWhatsApp(${clientJsArg(client.fio)}, 'one')" class="p-3 rounded-lg border border-green-200 bg-green-50 text-green-700 font-bold">1. Конкретный договор</button>
+            <button type="button" onclick="openClientWhatsApp(${clientJsArg(client.fio)}, 'active')" class="p-3 rounded-lg border border-green-200 bg-green-50 text-green-700 font-bold">2. Все активные</button>
+            <button type="button" onclick="openClientWhatsApp(${clientJsArg(client.fio)}, 'all')" class="p-3 rounded-lg border border-green-200 bg-green-50 text-green-700 font-bold">3. Все договоры</button>
             <select id="clientWhatsAppContract" class="p-3 border rounded-lg" aria-label="Конкретный договор">
-              ${client.contracts.map(c => `<option value="${c.id}">Договор №${c.contractNum || '—'} — ${clientContractStatus(c) === 'active' ? 'активный' : 'закрытый'}</option>`).join('')}
+              ${client.contracts.map(c => `<option value="${escapeClientHtml(c.id)}">Договор №${escapeClientHtml(c.contractNum || '—')} — ${clientContractStatus(c) === 'active' ? 'активный' : 'закрытый'}</option>`).join('')}
             </select>
           </div>
         </div>`;
