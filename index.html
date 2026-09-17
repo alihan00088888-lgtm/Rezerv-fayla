@@ -77,104 +77,6 @@
     }
     .print-contract h1 { font-size: 16px; font-weight: bold; text-align: center; text-transform: uppercase; margin-bottom: 12px; }
 
-
-    /* === Боковая шторка навигации === */
-    .drawer-backdrop {
-      position: fixed; inset: 0; background: rgba(15,23,42,.42);
-      z-index: 60; opacity: 0; pointer-events: none; transition: opacity .25s ease;
-      backdrop-filter: blur(2px);
-    }
-    .drawer-backdrop.open { opacity: 1; pointer-events: auto; }
-    .side-drawer {
-      position: fixed; top: 0; left: 0; bottom: 0; width: min(330px, 88vw);
-      background: #fff; z-index: 70; transform: translateX(-102%);
-      transition: transform .28s cubic-bezier(.4,0,.2,1);
-      box-shadow: 14px 0 40px rgba(15,23,42,.18); display: flex; flex-direction: column;
-    }
-    .side-drawer.open { transform: translateX(0); }
-    .drawer-header { padding: 18px 16px 14px; border-bottom: 1px solid #e2e8f0; display:flex; align-items:center; justify-content:space-between; }
-    .drawer-title { font-weight: 900; font-size: 18px; letter-spacing: -.3px; color:#0f172a; }
-    .drawer-subtitle { font-size: 10px; color:#94a3b8; font-weight:700; margin-top:2px; text-transform:uppercase; letter-spacing:.8px; }
-    .drawer-nav { padding: 12px; overflow-y:auto; flex:1; }
-    .drawer-section { font-size:9px; font-weight:900; color:#94a3b8; text-transform:uppercase; letter-spacing:1px; padding: 10px 10px 6px; }
-    .drawer-link { width:100%; display:flex; align-items:center; gap:11px; padding:11px 12px; border-radius:10px; font-size:12px; font-weight:800; color:#475569; transition:.18s; text-align:left; }
-    .drawer-link:hover { background:#f1f5f9; color:#0f172a; transform:translateX(2px); }
-    .drawer-link.active { background:#2563eb; color:#fff; box-shadow:0 5px 12px rgba(37,99,235,.22); }
-    .drawer-link .drawer-icon { width:22px; text-align:center; font-size:16px; flex:none; }
-    .drawer-close { width:34px;height:34px;border-radius:9px;background:#f1f5f9;color:#475569;font-size:20px;line-height:1; }
-    .hamburger-btn { width:40px;height:40px;border-radius:10px;background:#0f172a;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:21px;box-shadow:0 4px 12px rgba(15,23,42,.18);transition:.18s; }
-    .hamburger-btn:hover { transform:translateY(-1px); background:#1e293b; }
-    .desktop-menu-label { font-size:9px; font-weight:900; color:#64748b; text-transform:uppercase; letter-spacing:.8px; }
-    body.drawer-open { overflow:hidden; }
-
-    /* === Клиенты === */
-    .clients-shell { max-width: 1400px; margin:0 auto; }
-    .clients-toolbar { display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
-    .clients-search { flex:1; min-width:220px; max-width:560px; }
-    .client-card {
-      background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:14px 16px;
-      display:flex; align-items:center; justify-content:space-between; gap:12px; cursor:pointer;
-      transition:.18s; box-shadow:0 2px 7px rgba(15,23,42,.04);
-    }
-    .client-card:hover { border-color:#93c5fd; box-shadow:0 8px 20px rgba(37,99,235,.10); transform:translateY(-1px); }
-    .client-card-name { font-size:14px; font-weight:900; color:#0f172a; }
-    .client-card-meta { font-size:10px; color:#64748b; margin-top:4px; display:flex; gap:10px; flex-wrap:wrap; }
-    .status-pill { display:inline-flex; align-items:center; gap:4px; padding:4px 8px; border-radius:999px; font-size:9px; font-weight:900; }
-    .status-active { background:#dcfce7; color:#166534; }
-    .status-closed { background:#f1f5f9; color:#475569; }
-    .client-detail-modal { position:fixed; inset:0; background:rgba(15,23,42,.6); z-index:80; display:none; align-items:center; justify-content:center; padding:14px; backdrop-filter:blur(3px); }
-    .client-detail-modal.open { display:flex; }
-    .client-detail-card { background:#f8fafc; width:min(1100px,100%); max-height:94vh; overflow:auto; border-radius:18px; box-shadow:0 25px 70px rgba(0,0,0,.28); }
-    .client-detail-head { position:sticky; top:0; z-index:2; background:#fff; border-bottom:1px solid #e2e8f0; padding:16px 18px; display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
-    .client-detail-title { font-size:20px; font-weight:900; color:#0f172a; }
-    .client-detail-sub { font-size:11px; color:#64748b; margin-top:3px; }
-    .client-action-wrap { position:relative; }
-    .client-wa-menu { position:absolute; right:0; top:calc(100% + 7px); width:245px; background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:6px; box-shadow:0 15px 35px rgba(15,23,42,.18); z-index:10; display:none; }
-    .client-wa-menu.open { display:block; }
-    .client-wa-option { width:100%; text-align:left; padding:10px; border-radius:8px; font-size:11px; font-weight:800; color:#334155; }
-    .client-wa-option:hover { background:#f1f5f9; }
-    .client-contract {
-      background:#fff; margin:12px 16px; border:1px solid #e2e8f0; border-radius:14px; overflow:hidden;
-    }
-    .client-contract-head { padding:12px 14px; display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; background:#fff; }
-    .contract-title { font-size:13px; font-weight:900; color:#0f172a; }
-    .contract-summary { display:flex; gap:7px; flex-wrap:wrap; margin-top:5px; }
-    .metric-chip { padding:4px 7px; border-radius:6px; background:#f1f5f9; color:#475569; font-size:9px; font-weight:800; }
-    .metric-chip.red { background:#fee2e2; color:#991b1b; }
-    .metric-chip.green { background:#dcfce7; color:#166534; }
-    .payment-history { border-top:1px solid #e2e8f0; padding:10px 12px; display:grid; grid-template-columns:repeat(auto-fill,minmax(175px,1fr)); gap:7px; }
-    .payment-row { border:1px solid #e2e8f0; border-radius:8px; padding:7px 8px; font-size:10px; background:#fff; }
-    .payment-row.paid { border-color:#86efac; background:#f0fdf4; }
-    .payment-row.overdue { border-color:#fecaca; background:#fff7f7; }
-    .payment-date { font-weight:800; color:#475569; }
-    .payment-status { margin-top:3px; font-weight:900; }
-    .payment-status.paid { color:#15803d; }
-    .payment-status.wait { color:#2563eb; }
-    .payment-status.overdue { color:#dc2626; }
-    .client-detail-footer { padding:10px 16px 18px; color:#64748b; font-size:10px; }
-    .pagination { display:flex; justify-content:center; align-items:center; gap:5px; padding:10px; flex-wrap:wrap; }
-    .pagination button { min-width:32px; height:30px; border:1px solid #cbd5e1; background:#fff; border-radius:7px; font-size:10px; font-weight:800; color:#475569; }
-    .pagination button:hover { background:#f1f5f9; }
-    .pagination button.active { background:#2563eb; border-color:#2563eb; color:#fff; }
-    .pagination .page-info { font-size:10px; font-weight:800; color:#64748b; margin:0 5px; }
-    @media (max-width:768px) {
-      body { padding-bottom:12px !important; }
-      .top-main-row { align-items:stretch !important; }
-      .top-actions { width:100%; overflow-x:auto; padding-bottom:2px; }
-      .top-actions > * { flex:none; }
-      .search-main { width:100% !important; }
-      .client-detail-modal { padding:0; }
-      .client-detail-card { max-height:100vh; height:100vh; border-radius:0; }
-      .client-detail-head { padding:13px; }
-      .client-detail-title { font-size:17px; }
-      .client-contract { margin:9px; }
-      .payment-history { grid-template-columns:1fr; }
-      .client-card { padding:13px; }
-      .clients-search { min-width:100%; max-width:none; }
-      .drawer-link { padding:12px; }
-      .hamburger-btn { width:42px;height:42px; }
-    }
-
     @media print {
       body * { visibility: hidden; }
       #printContent, #printContent * { visibility: visible; }
@@ -618,6 +520,79 @@
       .accounts-grid { grid-template-columns: 1fr; }
       .account-cube-balance { font-size: 20px; }
     }
+  
+    /* === Новая навигация: боковая шторка === */
+    body { padding-bottom: 0 !important; }
+    .app-drawer {
+      position: fixed; inset: 0; z-index: 1000; pointer-events: none;
+    }
+    .app-drawer .drawer-backdrop {
+      position: absolute; inset: 0; background: rgba(15,23,42,.45);
+      opacity: 0; transition: opacity .22s ease;
+    }
+    .app-drawer .drawer-panel {
+      position: absolute; top: 0; bottom: 0; left: 0; width: min(340px, 88vw);
+      background: #fff; box-shadow: 12px 0 35px rgba(15,23,42,.18);
+      transform: translateX(-102%); transition: transform .25s ease;
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    .app-drawer.open { pointer-events: auto; }
+    .app-drawer.open .drawer-backdrop { opacity: 1; }
+    .app-drawer.open .drawer-panel { transform: translateX(0); }
+    .drawer-header { padding: 18px 18px 14px; border-bottom: 1px solid #e2e8f0; display:flex; align-items:center; justify-content:space-between; }
+    .drawer-nav { padding: 12px; overflow-y:auto; }
+    .drawer-section { font-size: 10px; font-weight: 800; color:#94a3b8; text-transform:uppercase; letter-spacing:.08em; padding: 10px 12px 6px; }
+    .drawer-link { width:100%; display:flex; align-items:center; gap:12px; padding:11px 12px; border-radius:10px; border:0; background:transparent; color:#334155; font-weight:700; font-size:13px; text-align:left; cursor:pointer; margin:2px 0; }
+    .drawer-link:hover { background:#f1f5f9; }
+    .drawer-link.active { background:#2563eb; color:#fff; }
+    .drawer-toggle {
+      position: fixed; top: 12px; left: 12px; z-index: 950;
+      width: 42px; height: 42px; border:0; border-radius:11px; background:#0f172a; color:#fff;
+      display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 5px 16px rgba(15,23,42,.22);
+    }
+    .drawer-toggle span, .drawer-toggle span:before, .drawer-toggle span:after { display:block; width:19px; height:2px; background:currentColor; border-radius:2px; content:''; position:absolute; }
+    .drawer-toggle span:before { transform:translateY(-6px); }
+    .drawer-toggle span:after { transform:translateY(6px); }
+    .drawer-spacer { width: 42px; flex:0 0 42px; }
+    .contracts-pagination { display:flex; align-items:center; justify-content:center; gap:6px; flex-wrap:wrap; padding:12px; }
+    .contracts-pagination button { min-width:34px; height:32px; padding:0 8px; border:1px solid #cbd5e1; border-radius:8px; background:#fff; font-weight:700; cursor:pointer; }
+    .contracts-pagination button.active { background:#2563eb; color:#fff; border-color:#2563eb; }
+    .contracts-pagination button:disabled { opacity:.4; cursor:not-allowed; }
+    .client-card { transition:transform .15s, box-shadow .15s; cursor:pointer; }
+    .client-card:hover { transform:translateY(-1px); box-shadow:0 8px 22px rgba(15,23,42,.09); }
+    .status-badge { display:inline-flex; align-items:center; gap:5px; padding:3px 8px; border-radius:999px; font-size:10px; font-weight:800; }
+    .status-active { background:#dcfce7; color:#166534; }
+    .status-closed { background:#e2e8f0; color:#475569; }
+    .client-detail-modal { position:fixed; inset:0; z-index:1100; background:rgba(15,23,42,.55); display:flex; align-items:center; justify-content:center; padding:12px; }
+    .client-detail-modal.hidden { display:none; }
+    .client-detail-box { width:min(1050px,100%); max-height:94vh; overflow:auto; background:#fff; border-radius:18px; box-shadow:0 20px 60px rgba(15,23,42,.25); }
+    .client-contract-card { border:1px solid #e2e8f0; border-radius:14px; overflow:hidden; margin-top:12px; }
+    .client-contract-head { padding:12px 14px; background:#f8fafc; display:flex; gap:10px; justify-content:space-between; align-items:center; flex-wrap:wrap; }
+    .client-payment-table { width:100%; border-collapse:collapse; font-size:11px; }
+    .client-payment-table th,.client-payment-table td { border-top:1px solid #e2e8f0; padding:7px 8px; text-align:left; }
+    .client-payment-table th { color:#64748b; background:#f8fafc; font-size:10px; text-transform:uppercase; }
+    .payment-check { color:#16a34a; font-weight:900; }
+    .payment-unpaid { color:#94a3b8; }
+    .client-actions { display:flex; gap:7px; flex-wrap:wrap; }
+    .client-action-btn { border:0; border-radius:9px; padding:8px 10px; font-size:11px; font-weight:800; cursor:pointer; }
+    .client-action-btn.primary { background:#25D366; color:#fff; }
+    .client-action-btn.secondary { background:#e2e8f0; color:#334155; }
+    .client-action-btn.blue { background:#2563eb; color:#fff; }
+    .client-summary { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:9px; margin-top:12px; }
+    .client-summary-item { padding:11px; border-radius:11px; background:#f8fafc; border:1px solid #e2e8f0; }
+    .client-summary-item small { display:block; color:#64748b; font-size:9px; font-weight:800; text-transform:uppercase; margin-bottom:3px; }
+    @media (max-width: 640px) {
+      .drawer-toggle { top:10px; left:10px; }
+      .app-drawer .drawer-panel { width:min(320px, 92vw); }
+      body { font-size:12px; }
+      .app-drawer + * {}
+      .client-detail-box { border-radius:14px; }
+      .client-detail-modal { padding:6px; }
+      .client-detail-head { padding:14px !important; }
+      .client-payment-table { font-size:10px; }
+      .client-payment-table th,.client-payment-table td { padding:6px 5px; }
+    }
+
   </style>
 </head>
 <body class="bg-slate-100 text-gray-800 text-xs min-h-screen">
@@ -630,37 +605,44 @@
   </div>
 
 
-  <!-- БОКОВАЯ ШТОРКА НАВИГАЦИИ -->
-  <div id="drawerBackdrop" class="drawer-backdrop no-print" onclick="closeDrawer()"></div>
-  <aside id="sideDrawer" class="side-drawer no-print" aria-label="Навигация">
-    <div class="drawer-header">
-      <div><div class="drawer-title">YUSRA</div><div class="drawer-subtitle">Разделы системы</div></div>
-      <button class="drawer-close" onclick="closeDrawer()" aria-label="Закрыть">×</button>
-    </div>
-    <nav id="drawerNav" class="drawer-nav">
-      <div class="drawer-section">Основное</div>
-      <button class="drawer-link active" data-tab="contracts" onclick="navigateFromDrawer('contracts')"><span class="drawer-icon">📋</span>Договоры</button>
-      <button class="drawer-link" data-tab="clients" onclick="navigateFromDrawer('clients')"><span class="drawer-icon">👥</span>Клиенты</button>
-      <button class="drawer-link" data-tab="today" onclick="navigateFromDrawer('today')"><span class="drawer-icon">📅</span>Сегодня</button>
-      <button class="drawer-link" data-tab="threeDays" onclick="navigateFromDrawer('threeDays')"><span class="drawer-icon">⏰</span>Через 3 дня</button>
-      <button class="drawer-link" data-tab="debtors" onclick="navigateFromDrawer('debtors')"><span class="drawer-icon">🚫</span>Неплательщики</button>
-      <div class="drawer-section">Финансы</div>
-      <button class="drawer-link" data-tab="accounting" onclick="navigateFromDrawer('accounting')"><span class="drawer-icon">📊</span>Учет</button>
-      <button class="drawer-link" data-tab="taken" onclick="navigateFromDrawer('taken')"><span class="drawer-icon">📙</span>Взяли / Положили</button>
-      <button class="drawer-link" data-tab="income" onclick="navigateFromDrawer('income')"><span class="drawer-icon">💵</span>Доход / Расход</button>
-      <div class="drawer-section">Дополнительно</div>
-      <button class="drawer-link" data-tab="partners" onclick="navigateFromDrawer('partners')"><span class="drawer-icon">🤝</span>Партнёры</button>
-      <button class="drawer-link" data-tab="print" onclick="navigateFromDrawer('print')"><span class="drawer-icon">🖨️</span>Распечатка</button>
-      <button class="drawer-link" data-tab="init" onclick="navigateFromDrawer('init')"><span class="drawer-icon">🏛️</span>Инвестиция</button>
-    </nav>
-  </aside>
+  <!-- БОКОВАЯ НАВИГАЦИЯ -->
+  <button type="button" class="drawer-toggle no-print" onclick="toggleDrawer()" aria-label="Открыть меню" title="Меню">
+    <span></span>
+  </button>
+  <div id="appDrawer" class="app-drawer no-print" aria-hidden="true">
+    <div class="drawer-backdrop" onclick="toggleDrawer(false)"></div>
+    <aside class="drawer-panel" role="navigation">
+      <div class="drawer-header">
+        <div>
+          <div class="font-black text-slate-900 text-lg">YUSRA</div>
+          <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Навигация</div>
+        </div>
+        <button type="button" onclick="toggleDrawer(false)" class="w-9 h-9 rounded-lg bg-slate-100 text-slate-600 font-bold">✕</button>
+      </div>
+      <div id="drawerNav" class="drawer-nav">
+        <div class="drawer-section">Работа</div>
+        <button class="drawer-link active" data-tab="contracts" onclick="switchTab('contracts'); toggleDrawer(false)">📋 <span>Договоры</span></button>
+        <button class="drawer-link" data-tab="clients" onclick="switchTab('clients'); toggleDrawer(false)">👥 <span>Клиенты</span></button>
+        <button class="drawer-link" data-tab="accounting" onclick="switchTab('accounting'); toggleDrawer(false)">📊 <span>Учет</span></button>
+        <button class="drawer-link" data-tab="taken" onclick="switchTab('taken'); toggleDrawer(false)">📙 <span>Взяли</span></button>
+        <button class="drawer-link" data-tab="income" onclick="switchTab('income'); toggleDrawer(false)">💵 <span>Доход</span></button>
+        <div class="drawer-section">Контроль</div>
+        <button class="drawer-link" data-tab="init" onclick="switchTab('init'); toggleDrawer(false)">🏛️ <span>Инвестиция</span></button>
+        <button class="drawer-link" data-tab="today" onclick="switchTab('today'); toggleDrawer(false)">📅 <span>Сегодня</span></button>
+        <button class="drawer-link" data-tab="threeDays" onclick="switchTab('threeDays'); toggleDrawer(false)">⏰ <span>Через 3 дня</span></button>
+        <button class="drawer-link" data-tab="debtors" onclick="switchTab('debtors'); toggleDrawer(false)">🚫 <span>Неплательщики</span></button>
+        <button class="drawer-link" data-tab="partners" onclick="switchTab('partners'); toggleDrawer(false)">🤝 <span>Партнёры</span></button>
+        <button class="drawer-link" data-tab="print" onclick="switchTab('print'); toggleDrawer(false)">🖨️ <span>Распечатка</span></button>
+      </div>
+    </aside>
+  </div>
 
   <!-- ВЕРХНЯЯ ПАНЕЛЬ -->
   <div class="sticky top-0 z-40 bg-white shadow-md border-b no-print">
-    <div class="p-3 max-w-[100vw] flex flex-wrap justify-between items-center gap-4 top-main-row">
-
-      <div class="flex items-center gap-2 flex-wrap top-actions">
-        <button type="button" class="hamburger-btn" onclick="toggleDrawer()" aria-label="Открыть меню" title="Меню">☰</button>
+    <div class="p-3 max-w-[100vw] flex flex-wrap justify-between items-center gap-4">
+      
+      <div class="flex items-center gap-2 flex-wrap">
+        <div class="drawer-spacer"></div>
         <div class="flex bg-slate-200 rounded-lg p-1 gap-1">
           <button type="button" id="undoBtn" onclick="undo()" disabled title="Шаг назад (Ctrl+Z)" 
             class="px-3 py-1.5 rounded text-xs font-bold text-gray-400 bg-gray-100 cursor-not-allowed transition">
@@ -685,7 +667,7 @@
           <span id="syncText">Синхронизировано</span>
         </div>
 
-        <input type="text" id="searchInput" oninput="handleSearch()" placeholder="Поиск..." class="search-main p-1.5 border rounded-lg w-40 focus:ring-2 focus:ring-blue-400 outline-none">
+        <input type="text" id="searchInput" oninput="handleSearch()" placeholder="Поиск..." class="p-1.5 border rounded-lg w-40 focus:ring-2 focus:ring-blue-400 outline-none">
       </div>
 
       <div class="flex items-center gap-2">
@@ -714,6 +696,7 @@
         <table class="min-w-full text-left border-collapse">
           <thead class="bg-slate-800 text-white uppercase font-bold text-[10px] sticky top-0 z-20">
             <tr>
+              <th class="p-3 border-r border-slate-700 w-10 text-center">№</th>
               <th class="p-3 border-r border-slate-700 min-w-[150px]">ФИО Покупателя</th>
               <th class="p-3 border-r border-slate-700">Телефон</th>
               <th class="p-3 border-r border-slate-700">Даты (Покупка / График)</th>
@@ -736,24 +719,7 @@
           <tbody id="contractsTable" class="divide-y"></tbody>
         </table>
       </div>
-    </div>
-
-
-    <!-- ================= Лист 2: Клиенты ================= -->
-    <div id="clientsTabContent" class="hidden space-y-4">
-      <div class="clients-shell">
-        <div class="bg-white shadow-xl rounded-xl p-4 md:p-5 border">
-          <div class="clients-toolbar mb-4">
-            <div>
-              <h2 class="text-xl font-black text-slate-800">👥 Клиенты</h2>
-              <p class="text-[10px] text-slate-400 font-bold mt-1">Все клиенты из договоров • поиск по ФИО</p>
-            </div>
-            <input id="clientsSearchInput" oninput="renderClientsPage()" type="search" placeholder="Найти клиента по ФИО..." class="clients-search p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-400">
-          </div>
-          <div id="clientsList" class="grid grid-cols-1 md:grid-cols-2 gap-2"></div>
-          <div id="clientsEmpty" class="hidden text-center py-12 text-slate-400">📭 Клиенты не найдены</div>
-        </div>
-      </div>
+      <div id="contractsPagination" class="contracts-pagination bg-white border-t"></div>
     </div>
 
     <!-- ================= Лист 2: Учет ================= -->
@@ -954,6 +920,25 @@
     </div>
 
     <!-- ================= Лист 8: Распечатка ================= -->
+
+    <!-- ================= Лист: Клиенты ================= -->
+    <div id="clientsTabContent" class="hidden space-y-4">
+      <div class="bg-white rounded-2xl shadow-sm border p-4 sm:p-5">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div>
+            <div class="text-[10px] uppercase tracking-wider font-black text-blue-500">Клиентская база</div>
+            <h2 class="text-2xl font-black text-slate-900 mt-1">Клиенты</h2>
+            <p class="text-xs text-slate-500 mt-1">Все клиенты из договоров. Нажмите на клиента, чтобы открыть полную историю.</p>
+          </div>
+          <div class="w-full md:w-80">
+            <input id="clientsSearch" oninput="renderClients()" type="search" placeholder="Поиск по ФИО..." class="w-full p-3 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-200">
+          </div>
+        </div>
+        <div id="clientsStats" class="mt-4"></div>
+      </div>
+      <div id="clientsList" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3"></div>
+    </div>
+
     <div id="printTabContent" class="hidden space-y-4">
       <div class="bg-white shadow-xl rounded-xl p-6 border">
         <div class="flex justify-between items-center mb-4 no-print">
@@ -1089,27 +1074,9 @@
 
 
   <!-- ДЕТАЛИ КЛИЕНТА -->
-  <div id="clientDetailModal" class="client-detail-modal no-print" onclick="if(event.target===this) closeClientDetails()">
-    <div class="client-detail-card">
-      <div class="client-detail-head">
-        <div>
-          <div id="clientDetailName" class="client-detail-title">Клиент</div>
-          <div id="clientDetailMeta" class="client-detail-sub"></div>
-        </div>
-        <div class="flex items-center gap-2">
-          <div class="client-action-wrap">
-            <button id="clientWhatsAppBtn" onclick="toggleClientWhatsAppMenu(event)" class="whatsapp-btn">💬 WhatsApp ▾</button>
-            <div id="clientWhatsAppMenu" class="client-wa-menu">
-              <button class="client-wa-option" onclick="sendClientWhatsApp('single')">📄 Отправить выбранный договор</button>
-              <button class="client-wa-option" onclick="sendClientWhatsApp('active')">🟢 Отправить все активные договоры</button>
-              <button class="client-wa-option" onclick="sendClientWhatsApp('all')">📚 Отправить все договоры</button>
-            </div>
-          </div>
-          <button onclick="closeClientDetails()" class="drawer-close" title="Закрыть">×</button>
-        </div>
-      </div>
-      <div id="clientDetailBody"></div>
-      <div class="client-detail-footer">История формируется из данных договоров. Оплаченные платежи отмечены ✅, ожидаемые — 📅, просроченные — ❌.</div>
+  <div id="clientDetailModal" class="client-detail-modal hidden" onclick="if(event.target===this) closeClientDetail()">
+    <div class="client-detail-box">
+      <div id="clientDetailContent"></div>
     </div>
   </div>
 
@@ -1458,6 +1425,9 @@
     }
 
     let activeTab = 'contracts';
+    let contractsCurrentPage = 1;
+    let contractsPageSize = 20;
+    let contractsViewItems = [];
     let undoStack = [];
     let redoStack = [];
 
@@ -1518,6 +1488,7 @@
         if (activeTab === 'threeDays') renderThreeDaysClients();
         if (activeTab === 'debtors') renderDebtorsClients();
         if (activeTab === 'partners') renderPartners();
+        if (activeTab === 'clients') renderClients();
         if (activeTab === 'print') {
           updatePrintSelect();
           loadContractForPrint();
@@ -1585,26 +1556,6 @@
     // ================================================================
     // ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК
     // ================================================================
-    window.toggleDrawer = function() {
-      document.getElementById('sideDrawer').classList.toggle('open');
-      document.getElementById('drawerBackdrop').classList.toggle('open');
-      document.body.classList.toggle('drawer-open');
-    };
-    window.closeDrawer = function() {
-      document.getElementById('sideDrawer').classList.remove('open');
-      document.getElementById('drawerBackdrop').classList.remove('open');
-      document.body.classList.remove('drawer-open');
-    };
-    window.navigateFromDrawer = function(tab) {
-      switchTab(tab);
-      closeDrawer();
-    };
-    function updateDrawerActive() {
-      document.querySelectorAll('#drawerNav .drawer-link').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.tab === activeTab);
-      });
-    }
-
     window.switchTab = function(tab) {
       activeTab = tab;
       const cTab = document.getElementById('contractsTabContent');
@@ -1616,8 +1567,8 @@
       const debtorsTab = document.getElementById('debtorsTabContent');
       const partnersTab = document.getElementById('partnersTabContent');
       const printTab = document.getElementById('printTabContent');
-      const initTab = document.getElementById('initTabContent');
       const clientsTab = document.getElementById('clientsTabContent');
+      const initTab = document.getElementById('initTabContent');
 
       const cBtn = document.getElementById('tabBtnContracts');
       const aBtn = document.getElementById('tabBtnAccounting');
@@ -1644,8 +1595,8 @@
       debtorsTab.classList.add('hidden');
       partnersTab.classList.add('hidden');
       printTab.classList.add('hidden');
-      initTab.classList.add('hidden');
       clientsTab.classList.add('hidden');
+      initTab.classList.add('hidden');
       addC.classList.add('hidden');
       addA.classList.add('hidden');
       addT.classList.add('hidden');
@@ -1662,10 +1613,7 @@
       partnersBtn.className = "tab-btn partners-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
       printBtn.className = "tab-btn print-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
 
-      if (tab === 'clients') {
-        clientsTab.classList.remove('hidden');
-        renderClientsPage();
-      } else if (tab === 'contracts') {
+      if (tab === 'contracts') {
         cTab.classList.remove('hidden');
         cBtn.className = "tab-btn active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
         addC.classList.remove('hidden');
@@ -1703,15 +1651,28 @@
         partnersTab.classList.remove('hidden');
         partnersBtn.className = "tab-btn partners-tab active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
         renderPartners();
+      } else if (tab === 'clients') {
+        clientsTab.classList.remove('hidden');
+        renderClients();
       } else if (tab === 'print') {
         printTab.classList.remove('hidden');
         printBtn.className = "tab-btn print-tab active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
         updatePrintSelect();
         loadContractForPrint();
       }
+      document.querySelectorAll('.drawer-link').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tab));
+      if (tab === 'contracts') contractsCurrentPage = Math.max(1, contractsCurrentPage);
       handleSearch();
-      updateDrawerActive();
     };
+
+    window.toggleDrawer = function(force) {
+      const drawer = document.getElementById('appDrawer');
+      if (!drawer) return;
+      const open = typeof force === 'boolean' ? force : !drawer.classList.contains('open');
+      drawer.classList.toggle('open', open);
+      drawer.setAttribute('aria-hidden', String(!open));
+    };
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') toggleDrawer(false); });
 
     window.saveState = function() {
       const stateSnapshot = {
@@ -1794,6 +1755,7 @@
       if (activeTab === 'threeDays') renderThreeDaysClients();
       if (activeTab === 'debtors') renderDebtorsClients();
       if (activeTab === 'partners') renderPartners();
+      if (activeTab === 'clients') renderClients();
       if (activeTab === 'print') {
         updatePrintSelect();
         loadContractForPrint();
@@ -1830,6 +1792,7 @@
       if (activeTab === 'threeDays') renderThreeDaysClients();
       if (activeTab === 'debtors') renderDebtorsClients();
       if (activeTab === 'partners') renderPartners();
+      if (activeTab === 'clients') renderClients();
       if (activeTab === 'print') {
         updatePrintSelect();
         loadContractForPrint();
@@ -2763,201 +2726,6 @@
       window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
     };
 
-
-    // ================================================================
-    // КЛИЕНТЫ: единая карточка по ФИО + история всех договоров
-    // ================================================================
-    let selectedClient = null;
-    let selectedClientContractId = null;
-
-    function normalizeFio(fio) {
-      return String(fio || '').trim().replace(/\s+/g, ' ').toLowerCase();
-    }
-    function escapeHtml(value) {
-      return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));
-    }
-    function clientPhoneDigits(phone) {
-      let p = String(phone || '').replace(/\D/g, '');
-      if (p.startsWith('8') && p.length === 11) p = '7' + p.slice(1);
-      return p;
-    }
-    function getClientGroups() {
-      const map = new Map();
-      allContracts.forEach(c => {
-        const key = normalizeFio(c.fio);
-        if (!key) return;
-        if (!map.has(key)) map.set(key, { fio: String(c.fio).trim(), contracts: [] });
-        map.get(key).contracts.push(c);
-      });
-      return Array.from(map.values()).sort((a,b) => a.fio.localeCompare(b.fio, 'ru'));
-    }
-
-    window.renderClientsPage = function() {
-      const container = document.getElementById('clientsList');
-      const empty = document.getElementById('clientsEmpty');
-      if (!container) return;
-      const input = document.getElementById('clientsSearchInput');
-      const q = String(input?.value || '').trim().toLowerCase();
-      const clients = getClientGroups().filter(c => c.fio.toLowerCase().includes(q));
-      container.innerHTML = '';
-      empty.classList.toggle('hidden', clients.length !== 0);
-      clients.forEach(client => {
-        const active = client.contracts.filter(c => !calculateContractMetrics(c).isClosed).length;
-        const closed = client.contracts.length - active;
-        const phone = client.contracts.find(c => c.phone)?.phone || '';
-        const card = document.createElement('button');
-        card.type = 'button';
-        card.className = 'client-card text-left w-full';
-        card.onclick = () => openClientDetails(client.fio);
-        card.innerHTML = `
-          <div class="min-w-0">
-            <div class="client-card-name truncate">${escapeHtml(client.fio)}</div>
-            <div class="client-card-meta">
-              <span>📞 ${escapeHtml(phone || 'Телефон не указан')}</span>
-              <span>📄 Договоров: ${client.contracts.length}</span>
-            </div>
-          </div>
-          <div class="flex items-center gap-1.5 flex-wrap justify-end">
-            <span class="status-pill status-active">🟢 Активных: ${active}</span>
-            <span class="status-pill status-closed">⚪ Закрытых: ${closed}</span>
-            <span class="text-slate-400 text-lg">›</span>
-          </div>`;
-        container.appendChild(card);
-      });
-    };
-
-    window.openClientDetails = function(fio) {
-      const group = getClientGroups().find(c => normalizeFio(c.fio) === normalizeFio(fio));
-      if (!group) return;
-      selectedClient = group;
-      selectedClientContractId = group.contracts.find(c => !calculateContractMetrics(c).isClosed)?.id || group.contracts[0]?.id || null;
-      document.getElementById('clientDetailName').textContent = group.fio;
-      const phones = [...new Set(group.contracts.map(c => c.phone).filter(Boolean))];
-      document.getElementById('clientDetailMeta').textContent =
-        `${phones.length ? '📞 ' + phones.join(' • ') : '📞 Телефон не указан'} • 📄 Договоров: ${group.contracts.length}`;
-      renderClientDetails();
-      document.getElementById('clientDetailModal').classList.add('open');
-      document.body.classList.add('drawer-open');
-    };
-
-    window.closeClientDetails = function() {
-      document.getElementById('clientDetailModal').classList.remove('open');
-      document.getElementById('clientWhatsAppMenu').classList.remove('open');
-      document.body.classList.remove('drawer-open');
-    };
-
-    function renderClientDetails() {
-      if (!selectedClient) return;
-      const body = document.getElementById('clientDetailBody');
-      const sorted = [...selectedClient.contracts].sort((a,b) => Number(a.contractNum || 0) - Number(b.contractNum || 0));
-      body.innerHTML = sorted.map(contract => {
-        const metrics = calculateContractMetrics(contract);
-        const closed = !!metrics.isClosed;
-        const monthInfo = getMonthStatus(contract);
-        const selected = selectedClientContractId === contract.id;
-        const payments = monthInfo.months.map(m => {
-          const p = (contract.installments || {})[m.month];
-          const paid = !!p && Number(p.amount) > 0;
-          const status = paid ? 'paid' : (m.status === 'overdue' ? 'overdue' : 'wait');
-          const statusText = paid
-            ? `✅ Оплачено: ${Number(p.amount).toLocaleString('ru-RU')} ₽${p.date ? ' • ' + escapeHtml(p.date) : ''}`
-            : (m.status === 'overdue' ? `❌ Просрочка: ${Number(m.amount).toLocaleString('ru-RU')} ₽` : `📅 К оплате: ${Number(m.amount).toLocaleString('ru-RU')} ₽`);
-          return `<div class="payment-row ${status}">
-            <div class="payment-date">${m.month}-й платёж • ${escapeHtml(m.date)}</div>
-            <div class="payment-status ${status}">${statusText}</div>
-          </div>`;
-        }).join('');
-        const wa = clientPhoneDigits(contract.phone);
-        return `<section class="client-contract ${selected ? 'ring-2 ring-blue-200' : ''}">
-          <div class="client-contract-head">
-            <div class="min-w-0">
-              <div class="flex items-center gap-2 flex-wrap">
-                <span class="contract-title">Договор №${escapeHtml(contract.contractNum)}</span>
-                <span class="status-pill ${closed ? 'status-closed' : 'status-active'}">${closed ? '⚪ Закрыт' : '🟢 Активен'}</span>
-              </div>
-              <div class="contract-summary">
-                <span class="metric-chip">Покупка: ${escapeHtml(contract.buyDate || '—')}</span>
-                <span class="metric-chip">Мес.: ${Number(contract.monthlyPay || 0).toLocaleString('ru-RU')} ₽</span>
-                <span class="metric-chip">Сумма: ${Number(contract.totalCost || 0).toLocaleString('ru-RU')} ₽</span>
-                <span class="metric-chip ${metrics.rest <= 0 ? 'green' : ''}">Остаток: ${Number(metrics.rest || 0).toLocaleString('ru-RU')} ₽</span>
-                <span class="metric-chip ${metrics.overdueSum > 0 ? 'red' : ''}">Просрочка: ${Number(metrics.overdueSum || 0).toLocaleString('ru-RU')} ₽</span>
-              </div>
-            </div>
-            <div class="flex items-center gap-2">
-              <button ${wa ? '' : 'disabled'} onclick="sendClientWhatsApp('single','${escapeHtml(contract.id)}')" class="whatsapp-btn text-xs ${wa ? '' : 'opacity-40 cursor-not-allowed'}">💬 Договор</button>
-              <button onclick="selectClientContract('${escapeHtml(contract.id)}')" class="px-2.5 py-2 rounded-lg border text-[10px] font-bold ${selected ? 'bg-blue-50 border-blue-300 text-blue-700' : 'bg-white text-slate-600'}">${selected ? '✓ Выбран' : 'Выбрать'}</button>
-            </div>
-          </div>
-          <div class="payment-history">${payments || '<div class="text-slate-400 text-xs p-2">История платежей отсутствует</div>'}</div>
-        </section>`;
-      }).join('');
-    }
-
-    window.selectClientContract = function(id) {
-      selectedClientContractId = id;
-      renderClientDetails();
-    };
-
-    window.toggleClientWhatsAppMenu = function(event) {
-      event.stopPropagation();
-      document.getElementById('clientWhatsAppMenu').classList.toggle('open');
-    };
-
-    function buildContractMessage(contract) {
-      const metrics = calculateContractMetrics(contract);
-      const lines = [
-        `Здравствуйте, ${contract.fio || ''}!`,
-        '',
-        `📄 Договор №${contract.contractNum}`,
-        `📅 Дата покупки: ${contract.buyDate || '—'}`,
-        `💰 Сумма договора: ${Number(contract.totalCost || 0).toLocaleString('ru-RU')} ₽`,
-        `💳 Ежемесячный платеж: ${Number(contract.monthlyPay || 0).toLocaleString('ru-RU')} ₽`,
-        `📊 Остаток: ${Number(metrics.rest || 0).toLocaleString('ru-RU')} ₽`,
-        `⚠️ Просрочка: ${Number(metrics.overdueSum || 0).toLocaleString('ru-RU')} ₽`,
-        '',
-        '📋 График платежей:'
-      ];
-      const dates = calculatePaymentDates(contract);
-      dates.forEach(pd => {
-        const p = (contract.installments || {})[pd.index];
-        const paid = p && Number(p.amount) > 0;
-        lines.push(`${paid ? '✅' : (pd.date < new Date() ? '❌' : '📅')} ${pd.index}-й: ${pd.dateStr} — ${paid ? 'оплачено ' + Number(p.amount).toLocaleString('ru-RU') + ' ₽' : Number(pd.amount || contract.monthlyPay || 0).toLocaleString('ru-RU') + ' ₽'}`);
-      });
-      lines.push('', 'Спасибо!');
-      return lines.join('\n');
-    }
-
-    function buildClientMessage(mode) {
-      const contracts = selectedClient.contracts.filter(c => mode === 'active' ? !calculateContractMetrics(c).isClosed : true);
-      if (!contracts.length) return '';
-      const header = mode === 'active'
-        ? `Здравствуйте, ${selectedClient.fio}!\n\n📚 История активных договоров:`
-        : `Здравствуйте, ${selectedClient.fio}!\n\n📚 Полная история договоров:`;
-      const blocks = contracts.map(buildContractMessage);
-      return header + '\n\n' + blocks.join('\n\n━━━━━━━━━━━━━━━━━━━━\n\n');
-    }
-
-    window.sendClientWhatsApp = function(mode, contractId) {
-      if (!selectedClient) return;
-      document.getElementById('clientWhatsAppMenu').classList.remove('open');
-      let contract = null;
-      if (mode === 'single') {
-        contract = selectedClient.contracts.find(c => c.id === (contractId || selectedClientContractId));
-        if (!contract) { alert('Сначала выберите договор.'); return; }
-      }
-      const targetContract = contract || selectedClient.contracts.find(c => c.phone) || selectedClient.contracts[0];
-      const phone = clientPhoneDigits(targetContract?.phone);
-      if (!phone) { alert('У клиента не указан номер телефона.'); return; }
-      const message = contract ? buildContractMessage(contract) : buildClientMessage(mode);
-      if (!message) { alert(mode === 'active' ? 'У клиента нет активных договоров.' : 'У клиента нет договоров.'); return; }
-      window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
-    };
-
-    document.addEventListener('click', function(e) {
-      const menu = document.getElementById('clientWhatsAppMenu');
-      if (menu && !e.target.closest('.client-action-wrap')) menu.classList.remove('open');
-    });
-
     window.validateFinance = function() {
       const months = Number(document.getElementById('monthsCount').value) || 0;
       const monthly = Number(document.getElementById('monthlyPay').value) || 0;
@@ -3187,40 +2955,14 @@
       copyToClip(`Договор №${c.contractNum}\nКлиент: ${c.fio}\nПоручитель: ${c.guarantorFio || '—'} (${c.guarantorPhone || '—'})`, btn);
     };
 
-    const CONTRACTS_PER_PAGE = 25;
-    let contractsPage = 1;
-    let contractsViewItems = [];
-
-    window.goContractsPage = function(page) {
-      const totalPages = Math.max(1, Math.ceil(contractsViewItems.length / CONTRACTS_PER_PAGE));
-      contractsPage = Math.min(Math.max(1, page), totalPages);
-      renderTable(contractsViewItems);
-    };
-
-    function renderContractsPagination() {
-      const el = document.getElementById('contractsPagination');
-      if (!el) return;
-      const total = contractsViewItems.length;
-      const pages = Math.max(1, Math.ceil(total / CONTRACTS_PER_PAGE));
-      if (contractsPage > pages) contractsPage = pages;
-      if (total === 0) { el.innerHTML=''; return; }
-      let html = '<div class="pagination">';
-      if (contractsPage > 1) html += `<button onclick="goContractsPage(${contractsPage-1})">‹</button>`;
-      const start = Math.max(1, contractsPage - 2), end = Math.min(pages, contractsPage + 2);
-      if (start > 1) html += `<button onclick="goContractsPage(1)">1</button>${start > 2 ? '<span class="page-info">…</span>' : ''}`;
-      for (let p=start;p<=end;p++) html += `<button class="${p===contractsPage?'active':''}" onclick="goContractsPage(${p})">${p}</button>`;
-      if (end < pages) html += `${end < pages-1 ? '<span class="page-info">…</span>' : ''}<button onclick="goContractsPage(${pages})">${pages}</button>`;
-      if (contractsPage < pages) html += `<button onclick="goContractsPage(${contractsPage+1})">›</button>`;
-      const from=(contractsPage-1)*CONTRACTS_PER_PAGE+1, to=Math.min(total,contractsPage*CONTRACTS_PER_PAGE);
-      html += `<span class="page-info">${from}–${to} из ${total}</span></div>`;
-      el.innerHTML=html;
-    }
-
     function renderTable(contracts) {
       const tbody = document.getElementById('contractsTable');
       tbody.innerHTML = '';
-      
-      contracts.forEach(item => {
+      contractsViewItems = Array.isArray(contracts) ? contracts : [];
+      const totalPages = Math.max(1, Math.ceil(contractsViewItems.length / contractsPageSize));
+      if (contractsCurrentPage > totalPages) contractsCurrentPage = totalPages;
+      const pageItems = contractsViewItems.slice((contractsCurrentPage - 1) * contractsPageSize, contractsCurrentPage * contractsPageSize);
+      pageItems.forEach((item, rowIndex) => {
         const metrics = calculateContractMetrics(item);
         const rest = metrics.rest;
         const overdueSum = metrics.overdueSum;
@@ -3236,6 +2978,7 @@
         }
 
         tr.innerHTML = `
+          <td class="p-2 border-r text-center font-black text-slate-400">${(contractsCurrentPage - 1) * contractsPageSize + rowIndex + 1}</td>
           <td class="p-2 border-r font-bold">${item.fio}</td>
           <td class="p-2 border-r text-[10px]">${item.phone}</td>
           <td class="p-2 border-r text-[10px]">${item.buyDate}<br><b class="text-blue-600">${item.payDate}</b></td>
@@ -3258,8 +3001,24 @@
         `;
         tbody.appendChild(tr);
       });
-      renderContractsPagination();
+      renderContractsPagination(totalPages);
     }
+
+    function renderContractsPagination(totalPages) {
+      const el = document.getElementById('contractsPagination');
+      if (!el) return;
+      if (!contractsViewItems.length) { el.innerHTML = '<span class="text-xs text-slate-400">Нет договоров</span>'; return; }
+      let h = `<button onclick="changeContractsPage(-1)" ${contractsCurrentPage === 1 ? 'disabled' : ''}>‹</button>`;
+      const maxButtons = 7;
+      let start = Math.max(1, contractsCurrentPage - 3), end = Math.min(totalPages, start + maxButtons - 1);
+      start = Math.max(1, end - maxButtons + 1);
+      for (let p = start; p <= end; p++) h += `<button class="${p === contractsCurrentPage ? 'active' : ''}" onclick="goContractsPage(${p})">${p}</button>`;
+      h += `<button onclick="changeContractsPage(1)" ${contractsCurrentPage === totalPages ? 'disabled' : ''}>›</button>`;
+      h += `<span class="text-[10px] text-slate-400 ml-2">Всего: ${contractsViewItems.length}</span>`;
+      el.innerHTML = h;
+    }
+    window.goContractsPage = function(page) { contractsCurrentPage = page; renderTable(contractsViewItems); };
+    window.changeContractsPage = function(delta) { goContractsPage(Math.max(1, contractsCurrentPage + delta)); };
 
     const accModal = document.getElementById('accModal');
     
@@ -3735,13 +3494,248 @@
       document.getElementById('accountsGrandTotal').innerText = accountsGrandTotalSum.toLocaleString('ru-RU') + ' ₽';
     }
 
+
+    // ================================================================
+    // КЛИЕНТЫ: единая история по ФИО
+    // ================================================================
+    let clientsListCache = [];
+    window.renderClients = function() {
+      const list = document.getElementById('clientsList');
+      const stats = document.getElementById('clientsStats');
+      const search = document.getElementById('clientsSearch');
+      if (!list) return;
+      const q = (search?.value || '').trim().toLowerCase();
+
+      const map = new Map();
+      allContracts.forEach(c => {
+        if (!c || !c.fio) return;
+        const fio = String(c.fio).trim();
+        const key = fio.toLowerCase();
+        if (!map.has(key)) map.set(key, { fio, phone: c.phone || '', contracts: [] });
+        const item = map.get(key);
+        if (!item.phone && c.phone) item.phone = c.phone;
+        item.contracts.push(c);
+      });
+
+      clientsListCache = [...map.values()].filter(c => !q || c.fio.toLowerCase().includes(q)).sort((a,b) => a.fio.localeCompare(b.fio, 'ru'));
+      const totalContracts = clientsListCache.reduce((n,c) => n + c.contracts.length, 0);
+      const active = clientsListCache.reduce((n,c) => n + c.contracts.filter(x => !calculateContractMetrics(x).isClosed).length, 0);
+      const closed = totalContracts - active;
+      stats.innerHTML = `
+        <div class="grid grid-cols-3 gap-2">
+          <div class="client-summary-item"><small>Клиентов</small><b class="text-lg">${clientsListCache.length}</b></div>
+          <div class="client-summary-item"><small>Активных договоров</small><b class="text-lg text-emerald-600">${active}</b></div>
+          <div class="client-summary-item"><small>Закрытых договоров</small><b class="text-lg text-slate-500">${closed}</b></div>
+        </div>`;
+
+      if (!clientsListCache.length) {
+        list.innerHTML = `<div class="bg-white border rounded-2xl p-10 text-center text-slate-400 md:col-span-2 xl:col-span-3">🔍 Клиенты не найдены</div>`;
+        return;
+      }
+
+      list.innerHTML = clientsListCache.map((client, idx) => {
+        const activeCount = client.contracts.filter(c => !calculateContractMetrics(c).isClosed).length;
+        const closedCount = client.contracts.length - activeCount;
+        const overdue = client.contracts.reduce((sum,c) => sum + calculateContractMetrics(c).overdueSum, 0);
+        const rest = client.contracts.reduce((sum,c) => sum + calculateContractMetrics(c).rest, 0);
+        return `
+          <button type="button" class="client-card bg-white border border-slate-200 rounded-2xl p-4 text-left shadow-sm" onclick="openClientDetailByIndex(${idx})">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <div class="font-black text-slate-900 text-base truncate">${escapeClientHtml(client.fio)}</div>
+                <div class="text-xs text-slate-500 mt-1">${escapeClientHtml(client.phone || 'Телефон не указан')}</div>
+              </div>
+              <span class="text-blue-500 text-lg">›</span>
+            </div>
+            <div class="flex flex-wrap gap-1.5 mt-3">
+              <span class="status-badge status-active">● Активных: ${activeCount}</span>
+              <span class="status-badge status-closed">✓ Закрытых: ${closedCount}</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 mt-3 text-[11px]">
+              <div class="bg-slate-50 rounded-lg p-2"><span class="text-slate-400 block">Остаток</span><b>${rest.toLocaleString('ru-RU')} ₽</b></div>
+              <div class="bg-red-50 rounded-lg p-2"><span class="text-red-400 block">Просрочка</span><b class="text-red-600">${overdue.toLocaleString('ru-RU')} ₽</b></div>
+            </div>
+          </button>`;
+      }).join('');
+    };
+
+    function escapeClientHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+    }
+
+    window.openClientDetailByIndex = function(index) {
+      const client = clientsListCache[index];
+      if (!client) return;
+      renderClientDetail(client);
+      document.getElementById('clientDetailModal').classList.remove('hidden');
+    };
+
+    window.closeClientDetail = function() {
+      document.getElementById('clientDetailModal').classList.add('hidden');
+    };
+
+    function normalizeClientPhone(phone) {
+      let p = String(phone || '').replace(/\D/g, '');
+      if (!p) return '';
+      if (p.startsWith('8') && p.length === 11) p = '7' + p.slice(1);
+      if (p.length === 10) p = '7' + p;
+      return p;
+    }
+
+    function clientPaymentLines(contract) {
+      const schedule = calculatePaymentDates(contract);
+      const installments = contract.installments || {};
+      const rows = [];
+      const max = Math.max(schedule.length, Object.keys(installments).length);
+      for (let i = 1; i <= max; i++) {
+        const pd = schedule.find(x => x.index === i);
+        const pay = installments[i];
+        const paid = !!pay && Number(pay.amount) > 0;
+        rows.push({
+          index: i,
+          date: pd?.dateStr || pay?.date || '—',
+          amount: Number(pay?.amount || pd?.amount || 0),
+          paid,
+          overdue: !paid && pd && pd.date < new Date(new Date().setHours(0,0,0,0))
+        });
+      }
+      return rows;
+    }
+
+    function buildClientWhatsAppMessage(client, mode, selectedId) {
+      let contracts = client.contracts;
+      if (mode === 'active') contracts = contracts.filter(c => !calculateContractMetrics(c).isClosed);
+      if (mode === 'single') contracts = contracts.filter(c => c.id === selectedId);
+      if (!contracts.length) return '';
+
+      const title = mode === 'single' ? '📄 *История договора*' : mode === 'active' ? '🟢 *Активные договоры и история платежей*' : '📚 *Полная история договоров и платежей*';
+      let msg = `${title}\n\n👤 *${client.fio}*\n`;
+      if (client.phone) msg += `📱 ${client.phone}\n`;
+      msg += '\n';
+
+      contracts.sort((a,b) => Number(a.contractNum || 0) - Number(b.contractNum || 0)).forEach((c, ci) => {
+        const m = calculateContractMetrics(c);
+        const status = m.isClosed ? '✓ ЗАКРЫТ' : '● АКТИВЕН';
+        msg += `*Договор №${c.contractNum || '—'}* — ${status}\n`;
+        msg += `Товар: ${c.product || '—'}\n`;
+        msg += `Сумма договора: ${Number(c.totalCost || 0).toLocaleString('ru-RU')} ₽\n`;
+        msg += `Первоначальный взнос: ${Number(c.downPayment || 0).toLocaleString('ru-RU')} ₽\n`;
+        msg += `Ежемесячный платеж: ${Number(c.monthlyPay || 0).toLocaleString('ru-RU')} ₽\n`;
+        msg += `Остаток: ${m.rest.toLocaleString('ru-RU')} ₽\n`;
+        if (m.overdueSum > 0) msg += `⚠️ Просрочка: ${m.overdueSum.toLocaleString('ru-RU')} ₽\n`;
+        msg += '\n*Платежи по датам:*\n';
+
+        const lines = clientPaymentLines(c);
+        if (!lines.length) msg += '— График платежей не задан\n';
+        lines.forEach(p => {
+          msg += `${p.paid ? '✅' : (p.overdue ? '⚠️' : '⬜')} ${p.index}-й: ${p.date} — ${p.amount.toLocaleString('ru-RU')} ₽${p.paid ? ` (оплачен${p.payDate ? '' : ''})` : ''}\n`;
+        });
+        msg += '\n';
+      });
+
+      msg += `\nВсего договоров в сообщении: ${contracts.length}`;
+      return msg;
+    }
+
+    window.sendClientWhatsApp = function(index, mode, selectedId) {
+      const client = clientsListCache[index];
+      if (!client) return;
+      const message = buildClientWhatsAppMessage(client, mode, selectedId);
+      if (!message) {
+        alert('Нет договоров для выбранного действия.');
+        return;
+      }
+      const phone = normalizeClientPhone(client.phone);
+      const url = phone ? `https://wa.me/${phone}?text=${encodeURIComponent(message)}` : `https://wa.me/?text=${encodeURIComponent(message)}`;
+      window.open(url, '_blank');
+    };
+
+    function renderClientDetail(client) {
+      const contracts = [...client.contracts].sort((a,b) => Number(a.contractNum || 0) - Number(b.contractNum || 0));
+      const active = contracts.filter(c => !calculateContractMetrics(c).isClosed);
+      const closed = contracts.filter(c => calculateContractMetrics(c).isClosed);
+      const totalRest = contracts.reduce((n,c) => n + calculateContractMetrics(c).rest, 0);
+      const totalOverdue = contracts.reduce((n,c) => n + calculateContractMetrics(c).overdueSum, 0);
+      const idx = clientsListCache.indexOf(client);
+
+      const contractHtml = contracts.map(c => {
+        const m = calculateContractMetrics(c);
+        const rows = clientPaymentLines(c);
+        return `
+          <div class="client-contract-card">
+            <div class="client-contract-head">
+              <div>
+                <div class="font-black text-slate-900">Договор №${escapeClientHtml(c.contractNum || '—')}</div>
+                <div class="text-[10px] text-slate-500 mt-1">${escapeClientHtml(c.product || 'Товар не указан')} · ${escapeClientHtml(c.buyDate || 'Дата не указана')}</div>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="status-badge ${m.isClosed ? 'status-closed' : 'status-active'}">${m.isClosed ? '✓ Закрыт' : '● Активен'}</span>
+                <button class="client-action-btn primary" onclick="sendClientWhatsApp(${idx}, 'single', '${String(c.id).replace(/'/g,"\\\\'")}')">WhatsApp</button>
+              </div>
+            </div>
+            <div class="p-3 grid grid-cols-2 md:grid-cols-4 gap-2 text-[11px]">
+              <div><span class="text-slate-400 block">Сумма</span><b>${Number(c.totalCost||0).toLocaleString('ru-RU')} ₽</b></div>
+              <div><span class="text-slate-400 block">Оплачено</span><b>${m.totalPaid.toLocaleString('ru-RU')} ₽</b></div>
+              <div><span class="text-slate-400 block">Остаток</span><b class="${m.rest > 0 ? 'text-orange-600' : 'text-emerald-600'}">${m.rest.toLocaleString('ru-RU')} ₽</b></div>
+              <div><span class="text-slate-400 block">Просрочка</span><b class="${m.overdueSum > 0 ? 'text-red-600' : 'text-slate-500'}">${m.overdueSum.toLocaleString('ru-RU')} ₽</b></div>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="client-payment-table">
+                <thead><tr><th>№</th><th>Дата</th><th>Сумма</th><th>Статус</th></tr></thead>
+                <tbody>${rows.length ? rows.map(p => `<tr><td>${p.index}</td><td>${p.date}</td><td>${p.amount.toLocaleString('ru-RU')} ₽</td><td class="${p.paid ? 'payment-check' : 'payment-unpaid'}">${p.paid ? '✓ Оплачено' : (p.overdue ? '⚠ Просрочено' : '○ Ожидается')}</td></tr>`).join('') : '<tr><td colspan="4">Нет платежей</td></tr>'}</tbody>
+              </table>
+            </div>
+          </div>`;
+      }).join('');
+
+      document.getElementById('clientDetailContent').innerHTML = `
+        <div class="client-detail-head p-5 border-b bg-gradient-to-r from-slate-50 to-white sticky top-0 z-10">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <div class="text-[10px] uppercase tracking-wider font-black text-blue-500">Карточка клиента</div>
+              <h2 class="text-2xl font-black text-slate-900 mt-1">${escapeClientHtml(client.fio)}</h2>
+              <div class="text-sm text-slate-500 mt-1">${escapeClientHtml(client.phone || 'Телефон не указан')}</div>
+            </div>
+            <button onclick="closeClientDetail()" class="w-9 h-9 rounded-lg bg-slate-100 text-slate-600 font-bold">✕</button>
+          </div>
+          <div class="client-summary">
+            <div class="client-summary-item"><small>Всего договоров</small><b class="text-xl">${contracts.length}</b></div>
+            <div class="client-summary-item"><small>Активные</small><b class="text-xl text-emerald-600">${active.length}</b></div>
+            <div class="client-summary-item"><small>Закрытые</small><b class="text-xl text-slate-500">${closed.length}</b></div>
+            <div class="client-summary-item"><small>Общий остаток</small><b class="text-xl text-orange-600">${totalRest.toLocaleString('ru-RU')} ₽</b></div>
+            <div class="client-summary-item"><small>Общая просрочка</small><b class="text-xl text-red-600">${totalOverdue.toLocaleString('ru-RU')} ₽</b></div>
+          </div>
+          <div class="client-actions mt-4">
+            <div class="relative">
+              <button id="clientWhatsAppMenuBtn" class="client-action-btn primary" onclick="toggleClientWhatsAppMenu()">🟢 WhatsApp ▾</button>
+              <div id="clientWhatsAppMenu" class="hidden absolute left-0 mt-1 z-20 w-64 bg-white border border-slate-200 rounded-xl shadow-xl p-1">
+                <button class="w-full text-left p-2.5 rounded-lg hover:bg-slate-50 text-xs font-bold" onclick="sendClientWhatsApp(${idx}, 'active'); toggleClientWhatsAppMenu()">🟢 Отправить все активные</button>
+                <button class="w-full text-left p-2.5 rounded-lg hover:bg-slate-50 text-xs font-bold" onclick="sendClientWhatsApp(${idx}, 'all'); toggleClientWhatsAppMenu()">📚 Отправить все договоры</button>
+              </div>
+            </div>
+            <span class="text-[10px] text-slate-400 self-center">Отдельный договор отправляется кнопкой WhatsApp в его карточке.</span>
+          </div>
+        </div>
+        <div class="p-4 sm:p-5">
+          <div class="flex items-center justify-between gap-2">
+            <h3 class="font-black text-lg text-slate-900">История договоров</h3>
+            <span class="text-[10px] text-slate-400">${contracts.length} шт.</span>
+          </div>
+          ${contractHtml || '<div class="text-center text-slate-400 py-10">Нет договоров</div>'}
+        </div>`;
+    }
+
+    window.toggleClientWhatsAppMenu = function() {
+      document.getElementById('clientWhatsAppMenu')?.classList.toggle('hidden');
+    };
+
     window.handleSearch = function() {
       const q = document.getElementById('searchInput').value.toLowerCase();
       if (activeTab === 'contracts') {
-        contractsPage = 1;
+        contractsCurrentPage = 1;
         renderTable(allContracts.filter(c => c.fio.toLowerCase().includes(q) || String(c.contractNum).includes(q)));
       } else if (activeTab === 'clients') {
-        renderClientsPage();
+        renderClients();
       } else if (activeTab === 'accounting') {
         renderAccountingTable(allAccounting.filter(a => a.note.toLowerCase().includes(q) || a.account.toLowerCase().includes(q) || a.date.includes(q)));
       } else if (activeTab === 'taken') {
