@@ -1586,76 +1586,76 @@
       const addT = document.getElementById('addTakenBtn');
       const addI = document.getElementById('addIncomeExpBtn');
 
-      cTab.classList.add('hidden');
-      aTab.classList.add('hidden');
-      tTab.classList.add('hidden');
-      iTab.classList.add('hidden');
-      todayTab.classList.add('hidden');
-      threeDaysTab.classList.add('hidden');
-      debtorsTab.classList.add('hidden');
-      partnersTab.classList.add('hidden');
-      printTab.classList.add('hidden');
-      clientsTab.classList.add('hidden');
-      initTab.classList.add('hidden');
-      addC.classList.add('hidden');
-      addA.classList.add('hidden');
-      addT.classList.add('hidden');
-      addI.classList.add('hidden');
+      if (cTab) cTab.classList.add('hidden');;
+      if (aTab) aTab.classList.add('hidden');;
+      if (tTab) tTab.classList.add('hidden');;
+      if (iTab) iTab.classList.add('hidden');;
+      if (todayTab) todayTab.classList.add('hidden');;
+      if (threeDaysTab) threeDaysTab.classList.add('hidden');;
+      if (debtorsTab) debtorsTab.classList.add('hidden');;
+      if (partnersTab) partnersTab.classList.add('hidden');;
+      if (printTab) printTab.classList.add('hidden');;
+      if (clientsTab) clientsTab.classList.add('hidden');;
+      if (initTab) initTab.classList.add('hidden');;
+      if (addC) addC.classList.add('hidden');;
+      if (addA) addA.classList.add('hidden');;
+      if (addT) addT.classList.add('hidden');;
+      if (addI) addI.classList.add('hidden');;
 
-      cBtn.className = "tab-btn px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
-      aBtn.className = "tab-btn px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
-      tBtn.className = "tab-btn px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
-      iBtn.className = "tab-btn income-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
-      initBtn.className = "tab-btn init-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
-      todayBtn.className = "tab-btn today-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
-      threeDaysBtn.className = "tab-btn three-days-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
-      debtorsBtn.className = "tab-btn debtors-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
-      partnersBtn.className = "tab-btn partners-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
-      printBtn.className = "tab-btn print-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";
+      if (cBtn) cBtn.className = "tab-btn px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";;
+      if (aBtn) aBtn.className = "tab-btn px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";;
+      if (tBtn) tBtn.className = "tab-btn px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";;
+      if (iBtn) iBtn.className = "tab-btn income-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";;
+      if (initBtn) initBtn.className = "tab-btn init-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";;
+      if (todayBtn) todayBtn.className = "tab-btn today-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";;
+      if (threeDaysBtn) threeDaysBtn.className = "tab-btn three-days-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";;
+      if (debtorsBtn) debtorsBtn.className = "tab-btn debtors-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";;
+      if (partnersBtn) partnersBtn.className = "tab-btn partners-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";;
+      if (printBtn) printBtn.className = "tab-btn print-tab px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2 text-slate-600 hover:text-slate-900";;
 
       if (tab === 'contracts') {
-        cTab.classList.remove('hidden');
+        if (cTab) cTab.classList.remove('hidden');
         cBtn.className = "tab-btn active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
-        addC.classList.remove('hidden');
+        if (addC) addC.classList.remove('hidden');
       } else if (tab === 'accounting') {
-        aTab.classList.remove('hidden');
+        if (aTab) aTab.classList.remove('hidden');
         aBtn.className = "tab-btn active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
-        addA.classList.remove('hidden');
+        if (addA) addA.classList.remove('hidden');
       } else if (tab === 'taken') {
-        tTab.classList.remove('hidden');
+        if (tTab) tTab.classList.remove('hidden');
         tBtn.className = "tab-btn active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
-        addT.classList.remove('hidden');
+        if (addT) addT.classList.remove('hidden');
         renderTakenSheet();
       } else if (tab === 'income') {
-        iTab.classList.remove('hidden');
+        if (iTab) iTab.classList.remove('hidden');
         iBtn.className = "tab-btn income-tab active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
-        addI.classList.remove('hidden');
+        if (addI) addI.classList.remove('hidden');
         renderIncomePage();
       } else if (tab === 'init') {
-        initTab.classList.remove('hidden');
+        if (initTab) initTab.classList.remove('hidden');
         initBtn.className = "tab-btn init-tab active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
         renderInitPage();
       } else if (tab === 'today') {
-        todayTab.classList.remove('hidden');
+        if (todayTab) todayTab.classList.remove('hidden');
         todayBtn.className = "tab-btn today-tab active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
         renderTodayClients();
       } else if (tab === 'threeDays') {
-        threeDaysTab.classList.remove('hidden');
+        if (threeDaysTab) threeDaysTab.classList.remove('hidden');
         threeDaysBtn.className = "tab-btn three-days-tab active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
         renderThreeDaysClients();
       } else if (tab === 'debtors') {
-        debtorsTab.classList.remove('hidden');
+        if (debtorsTab) debtorsTab.classList.remove('hidden');
         debtorsBtn.className = "tab-btn debtors-tab active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
         renderDebtorsClients();
       } else if (tab === 'partners') {
-        partnersTab.classList.remove('hidden');
+        if (partnersTab) partnersTab.classList.remove('hidden');
         partnersBtn.className = "tab-btn partners-tab active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
         renderPartners();
       } else if (tab === 'clients') {
-        clientsTab.classList.remove('hidden');
+        if (clientsTab) clientsTab.classList.remove('hidden');
         renderClients();
       } else if (tab === 'print') {
-        printTab.classList.remove('hidden');
+        if (printTab) printTab.classList.remove('hidden');
         printBtn.className = "tab-btn print-tab active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
         updatePrintSelect();
         loadContractForPrint();
@@ -3729,26 +3729,41 @@
       document.getElementById('clientWhatsAppMenu')?.classList.toggle('hidden');
     };
 
+    let searchRenderTimer = null;
     window.handleSearch = function() {
-      const q = document.getElementById('searchInput').value.toLowerCase();
-      if (activeTab === 'contracts') {
-        contractsCurrentPage = 1;
-        renderTable(allContracts.filter(c => c.fio.toLowerCase().includes(q) || String(c.contractNum).includes(q)));
-      } else if (activeTab === 'clients') {
-        renderClients();
-      } else if (activeTab === 'accounting') {
-        renderAccountingTable(allAccounting.filter(a => a.note.toLowerCase().includes(q) || a.account.toLowerCase().includes(q) || a.date.includes(q)));
-      } else if (activeTab === 'taken') {
-        const filtered = allTaken.filter(t => (t.takenDesc && t.takenDesc.toLowerCase().includes(q)) || (t.putDesc && t.putDesc.toLowerCase().includes(q)));
-        renderTakenFiltered(filtered);
-      } else if (activeTab === 'income') {
-        const filtered = allIncomeExpenses.filter(e => (e.note && e.note.toLowerCase().includes(q)));
-        if (filtered.length === 0 && q.length > 0) {
-          document.getElementById('incomeTableBody').innerHTML = '<tr><td colspan="12" class="text-center text-gray-500 py-4">Нет совпадений по расходам</td></tr>';
-        } else {
-          renderIncomePage();
+      const input = document.getElementById('searchInput');
+      const q = String(input?.value || '').trim().toLocaleLowerCase('ru-RU');
+      clearTimeout(searchRenderTimer);
+      searchRenderTimer = setTimeout(() => {
+        if (activeTab === 'contracts') {
+          contractsCurrentPage = 1;
+          const filtered = allContracts.filter(c => {
+            const fio = String(c?.fio || '').toLocaleLowerCase('ru-RU');
+            const num = String(c?.contractNum ?? '').toLocaleLowerCase('ru-RU');
+            const phone = String(c?.phone || '').toLocaleLowerCase('ru-RU');
+            return !q || fio.includes(q) || num.includes(q) || phone.includes(q);
+          });
+          renderTable(filtered);
+        } else if (activeTab === 'clients') {
+          const clientSearch = document.getElementById('clientsSearch');
+          if (clientSearch) clientSearch.value = input?.value || '';
+          renderClients();
+        } else if (activeTab === 'accounting') {
+          const filtered = allAccounting.filter(a => {
+            const text = `${a?.note || ''} ${a?.account || ''} ${a?.date || ''}`.toLocaleLowerCase('ru-RU');
+            return !q || text.includes(q);
+          });
+          renderAccountingTable(filtered);
+        } else if (activeTab === 'taken') {
+          const filtered = allTaken.filter(t => {
+            const text = `${t?.takenDesc || ''} ${t?.putDesc || ''}`.toLocaleLowerCase('ru-RU');
+            return !q || text.includes(q);
+          });
+          renderTakenFiltered(filtered);
+        } else if (activeTab === 'income') {
+          renderIncomePage(q);
         }
-      }
+      }, 40);
     };
 
     function renderTakenFiltered(items) {
