@@ -1918,14 +1918,65 @@
              emptyObj(data.fieldVisitRecords);
     }
 
-    async function initSync() {
+    // Защита от бесконечного экрана «Загрузка данных из облака».
+    // Если Firestore временно недоступен/зависает, приложение открывается
+    // на локальных данных, а синхронизация продолжает ждать облако отдельно.
+    let cloudListenerStarted = false;
+    let cloudFallbackTimer = null;
+
+    function startCloudListener() {
+      if (cloudListenerStarted) return;
+      cloudListenerStarted = true;
       try {
-        setSyncStatus('syncing', 'Загрузка...');
+        onSnapshot(DOC_REF, (docSnap) => {
+          if (!docSnap.exists()) return;
+          const data = docSnap.data();
+          if (!data || isApplyingRemote) return;
+          applyCloudData(data);
+          isCloudLoaded = true;
+          setSyncStatus('synced', 'Обновлено из облака');
+          hideLoadingScreen();
+        }, (error) => {
+          console.error('Ошибка realtime-синхронизации:', error);
+          if (!isCloudLoaded) {
+            setSyncStatus('error', 'Облако недоступно — локальные данные');
+          }
+        });
+      } catch (e) {
+        console.error('Ошибка запуска realtime-синхронизации:', e);
+      }
+    }
+
+    async function initSync() {
+      setSyncStatus('syncing', 'Загрузка...');
+
+      // Не держим интерфейс заблокированным дольше 8 секунд.
+      // Важно: это не отменяет запрос к Firebase — если облако ответит позже,
+      // onSnapshot применит актуальные данные автоматически.
+      cloudFallbackTimer = setTimeout(() => {
+        if (isCloudLoaded) return;
+        console.warn('Firebase: тайм-аут первоначальной загрузки, открываем локальные данные.');
+        setSyncStatus('error', 'Облако отвечает долго — локальные данные');
+        hideLoadingScreen();
+        if (IS_FIELDWORKER_MODE) switchTab('fieldwork');
+        startCloudListener();
+      }, 8000);
+
+      try {
         const snap = await getDoc(DOC_REF);
-        
+
+        if (cloudFallbackTimer) {
+          clearTimeout(cloudFallbackTimer);
+          cloudFallbackTimer = null;
+        }
+
         if (snap.exists() && !isCloudEmpty(snap.data())) {
           applyCloudData(snap.data());
+          isCloudLoaded = true;
+          setSyncStatus('synced', 'Синхронизировано');
         } else {
+          // Только если облачный документ действительно пуст, создаём его
+          // из локальных данных. Это защищает существующую базу от перезаписи.
           await setDoc(DOC_REF, {
             contracts: allContracts,
             accounting: allAccounting,
@@ -1937,27 +1988,26 @@
             fieldVisitRecords: fieldVisitRecords,
             updatedAt: Date.now()
           });
+          isCloudLoaded = true;
+          setSyncStatus('synced', 'Синхронизировано');
         }
-        
-        isCloudLoaded = true;
-        setSyncStatus('synced', 'Синхронизировано');
+
         hideLoadingScreen();
         if (IS_FIELDWORKER_MODE) switchTab('fieldwork');
-        
-        onSnapshot(DOC_REF, (docSnap) => {
-          if (!docSnap.exists()) return;
-          if (isApplyingRemote) return;
-          const data = docSnap.data();
-          if (!data) return;
-          applyCloudData(data);
-          setSyncStatus('synced', 'Обновлено из облака');
-        });
-        
+        startCloudListener();
+
       } catch (e) {
-        console.error('Ошибка синхронизации:', e);
-        setSyncStatus('error', 'Ошибка подключения');
+        console.error('Ошибка первоначальной синхронизации:', e);
+        if (cloudFallbackTimer) {
+          clearTimeout(cloudFallbackTimer);
+          cloudFallbackTimer = null;
+        }
         isCloudLoaded = false;
+        setSyncStatus('error', 'Облако недоступно — локальные данные');
         hideLoadingScreen();
+        if (IS_FIELDWORKER_MODE) switchTab('fieldwork');
+        // Даже при ошибке запускаем listener: соединение может восстановиться.
+        startCloudListener();
       }
     }
 
