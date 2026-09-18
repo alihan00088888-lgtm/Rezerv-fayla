@@ -614,6 +614,8 @@
     .contracts-table { width:100%; min-width:1040px; }
     .contracts-table th { padding:10px 9px; border-right:1px solid #334155; white-space:nowrap; font-size:9px; }
     .contracts-table td { padding:9px; border-right:1px solid #eef2f7; vertical-align:middle; font-size:10px; }
+    .contracts-table .actions-col { width:150px; min-width:150px; }
+    .contracts-table tbody tr { transition:background .15s; }
     .contracts-table tbody tr:hover { background:#f8fafc; }
     .contract-cell-name { font-weight:900; color:#0f172a; font-size:11px; }
     .contract-cell-muted { margin-top:2px; color:#64748b; font-size:9px; }
@@ -625,14 +627,17 @@
     .contract-status-pill.soon { background:#fef3c7; color:#92400e; }
     .contract-status-pill.overdue { background:#fee2e2; color:#991b1b; }
     .contract-status-pill.closed { background:#f1f5f9; color:#64748b; }
-    .contract-action-grid { display:grid; grid-template-columns:repeat(3,auto); gap:4px; min-width:190px; }
-    .contract-action { border:0; border-radius:7px; padding:5px 7px; font-size:9px; font-weight:900; cursor:pointer; }
+    .contract-action-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:4px; min-width:128px; max-width:150px; }
+    .contract-action { border:0; border-radius:7px; padding:6px 5px; font-size:9px; line-height:1; font-weight:900; cursor:pointer; white-space:nowrap; transition:transform .15s, filter .15s, box-shadow .15s; }
+    .contract-action:hover { filter:brightness(.97); transform:translateY(-1px); box-shadow:0 2px 7px rgba(15,23,42,.10); }
+    .contract-action:active { transform:translateY(0); }
     .contract-action.primary { background:#16a34a; color:#fff; }
     .contract-action.view { background:#dbeafe; color:#1d4ed8; }
     .contract-action.print { background:#f1f5f9; color:#334155; }
     .contract-action.copy { background:#e2e8f0; color:#334155; }
     .contract-action.edit { background:#dbeafe; color:#1d4ed8; }
     .contract-action.danger { background:#fee2e2; color:#b91c1c; }
+    .contract-action.whatsapp { background:#dcfce7; color:#15803d; }
     .contracts-mobile-list { display:none; padding:10px; }
     .contract-mobile-card { border:1px solid #e2e8f0; border-radius:15px; padding:13px; background:#fff; box-shadow:0 4px 15px rgba(15,23,42,.04); margin-bottom:9px; }
     .contract-mobile-head { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; }
@@ -1639,8 +1644,13 @@
           </div>
           <div class="bg-gray-50 p-4 rounded-lg border">
             <h3 class="font-black text-[10px] uppercase text-gray-400 mb-3 tracking-widest">4. Поручитель</h3>
-            <input type="text" id="guarantorFio" placeholder="ФИО Поручителя" class="p-2 border rounded w-full mb-2">
-            <input type="text" id="guarantorPhone" placeholder="Телефон поручителя" class="p-2 border rounded w-full">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <input type="text" id="guarantorFio" placeholder="ФИО Поручителя" class="p-2 border rounded w-full">
+              <input type="text" id="guarantorPassport" placeholder="Паспортные данные" class="p-2 border rounded w-full">
+              <input type="text" id="guarantorPhone" placeholder="Телефон поручителя" class="p-2 border rounded w-full">
+              <input type="text" id="guarantorExtraPhone" placeholder="Доп. номер телефона" class="p-2 border rounded w-full">
+              <input type="text" id="guarantorAddress" placeholder="Адрес проживания" class="p-2 border rounded w-full sm:col-span-2">
+            </div>
           </div>
         </div>
 
@@ -4098,6 +4108,9 @@
       document.getElementById('store').value = contract.store || '';
       document.getElementById('guarantorFio').value = contract.guarantorFio || '';
       document.getElementById('guarantorPhone').value = contract.guarantorPhone || '';
+      document.getElementById('guarantorPassport').value = contract.guarantorPassport || '';
+      document.getElementById('guarantorExtraPhone').value = contract.guarantorExtraPhone || '';
+      document.getElementById('guarantorAddress').value = contract.guarantorAddress || '';
       document.getElementById('dateWarning').classList.remove('show');
       checkPaymentDateAdjustment();
       validateFinance();
@@ -4129,7 +4142,10 @@
         product: document.getElementById('product').value || '',
         store: document.getElementById('store').value || '',
         guarantorFio: document.getElementById('guarantorFio').value || '',
-        guarantorPhone: document.getElementById('guarantorPhone').value || ''
+        guarantorPhone: document.getElementById('guarantorPhone').value || '',
+        guarantorPassport: document.getElementById('guarantorPassport').value || '',
+        guarantorExtraPhone: document.getElementById('guarantorExtraPhone').value || '',
+        guarantorAddress: document.getElementById('guarantorAddress').value || ''
       };
 
       const totalCost = formData.totalCost;
@@ -4272,7 +4288,13 @@
 
     window.copyGuarantor = function(id, btn) {
       const c = allContracts.find(i => i.id === id);
-      copyToClip(`Договор №${c.contractNum}\nКлиент: ${c.fio}\nПоручитель: ${c.guarantorFio || '—'} (${c.guarantorPhone || '—'})`, btn);
+      copyToClip(`Договор №${c.contractNum}\nКлиент: ${c.fio}\n\nПоручитель: ${c.guarantorFio || '—'}\nТелефон: ${c.guarantorPhone || '—'}\nДоп. телефон: ${c.guarantorExtraPhone || '—'}\nПаспорт: ${c.guarantorPassport || '—'}\nАдрес: ${c.guarantorAddress || '—'}`, btn);
+    };
+
+    window.openContractWhatsApp = function(id) {
+      const c = allContracts.find(i => i.id === id);
+      if (!c) return;
+      openWhatsAppForClient(c.phone || c.extraPhone, buildContractWhatsAppText(c));
     };
 
     function escapeHtml(value) {
@@ -4329,13 +4351,9 @@
       const id = escapeHtml(c.id);
       return `
         <div class="contract-action-grid">
-          <button class="contract-action primary" onclick="openPayModal('${id}')">＋ Взнос</button>
-          <button class="contract-action view" onclick="openContractDetail('${id}')">👁 Подробнее</button>
-          <button class="contract-action print" onclick="printContractFromRow('${id}')">🖨 Печать</button>
-          <button class="contract-action copy" onclick="copyHistory('${id}', this)">📋 Оплаты</button>
-          <button class="contract-action copy" onclick="copyGuarantor('${id}', this)">👥 Поруч.</button>
-          <button class="contract-action edit" onclick="openEditModal('${id}')">✏️ Изменить</button>
-          <button class="contract-action danger" onclick="deleteContract('${id}')">🗑 Удалить</button>
+          <button class="contract-action primary" title="Внести взнос" onclick="openPayModal('${id}')">＋ Взнос</button>
+          <button class="contract-action view" title="Подробнее" onclick="openContractDetail('${id}')">👁 Подробно</button>
+          <button class="contract-action danger" title="Удалить договор" onclick="deleteContract('${id}')">🗑 Удалить</button>
         </div>`;
     }
 
@@ -4406,10 +4424,9 @@
               <div class="contract-mobile-info"><small>Магазин</small><b>${escapeHtml(item.store || '—')}</b></div>
             </div>
             <div class="contract-mobile-actions">
-              <button class="contract-action primary" onclick="openPayModal('${escapeHtml(item.id)}')">＋ Взнос</button>
-              <button class="contract-action view" onclick="openContractDetail('${escapeHtml(item.id)}')">👁 Подробнее</button>
-              <button class="contract-action print" onclick="printContractFromRow('${escapeHtml(item.id)}')">🖨 Печать</button>
-              <button class="contract-action edit" onclick="openEditModal('${escapeHtml(item.id)}')">✏️ Изменить</button>
+              <button class="contract-action primary" title="Внести взнос" onclick="openPayModal('${escapeHtml(item.id)}')">＋ Взнос</button>
+              <button class="contract-action view" title="Подробнее" onclick="openContractDetail('${escapeHtml(item.id)}')">👁 Подробно</button>
+              <button class="contract-action danger" title="Удалить договор" onclick="deleteContract('${escapeHtml(item.id)}')">🗑 Удалить</button>
             </div>`;
           mobile.appendChild(card);
         }
@@ -4484,7 +4501,7 @@
           <div class="contract-detail-card"><h3>💳 Состояние</h3><div class="contract-detail-value">Оплачено: ${Number(metrics.totalPaid + Number(c.downPayment||0)).toLocaleString('ru-RU')} ₽</div><div class="contract-detail-value mt-1">Остаток: ${Number(metrics.rest).toLocaleString('ru-RU')} ₽</div><div class="contract-detail-value mt-1">Просрочка: ${Number(metrics.overdueSum).toLocaleString('ru-RU')} ₽</div></div>
           <div class="contract-detail-card wide"><h3>🏠 Личные данные</h3><div class="contract-detail-value">Паспорт: ${escapeHtml(c.passport || '—')}</div><div class="contract-detail-value mt-1">Дата рождения: ${escapeHtml(c.birthDate || '—')}</div><div class="contract-detail-value mt-1">Адрес: ${escapeHtml(c.address || '—')}</div></div>
           <div class="contract-detail-card"><h3>📦 Товар</h3><div class="contract-detail-value">${escapeHtml(c.product || '—')}</div><div class="contract-detail-value mt-1">Магазин: ${escapeHtml(c.store || '—')}</div><div class="contract-detail-value mt-1">«Д»: ${c.shopPaid ? '✅ Оплачено' : '—'}</div></div>
-          <div class="contract-detail-card"><h3>👥 Поручитель</h3><div class="contract-detail-value">${escapeHtml(c.guarantorFio || '—')}</div><div class="contract-detail-value mt-1">📞 ${escapeHtml(c.guarantorPhone || '—')}</div></div>
+          <div class="contract-detail-card"><h3>👥 Поручитель</h3><div class="contract-detail-value">${escapeHtml(c.guarantorFio || '—')}</div><div class="contract-detail-value mt-1">📞 ${escapeHtml(c.guarantorPhone || '—')}</div><div class="contract-detail-value mt-1">Доп. телефон: ${escapeHtml(c.guarantorExtraPhone || '—')}</div><div class="contract-detail-value mt-1">Паспорт: ${escapeHtml(c.guarantorPassport || '—')}</div><div class="contract-detail-value mt-1">Адрес: ${escapeHtml(c.guarantorAddress || '—')}</div></div>
         </div>
         <div class="contract-payments-wrap">
           <div class="contract-payments-head">📅 График платежей · ${dates.length} месяцев</div>
@@ -4492,10 +4509,11 @@
         </div>
         <div class="contract-detail-footer-actions">
           <button class="contract-action primary" onclick="closeContractDetail(); openPayModal('${escapeHtml(c.id)}')">＋ Внести оплату</button>
-          <button class="contract-action edit" onclick="closeContractDetail(); openEditModal('${escapeHtml(c.id)}')">✏️ Редактировать</button>
-          <button class="contract-action print" onclick="closeContractDetail(); printContractFromRow('${escapeHtml(c.id)}')">🖨 Распечатать</button>
+          <button class="contract-action edit" onclick="closeContractDetail(); openEditModal('${escapeHtml(c.id)}')">✏️ Изменить</button>
+          <button class="contract-action print" onclick="closeContractDetail(); printContractFromRow('${escapeHtml(c.id)}')">🖨 Печать</button>
           <button class="contract-action copy" onclick="copyHistory('${escapeHtml(c.id)}', this)">📋 Скопировать оплаты</button>
           <button class="contract-action copy" onclick="copyGuarantor('${escapeHtml(c.id)}', this)">👥 Скопировать поручителя</button>
+          <button class="contract-action whatsapp" onclick="openContractWhatsApp('${escapeHtml(c.id)}')">💬 WhatsApp</button>
         </div>`;
       modal.classList.remove('hidden');
     };
