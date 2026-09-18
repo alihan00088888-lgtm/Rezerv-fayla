@@ -731,30 +731,6 @@
       .dashboard-date-input { flex:1; min-width:0; width:100%; }
     }
 
-
-    /* === Новый рабочий интерфейс Договоров === */
-    .contracts-toolbar{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:14px;box-shadow:0 8px 24px rgba(15,23,42,.06)}
-    .contracts-toolbar-main{display:flex;justify-content:space-between;gap:14px;align-items:center;flex-wrap:wrap}
-    .contracts-page-title{font-size:20px;font-weight:900;color:#0f172a;letter-spacing:-.3px}
-    .contracts-page-subtitle{font-size:11px;color:#64748b;margin-top:2px}
-    .contracts-stats{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-    .contracts-stats span{font-size:10px;font-weight:700;color:#64748b;background:#f8fafc;border:1px solid #e2e8f0;border-radius:999px;padding:5px 9px;white-space:nowrap}
-    .contracts-stats b{color:#0f172a;margin-left:3px}
-    .contracts-controls{display:grid;grid-template-columns:minmax(240px,1fr) 180px 180px;gap:8px;margin-top:12px}
-    .contracts-search-wrap{display:flex;align-items:center;gap:7px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;padding:0 10px;min-height:38px}
-    .contracts-search-wrap input{width:100%;border:0;outline:0;font-size:12px;color:#0f172a;background:transparent}
-    .contracts-control{min-height:38px;border:1px solid #cbd5e1;border-radius:10px;padding:0 10px;font-size:11px;font-weight:700;background:#fff;color:#334155;outline:none}
-    .contracts-list{display:grid;gap:10px;max-height:calc(100vh - 250px);overflow:auto;padding:1px 2px 18px}
-    .contract-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;box-shadow:0 7px 22px rgba(15,23,42,.055);overflow:hidden}
-    .contract-card-main{display:grid;grid-template-columns:minmax(220px,1.5fr) repeat(4,minmax(110px,.7fr)) minmax(190px,1fr);gap:10px;align-items:center;padding:13px 14px}
-    .contract-client{min-width:0}.contract-client-name{font-weight:900;color:#0f172a;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.contract-client-meta{display:flex;flex-wrap:wrap;gap:7px;margin-top:5px;font-size:10px;color:#64748b}.contract-client-meta a{color:#2563eb;text-decoration:none}
-    .contract-data-label{font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#94a3b8}.contract-data-value{font-size:12px;font-weight:900;color:#0f172a;margin-top:2px}.contract-data-value.money{font-variant-numeric:tabular-nums}.contract-data-value.overdue{color:#dc2626}.contract-data-value.ok{color:#16a34a}.contract-data-value.warn{color:#d97706}
-    .contract-status{display:inline-flex;align-items:center;gap:5px;padding:4px 8px;border-radius:999px;font-size:9px;font-weight:900;white-space:nowrap}.contract-status.active{background:#dcfce7;color:#166534}.contract-status.today{background:#dbeafe;color:#1d4ed8}.contract-status.soon{background:#e0e7ff;color:#4338ca}.contract-status.overdue{background:#fee2e2;color:#b91c1c}.contract-status.closed{background:#e2e8f0;color:#475569}
-    .contract-actions{display:flex;justify-content:flex-end;gap:5px;flex-wrap:wrap}.contract-action{border:0;border-radius:8px;padding:7px 9px;font-size:10px;font-weight:800;cursor:pointer;transition:.15s}.contract-action:hover{transform:translateY(-1px)}.contract-action.pay{background:#16a34a;color:#fff}.contract-action.view{background:#eff6ff;color:#1d4ed8}.contract-action.edit{background:#dbeafe;color:#1e40af}.contract-action.more{background:#f1f5f9;color:#334155}
-    .contract-card-extra{display:none;border-top:1px solid #e2e8f0;background:#f8fafc;padding:14px}.contract-card.open .contract-card-extra{display:block}.contract-detail-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:12px}.contract-detail-box{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:10px}.contract-detail-title{font-size:9px;font-weight:900;text-transform:uppercase;color:#64748b;margin-bottom:6px}.contract-schedule{display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:7px}.contract-installment{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:9px;cursor:pointer}.contract-installment.paid{border-color:#86efac;background:#f0fdf4}.contract-installment.overdue{border-color:#fecaca;background:#fef2f2}.contract-installment.future{border-color:#bfdbfe;background:#eff6ff}.contract-installment-index{font-size:9px;font-weight:900;color:#64748b}.contract-installment-date{font-size:10px;font-weight:800;color:#0f172a;margin-top:2px}.contract-installment-amount{font-size:11px;font-weight:900;margin-top:4px}.contract-empty{background:#fff;border:1px dashed #cbd5e1;border-radius:14px;padding:28px;text-align:center;color:#64748b;font-size:12px}
-    .contract-card.closed-card{border-left:4px solid #94a3b8}.contract-card.overdue-card{border-left:4px solid #ef4444}.contract-card.today-card{border-left:4px solid #3b82f6}.contract-card.soon-card{border-left:4px solid #6366f1}.contract-card.active-card{border-left:4px solid #22c55e}
-    @media(max-width:900px){.contracts-controls{grid-template-columns:1fr 1fr}.contracts-search-wrap{grid-column:1/-1}.contract-card-main{grid-template-columns:1fr 1fr}.contract-client{grid-column:1/-1}.contract-actions{grid-column:1/-1;justify-content:stretch}.contract-action{flex:1}.contract-detail-grid{grid-template-columns:1fr 1fr}}
-    @media(max-width:560px){.contracts-toolbar{padding:11px;border-radius:13px}.contracts-page-title{font-size:18px}.contracts-stats{gap:5px}.contracts-stats span{font-size:9px;padding:4px 7px}.contracts-controls{grid-template-columns:1fr}.contracts-search-wrap{grid-column:auto}.contracts-list{max-height:none;overflow:visible}.contract-card-main{grid-template-columns:1fr 1fr;padding:12px}.contract-data-value{font-size:11px}.contract-detail-grid{grid-template-columns:1fr}.contract-action{padding:9px 7px;font-size:10px}.contract-schedule{grid-template-columns:1fr 1fr}}
   </style>
 </head>
 <body class="bg-slate-100 text-gray-800 text-xs min-h-screen">
@@ -971,45 +947,34 @@
     </div>
     
     <!-- ================= Лист 1: Договоры ================= -->
-    <div id="contractsTabContent" class="space-y-3">
-      <div class="contracts-toolbar">
-        <div class="contracts-toolbar-main">
-          <div>
-            <div class="contracts-page-title">📋 Договоры</div>
-            <div class="contracts-page-subtitle">Все договоры в одном рабочем списке</div>
-          </div>
-          <div class="contracts-stats" aria-label="Статистика договоров">
-            <span>Всего <b id="contractsStatTotal">0</b></span>
-            <span>Активные <b id="contractsStatActive">0</b></span>
-            <span>Закрытые <b id="contractsStatClosed">0</b></span>
-            <span>Просроченные <b id="contractsStatOverdue">0</b></span>
-          </div>
-        </div>
-        <div class="contracts-controls">
-          <div class="contracts-search-wrap">
-            <span>🔎</span>
-            <input id="contractsPageSearch" type="search" placeholder="ФИО, телефон, № договора, товар, магазин..." oninput="renderContractsPage()">
-          </div>
-          <select id="contractsStatusFilter" class="contracts-control" onchange="renderContractsPage()">
-            <option value="all">Все договоры</option>
-            <option value="active">В графике</option>
-            <option value="today">Сегодня платёж</option>
-            <option value="soon">Скоро платёж</option>
-            <option value="overdue">Просроченные</option>
-            <option value="closed">Закрытые</option>
-          </select>
-          <select id="contractsSort" class="contracts-control" onchange="renderContractsPage()">
-            <option value="newest">Новые сверху</option>
-            <option value="oldest">Старые сверху</option>
-            <option value="overdue">Большая просрочка</option>
-            <option value="rest">Большой остаток</option>
-            <option value="nextPayment">Ближайший платёж</option>
-            <option value="name">По ФИО</option>
-          </select>
-        </div>
+    <div id="contractsTabContent" class="space-y-4">
+      <div class="bg-white shadow-xl rounded-xl overflow-x-auto max-h-[78vh] border">
+        <table class="min-w-full text-left border-collapse">
+          <thead class="bg-slate-800 text-white uppercase font-bold text-[10px] sticky top-0 z-20">
+            <tr>
+              <th class="p-3 border-r border-slate-700 w-12 text-center">№</th>
+              <th class="p-3 border-r border-slate-700 min-w-[150px]">ФИО Покупателя</th>
+              <th class="p-3 border-r border-slate-700">Телефон</th>
+              <th class="p-3 border-r border-slate-700">Даты (Покупка / График)</th>
+              <th class="p-3 border-r border-slate-700">Мес. Платеж</th>
+              <script>
+                for(let i=1; i<=15; i++) {
+                  document.write(`<th class="p-1 border-r border-slate-700 text-center min-w-[65px]">${i}-й</th>`);
+                }
+              </script>
+              <th class="p-3 border-r border-slate-700">Просрочка</th>
+              <th class="p-3 border-r border-slate-700">Остаток</th>
+              <th class="p-3 border-r border-slate-700">Рассрочка / Пред.</th>
+              <th class="p-3 border-r border-slate-700">Себест.</th>
+              <th class="p-3 border-r border-slate-700 text-center">«Д»</th>
+              <th class="p-3 border-r border-slate-700">Товар / Магазин</th>
+              <th class="p-3 border-r border-slate-700">Поручитель</th>
+              <th class="p-3 text-center sticky right-0 bg-slate-900 min-w-[210px]">Действия</th>
+            </tr>
+          </thead>
+          <tbody id="contractsTable" class="divide-y"></tbody>
+        </table>
       </div>
-
-      <div id="contractsCards" class="contracts-list"></div>
     </div>
 
     <!-- ================= Лист 2: Учет ================= -->
@@ -1918,65 +1883,14 @@
              emptyObj(data.fieldVisitRecords);
     }
 
-    // Защита от бесконечного экрана «Загрузка данных из облака».
-    // Если Firestore временно недоступен/зависает, приложение открывается
-    // на локальных данных, а синхронизация продолжает ждать облако отдельно.
-    let cloudListenerStarted = false;
-    let cloudFallbackTimer = null;
-
-    function startCloudListener() {
-      if (cloudListenerStarted) return;
-      cloudListenerStarted = true;
-      try {
-        onSnapshot(DOC_REF, (docSnap) => {
-          if (!docSnap.exists()) return;
-          const data = docSnap.data();
-          if (!data || isApplyingRemote) return;
-          applyCloudData(data);
-          isCloudLoaded = true;
-          setSyncStatus('synced', 'Обновлено из облака');
-          hideLoadingScreen();
-        }, (error) => {
-          console.error('Ошибка realtime-синхронизации:', error);
-          if (!isCloudLoaded) {
-            setSyncStatus('error', 'Облако недоступно — локальные данные');
-          }
-        });
-      } catch (e) {
-        console.error('Ошибка запуска realtime-синхронизации:', e);
-      }
-    }
-
     async function initSync() {
-      setSyncStatus('syncing', 'Загрузка...');
-
-      // Не держим интерфейс заблокированным дольше 8 секунд.
-      // Важно: это не отменяет запрос к Firebase — если облако ответит позже,
-      // onSnapshot применит актуальные данные автоматически.
-      cloudFallbackTimer = setTimeout(() => {
-        if (isCloudLoaded) return;
-        console.warn('Firebase: тайм-аут первоначальной загрузки, открываем локальные данные.');
-        setSyncStatus('error', 'Облако отвечает долго — локальные данные');
-        hideLoadingScreen();
-        if (IS_FIELDWORKER_MODE) switchTab('fieldwork');
-        startCloudListener();
-      }, 8000);
-
       try {
+        setSyncStatus('syncing', 'Загрузка...');
         const snap = await getDoc(DOC_REF);
-
-        if (cloudFallbackTimer) {
-          clearTimeout(cloudFallbackTimer);
-          cloudFallbackTimer = null;
-        }
-
+        
         if (snap.exists() && !isCloudEmpty(snap.data())) {
           applyCloudData(snap.data());
-          isCloudLoaded = true;
-          setSyncStatus('synced', 'Синхронизировано');
         } else {
-          // Только если облачный документ действительно пуст, создаём его
-          // из локальных данных. Это защищает существующую базу от перезаписи.
           await setDoc(DOC_REF, {
             contracts: allContracts,
             accounting: allAccounting,
@@ -1988,26 +1902,27 @@
             fieldVisitRecords: fieldVisitRecords,
             updatedAt: Date.now()
           });
-          isCloudLoaded = true;
-          setSyncStatus('synced', 'Синхронизировано');
         }
-
+        
+        isCloudLoaded = true;
+        setSyncStatus('synced', 'Синхронизировано');
         hideLoadingScreen();
         if (IS_FIELDWORKER_MODE) switchTab('fieldwork');
-        startCloudListener();
-
+        
+        onSnapshot(DOC_REF, (docSnap) => {
+          if (!docSnap.exists()) return;
+          if (isApplyingRemote) return;
+          const data = docSnap.data();
+          if (!data) return;
+          applyCloudData(data);
+          setSyncStatus('synced', 'Обновлено из облака');
+        });
+        
       } catch (e) {
-        console.error('Ошибка первоначальной синхронизации:', e);
-        if (cloudFallbackTimer) {
-          clearTimeout(cloudFallbackTimer);
-          cloudFallbackTimer = null;
-        }
+        console.error('Ошибка синхронизации:', e);
+        setSyncStatus('error', 'Ошибка подключения');
         isCloudLoaded = false;
-        setSyncStatus('error', 'Облако недоступно — локальные данные');
         hideLoadingScreen();
-        if (IS_FIELDWORKER_MODE) switchTab('fieldwork');
-        // Даже при ошибке запускаем listener: соединение может восстановиться.
-        startCloudListener();
       }
     }
 
@@ -2130,7 +2045,6 @@
         cTab.classList.remove('hidden');
         cBtn.className = "tab-btn active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
         addC.classList.remove('hidden');
-        renderContractsPage();
       } else if (tab === 'accounting') {
         aTab.classList.remove('hidden');
         aBtn.className = "tab-btn active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
@@ -4236,127 +4150,51 @@
       copyToClip(`Договор №${c.contractNum}\nКлиент: ${c.fio}\nПоручитель: ${c.guarantorFio || '—'} (${c.guarantorPhone || '—'})`, btn);
     };
 
-    function getContractStatus(contract) {
-      const metrics = calculateContractMetrics(contract);
-      if (metrics.isClosed) return { key:'closed', label:'Закрыт', icon:'⚫', className:'closed' };
-      const dates = calculatePaymentDates(contract);
-      const installments = contract.installments || {};
-      const today = new Date(); today.setHours(0,0,0,0);
-      const horizon = new Date(today); horizon.setDate(horizon.getDate() + 3);
-      const next = dates.find(pd => !(installments[pd.index] && Number(installments[pd.index].amount) > 0));
-      if (next && next.date < today) return { key:'overdue', label:'Просрочка', icon:'🔴', className:'overdue', next };
-      if (next && next.date.getTime() === today.getTime()) return { key:'today', label:'Сегодня платёж', icon:'🔵', className:'today', next };
-      if (next && next.date > today && next.date <= horizon) return { key:'soon', label:'Скоро платёж', icon:'🟣', className:'soon', next };
-      return { key:'active', label:'В графике', icon:'🟢', className:'active', next };
-    }
+    function renderTable(contracts) {
+      const tbody = document.getElementById('contractsTable');
+      tbody.innerHTML = '';
+      
+      contracts.forEach((item, index) => {
+        const metrics = calculateContractMetrics(item);
+        const rest = metrics.rest;
+        const overdueSum = metrics.overdueSum;
+        const insts = item.installments || {};
+        
+        const tr = document.createElement('tr');
+        if (Number(item.costPrice) > Number(item.totalCost)) tr.className = 'row-error';
+        
+        let instHtml = '';
+        for(let i=1; i<=15; i++) {
+          const v = insts[i];
+          instHtml += v ? `<td class="p-1 border-r text-center pay-paid" title="Дата: ${v.date}">${v.amount}</td>` : `<td class="p-1 border-r text-center text-gray-300">—</td>`;
+        }
 
-    function formatContractDate(value) {
-      if (!value) return '—';
-      const d = new Date(value);
-      if (isNaN(d.getTime())) return value;
-      return d.toLocaleDateString('ru-RU');
-    }
-
-    function formatMoney(value) {
-      return (Number(value)||0).toLocaleString('ru-RU') + ' ₽';
-    }
-
-    window.toggleContractDetails = function(id) {
-      const el = document.querySelector(`[data-contract-card="${id}"]`);
-      if (el) el.classList.toggle('open');
-    };
-
-    window.openContractDetails = function(id) {
-      const el = document.querySelector(`[data-contract-card="${id}"]`);
-      if (el) { el.classList.add('open'); el.scrollIntoView({behavior:'smooth',block:'nearest'}); }
-    };
-
-    function contractMatchesSearch(c, q) {
-      if (!q) return true;
-      const hay = [c.fio,c.phone,c.extraPhone,c.contractNum,c.product,c.store,c.guarantorFio,c.guarantorPhone,c.address].map(v=>String(v||'').toLowerCase()).join(' ');
-      return hay.includes(q);
-    }
-
-    window.renderContractsPage = function() {
-      const root = document.getElementById('contractsCards');
-      if (!root) return;
-      const q = String(document.getElementById('contractsPageSearch')?.value || '').trim().toLowerCase();
-      const filter = document.getElementById('contractsStatusFilter')?.value || 'all';
-      const sort = document.getElementById('contractsSort')?.value || 'newest';
-      let list = allContracts.filter(c => contractMatchesSearch(c,q));
-      const enriched = list.map(c => ({ c, metrics:calculateContractMetrics(c), status:getContractStatus(c) }));
-      if (filter !== 'all') list = enriched.filter(x=>x.status.key===filter).map(x=>x.c);
-      else list = enriched.map(x=>x.c);
-      const withData = list.map(c=>({c,metrics:calculateContractMetrics(c),status:getContractStatus(c)}));
-      withData.sort((a,b)=>{
-        if(sort==='oldest') return new Date(a.c.buyDate||0)-new Date(b.c.buyDate||0);
-        if(sort==='overdue') return b.metrics.overdueSum-a.metrics.overdueSum;
-        if(sort==='rest') return b.metrics.rest-a.metrics.rest;
-        if(sort==='name') return String(a.c.fio||'').localeCompare(String(b.c.fio||''),'ru');
-        if(sort==='nextPayment') return (a.status.next?.date?.getTime()||Infinity)-(b.status.next?.date?.getTime()||Infinity);
-        return new Date(b.c.buyDate||0)-new Date(a.c.buyDate||0);
+        tr.innerHTML = `
+          <td class="p-2 border-r text-center font-black text-slate-500">${index + 1}</td>
+          <td class="p-2 border-r font-bold">${item.fio}</td>
+          <td class="p-2 border-r text-[10px]">${item.phone}</td>
+          <td class="p-2 border-r text-[10px]">${item.buyDate}<br><b class="text-blue-600">${item.payDate}</b></td>
+          <td class="p-2 border-r font-bold text-center">${item.monthlyPay}</td>
+          ${instHtml}
+          <td class="p-2 border-r text-red-600 font-bold text-center">${overdueSum > 0 ? overdueSum.toLocaleString('ru-RU') : 0}</td>
+          <td class="p-2 border-r font-bold text-center ${rest <= 0 ? 'text-green-600' : 'text-orange-600'}">${rest.toLocaleString('ru-RU')}</td>
+          <td class="p-2 border-r text-[10px] text-center">${item.totalCost} / ${item.downPayment}</td>
+          <td class="p-2 border-r text-center">${item.costPrice}</td>
+          <td class="p-2 border-r text-center font-black ${item.shopPaid ? 'text-green-600' : 'text-gray-300'}">${item.shopPaid ? 'Д' : '—'}</td>
+          <td class="p-2 border-r text-[10px]">${item.product || '—'}</td>
+          <td class="p-2 border-r text-[10px]">${item.guarantorFio || '—'}</td>
+          <td class="p-2 text-center space-x-1 sticky right-0 bg-white shadow-[-5px_0_10px_rgba(0,0,0,0.05)]">
+            <button onclick="openPayModal('${item.id}')" class="bg-green-600 text-white px-1 py-0.5 rounded text-[9px] font-bold">+Взнос</button>
+            <button onclick="copyHistory('${item.id}', this)" class="bg-slate-500 text-white px-1 py-0.5 rounded text-[9px]">📋 Опл.</button>
+            <button onclick="copyGuarantor('${item.id}', this)" class="bg-indigo-500 text-white px-1 py-0.5 rounded text-[9px]">👥 Пор.</button>
+            <button onclick="openEditModal('${item.id}')" class="bg-blue-500 text-white px-1 py-0.5 rounded text-[9px]">✏️</button>
+            <button onclick="deleteContract('${item.id}')" class="bg-red-500 text-white px-1 py-0.5 rounded text-[9px]">🗑️</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
       });
+    }
 
-      const allData = allContracts.map(c=>({c,metrics:calculateContractMetrics(c),status:getContractStatus(c)}));
-      document.getElementById('contractsStatTotal').textContent = allContracts.length;
-      document.getElementById('contractsStatActive').textContent = allData.filter(x=>x.status.key!=='closed').length;
-      document.getElementById('contractsStatClosed').textContent = allData.filter(x=>x.status.key==='closed').length;
-      document.getElementById('contractsStatOverdue').textContent = allData.filter(x=>x.status.key==='overdue').length;
-
-      if (!withData.length) { root.innerHTML='<div class="contract-empty">Договоры не найдены. Измените поиск или фильтр.</div>'; return; }
-      root.innerHTML='';
-      withData.forEach(({c,metrics,status})=>{
-        const card=document.createElement('article');
-        card.className=`contract-card ${status.key}-card`;
-        card.dataset.contractCard=c.id;
-        const nextText=status.next ? formatContractDate(status.next.date) : '—';
-        const remainingInstallments=Math.max(0,(Number(c.monthsCount)||0)-metrics.paidCount);
-        const schedule=(calculatePaymentDates(c)||[]).map(pd=>{
-          const payment=(c.installments||{})[pd.index];
-          const paid=payment && Number(payment.amount)>0;
-          const now=new Date(); now.setHours(0,0,0,0);
-          const cls=paid?'paid':pd.date<now?'overdue':'future';
-          return `<button type="button" class="contract-installment ${cls}" onclick="openPayModal('${c.id}'); document.getElementById('payIndex').value='${pd.index}'; if(document.getElementById('payAmount')) document.getElementById('payAmount').value='${paid?Number(payment.amount):Number(c.monthlyPay)||0}';"><div class="contract-installment-index">${pd.index}-й взнос ${paid?'✓':''}</div><div class="contract-installment-date">${formatContractDate(pd.date)}</div><div class="contract-installment-amount">${formatMoney(paid?payment.amount:c.monthlyPay)}</div></button>`;
-        }).join('');
-        const phone=String(c.phone||'').replace(/[^\d+]/g,'');
-        const wa=phone.replace(/^\+/,'');
-        card.innerHTML=`
-          <div class="contract-card-main">
-            <div class="contract-client">
-              <div class="contract-client-name">№${c.contractNum || '—'} · ${c.fio || 'Без ФИО'}</div>
-              <div class="contract-client-meta"><a href="tel:${phone}">📞 ${c.phone||'—'}</a><span>📅 ${formatContractDate(c.buyDate)}</span><span>📦 ${c.product||'Товар не указан'}</span></div>
-            </div>
-            <div><div class="contract-data-label">Рассрочка</div><div class="contract-data-value money">${formatMoney(c.totalCost)}</div></div>
-            <div><div class="contract-data-label">Остаток</div><div class="contract-data-value money ${metrics.rest<=0?'ok':'warn'}">${formatMoney(metrics.rest)}</div></div>
-            <div><div class="contract-data-label">Просрочка</div><div class="contract-data-value money ${metrics.overdueSum>0?'overdue':''}">${formatMoney(metrics.overdueSum)}</div></div>
-            <div><div class="contract-data-label">Следующий платёж</div><div class="contract-data-value">${nextText}</div></div>
-            <div><div class="contract-status ${status.className}">${status.icon} ${status.label}</div><div class="contract-client-meta"><span>${remainingInstallments} взносов осталось</span></div></div>
-            <div class="contract-actions">
-              <button type="button" class="contract-action pay" onclick="openPayModal('${c.id}'); if(document.getElementById('payIndex')) document.getElementById('payIndex').value='${status.next?.index||1}'; if(document.getElementById('payAmount')) document.getElementById('payAmount').value='${Number(c.monthlyPay)||0}';">+ Оплата</button>
-              <button type="button" class="contract-action view" onclick="toggleContractDetails('${c.id}')">Подробнее</button>
-              <button type="button" class="contract-action edit" onclick="openEditModal('${c.id}')">✏️</button>
-              <button type="button" class="contract-action more" onclick="copyHistory('${c.id}', this)">📋</button>
-            </div>
-          </div>
-          <div class="contract-card-extra">
-            <div class="contract-detail-grid">
-              <div class="contract-detail-box"><div class="contract-detail-title">👤 Клиент</div><div>${c.fio||'—'}</div><div>${c.phone||'—'}</div><div>${c.extraPhone||''}</div><div>${c.address||'Адрес не указан'}</div></div>
-              <div class="contract-detail-box"><div class="contract-detail-title">📋 Договор</div><div>№${c.contractNum||'—'}</div><div>Покупка: ${formatContractDate(c.buyDate)}</div><div>График: ${formatContractDate(c.payDate)}</div><div>Срок: ${c.monthsCount||0} мес.</div></div>
-              <div class="contract-detail-box"><div class="contract-detail-title">💰 Финансы</div><div>Себестоимость: <b>${formatMoney(c.costPrice)}</b></div><div>Предоплата: <b>${formatMoney(c.downPayment)}</b></div><div>Месячный платёж: <b>${formatMoney(c.monthlyPay)}</b></div><div>Оплачено: <b>${formatMoney(metrics.totalPaid)}</b></div></div>
-              <div class="contract-detail-box"><div class="contract-detail-title">🏪 Товар / поручитель</div><div>${c.product||'—'}</div><div>${c.store||'Магазин не указан'}</div><div>Поручитель: ${c.guarantorFio||'—'}</div><div>Тел.: ${c.guarantorPhone||'—'}</div><div>«Д»: ${c.shopPaid?'Оплачено':'Не оплачено'}</div></div>
-            </div>
-            <div class="flex items-center justify-between gap-2 mb-2"><div class="contract-detail-title" style="margin:0">📅 График платежей</div><div class="text-[9px] text-slate-500">Нажмите на взнос для регистрации/просмотра оплаты</div></div>
-            <div class="contract-schedule">${schedule || '<div class="text-xs text-slate-400">График не задан.</div>'}</div>
-            <div class="flex flex-wrap gap-2 mt-3">
-              <button type="button" class="contract-action view" onclick="openEditModal('${c.id}')">✏️ Редактировать договор</button>
-              <button type="button" class="contract-action more" onclick="copyGuarantor('${c.id}', this)">👥 Поручитель</button>
-              <button type="button" class="whatsapp-btn" style="padding:7px 10px;font-size:10px" onclick="window.open('https://wa.me/${wa}?text='+encodeURIComponent('Здравствуйте, ${String(c.fio||'').replace(/'/g,'\\\'')}. Напоминаем о договоре №${c.contractNum||''}.'),'_blank')">💬 WhatsApp</button>
-              <button type="button" class="contract-action more" onclick="deleteContract('${c.id}')">🗑️ Удалить</button>
-            </div>
-          </div>`;
-        root.appendChild(card);
-      });
-    }\n\n    // Совместимость со всеми существующими вызовами обновления списка договоров.\n    function renderTable(contracts) { renderContractsPage(); }\n
     const accModal = document.getElementById('accModal');
     
     window.openAccModal = function() {
@@ -4834,9 +4672,7 @@
     window.handleSearch = function() {
       const q = document.getElementById('searchInput').value.toLowerCase();
       if (activeTab === 'contracts') {
-        const pageSearch = document.getElementById('contractsPageSearch');
-        if (pageSearch && pageSearch.value !== q) pageSearch.value = q;
-        renderContractsPage();
+        renderTable(allContracts.filter(c => String(c.fio || '').toLowerCase().includes(q) || String(c.contractNum || '').includes(q)));
       } else if (activeTab === 'accounting') {
         renderAccountingTable(allAccounting.filter(a => a.note.toLowerCase().includes(q) || a.account.toLowerCase().includes(q) || a.date.includes(q)));
       } else if (activeTab === 'taken') {
