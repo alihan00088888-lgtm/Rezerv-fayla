@@ -2261,7 +2261,10 @@
         if (!dashInRange(monthDate, range)) return;
         initInvestors.forEach(inv => {
           const e = rep.entries[inv.id];
-          const value = Number(e?.invested || 0);
+          const monthlyInvested = Number(e?.invested || 0);
+          // Начальный капитал является частью реально вложенного капитала.
+          const startingCapital = Number(rep.startingCapital?.[inv.id] || 0);
+          const value = monthlyInvested + startingCapital;
           totalInvested += value;
           if (inv.isOwner) ownerInvested += value;
           else investorInvested += value;
@@ -2316,9 +2319,9 @@
     }
 
     function getDashboardInstallmentScope(range) {
-      if (dashboardPeriodMode !== 'all') return range;
-      const now = new Date();
-      return { from: new Date(now.getFullYear(), now.getMonth(), 1), to: new Date(now.getFullYear(), now.getMonth() + 1, 0) };
+      // Показатели рассрочки используют тот же период, который выбран на Главной.
+      // В режиме «Все время» range равен null, поэтому берём все договоры.
+      return range;
     }
 
     function getDashboardChartMonths(range) {
@@ -2402,7 +2405,12 @@
       const debtors = getDebtors();
       const installRange = getDashboardInstallmentScope(range);
       const installmentContracts = allContracts.filter(c => !installRange || dashInRange(c.buyDate, installRange));
-      const installmentCost = installmentContracts.reduce((sum,c) => sum + (Number(c.costPrice)||0), 0);
+      // Себестоимость — деньги, которые фактически ушли магазину за товар.
+      // Флаг «Оплачено Д» означает, что расчёт с магазином завершён.
+      const installmentCost = installmentContracts.reduce((sum,c) => {
+        return sum + (c.shopPaid ? (Number(c.costPrice) || 0) : 0);
+      }, 0);
+      // Итоговая сумма рассрочки — полная сумма, указанная в договоре.
       const installmentTotal = installmentContracts.reduce((sum,c) => sum + (Number(c.totalCost)||0), 0);
       const installmentProfit = installmentTotal - installmentCost;
 
@@ -2439,11 +2447,10 @@
 
       const caption = document.getElementById('dashInstallmentCaption');
       if (caption) {
-        const now = new Date();
-        if (installRange && installRange.from && installRange.to && installRange.from.getMonth() === installRange.to.getMonth() && installRange.from.getFullYear() === installRange.to.getFullYear()) {
+        if (!installRange) {
+          caption.textContent = 'За всё время';
+        } else if (installRange.from && installRange.to && installRange.from.getMonth() === installRange.to.getMonth() && installRange.from.getFullYear() === installRange.to.getFullYear()) {
           caption.textContent = `За ${['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'][installRange.from.getMonth()]} ${installRange.from.getFullYear()}`;
-        } else if (dashboardPeriodMode === 'all') {
-          caption.textContent = `Текущий месяц · ${now.getFullYear()}`;
         } else {
           caption.textContent = 'За выбранный период';
         }
