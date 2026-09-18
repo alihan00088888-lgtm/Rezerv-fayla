@@ -627,8 +627,10 @@
     .contract-status-pill.soon { background:#fef3c7; color:#92400e; }
     .contract-status-pill.overdue { background:#fee2e2; color:#991b1b; }
     .contract-status-pill.closed { background:#f1f5f9; color:#64748b; }
-    .contract-action-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:4px; min-width:128px; max-width:150px; }
-    .contract-action { border:0; border-radius:7px; padding:6px 5px; font-size:9px; line-height:1; font-weight:900; cursor:pointer; white-space:nowrap; transition:transform .15s, filter .15s, box-shadow .15s; }
+    .contract-action-grid { display:grid; grid-template-columns:repeat(3,32px); gap:4px; width:max-content; min-width:0; }
+    .contract-action-grid.compact { justify-content:end; }
+    .contract-action { border:0; border-radius:8px; padding:6px 5px; font-size:9px; line-height:1; font-weight:900; cursor:pointer; white-space:nowrap; transition:transform .15s, filter .15s, box-shadow .15s; }
+    .contract-action.icon-action { width:32px; height:30px; padding:0; display:inline-flex; align-items:center; justify-content:center; font-size:15px; }
     .contract-action:hover { filter:brightness(.97); transform:translateY(-1px); box-shadow:0 2px 7px rgba(15,23,42,.10); }
     .contract-action:active { transform:translateY(0); }
     .contract-action.primary { background:#16a34a; color:#fff; }
@@ -673,6 +675,12 @@
       .contract-detail-head { padding:13px 14px; }
     }
     @media (max-width: 430px) {
+      .fieldwork-card { padding:9px; }
+      .fieldwork-client-name { font-size:13px; }
+      .fieldwork-client-meta { font-size:9px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+      .fieldwork-status { font-size:8px; padding:4px 6px; }
+      .fieldwork-actions { grid-template-columns:repeat(4,30px); }
+      .fieldwork-action { width:30px; height:29px; }
       .contracts-toolbar { padding:11px; }
       .contracts-stats { width:100%; }
       .contract-mini-stat { flex:1; justify-content:center; }
@@ -695,9 +703,12 @@
     .fieldwork-stat-label { font-size:9px; font-weight:900; color:#64748b; text-transform:uppercase; letter-spacing:.05em; }
     .fieldwork-stat-value { margin-top:5px; font-size:21px; font-weight:900; color:#0f172a; }
     .fieldwork-stat-value.red { color:#dc2626; }
-    .fieldwork-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
-    .fieldwork-card { background:#fff; border:1px solid #e2e8f0; border-radius:16px; padding:15px; box-shadow:0 5px 18px rgba(15,23,42,.05); }
-    .fieldwork-card-head { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
+    .fieldwork-list { display:grid; grid-template-columns:1fr; gap:8px; }
+    .fieldwork-card { background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:10px 11px; box-shadow:0 4px 14px rgba(15,23,42,.045); cursor:pointer; transition:transform .15s,box-shadow .15s,border-color .15s; }
+    .fieldwork-card:hover { transform:translateY(-1px); box-shadow:0 8px 20px rgba(15,23,42,.08); border-color:#cbd5e1; }
+    .fieldwork-card .fieldwork-info-grid { display:none; }
+    .fieldwork-card .fieldwork-last-mark { display:none; }
+    .fieldwork-card-head { display:flex; justify-content:flex-start; align-items:center; gap:8px; }
     .fieldwork-client-name { font-size:15px; font-weight:900; color:#0f172a; }
     .fieldwork-client-meta { margin-top:3px; color:#64748b; font-size:10px; }
     .fieldwork-status { display:inline-flex; align-items:center; border-radius:999px; padding:5px 9px; font-size:9px; font-weight:900; white-space:nowrap; }
@@ -712,8 +723,12 @@
     .fieldwork-info { background:#f8fafc; border-radius:10px; padding:8px 9px; }
     .fieldwork-info-label { font-size:8px; color:#94a3b8; font-weight:900; text-transform:uppercase; }
     .fieldwork-info-value { margin-top:2px; font-size:11px; font-weight:900; color:#334155; }
-    .fieldwork-actions { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:7px; margin-top:11px; }
-    .fieldwork-action { border:1px solid #e2e8f0; background:#fff; border-radius:9px; padding:9px 6px; font-size:10px; font-weight:900; color:#334155; cursor:pointer; }
+    .fieldwork-actions { display:grid; grid-template-columns:repeat(4,32px); gap:5px; margin-top:0; flex:0 0 auto; }
+    .fieldwork-card-head { align-items:center; }
+    .fieldwork-card-main { min-width:0; flex:1; }
+    .fieldwork-card-head .fieldwork-status { flex:0 0 auto; }
+    .fieldwork-card-head .fieldwork-actions { margin-left:auto; }
+    .fieldwork-action { width:32px; height:30px; border:1px solid #e2e8f0; background:#fff; border-radius:8px; padding:0; display:inline-flex; align-items:center; justify-content:center; font-size:14px; font-weight:900; color:#334155; cursor:pointer; }
     .fieldwork-action:hover { background:#f8fafc; }
     .fieldwork-action.whatsapp { color:#15803d; background:#f0fdf4; border-color:#bbf7d0; }
     .fieldwork-action.map { color:#1d4ed8; background:#eff6ff; border-color:#bfdbfe; }
@@ -1646,6 +1661,7 @@
             <h3 class="font-black text-[10px] uppercase text-gray-400 mb-3 tracking-widest">4. Поручитель</h3>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <input type="text" id="guarantorFio" placeholder="ФИО Поручителя" class="p-2 border rounded w-full">
+              <input type="date" id="guarantorBirthDate" title="Дата рождения поручителя" class="p-2 border rounded w-full">
               <input type="text" id="guarantorPassport" placeholder="Паспортные данные" class="p-2 border rounded w-full">
               <input type="text" id="guarantorPhone" placeholder="Телефон поручителя" class="p-2 border rounded w-full">
               <input type="text" id="guarantorExtraPhone" placeholder="Доп. номер телефона" class="p-2 border rounded w-full">
@@ -2943,11 +2959,11 @@
               <div style="font-weight: bold; font-size: 13px; margin-bottom: 3px;">Поручитель</div>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2px 15px; font-size: 11.5px;">
                 <div><b>ФИО:</b> ${contract.guarantorFio || '______'}</div>
-                <div><b>Паспорт серия:</b> ______</div>
-                <div><b>Дата рождения:</b> ______</div>
+                <div><b>Паспорт серия:</b> ${contract.guarantorPassport || '______'}</div>
+                <div><b>Дата рождения:</b> ${contract.guarantorBirthDate || '______'}</div>
                 <div><b>Телефон:</b> ${contract.guarantorPhone || '______'}</div>
-                <div style="grid-column: span 2;"><b>Адрес:</b> ______</div>
-                <div><b>Доп. Телефон:</b> ______</div>
+                <div style="grid-column: span 2;"><b>Адрес:</b> ${contract.guarantorAddress || '______'}</div>
+                <div><b>Доп. Телефон:</b> ${contract.guarantorExtraPhone || '______'}</div>
               </div>
             </div>
             <p style="text-align: justify; font-size: 11.5px; margin-bottom: 10px;">Совместно именуемые «Стороны», заключили настоящий Договор о нижеследующем:</p>
@@ -3615,11 +3631,8 @@
         const st=fieldworkStatusInfo(client.record.status);
         const address=client.contracts[0]?.address || '';
         const last=client.record.history?.length ? client.record.history[client.record.history.length-1] : null;
-        return `<article class="fieldwork-card">
-          <div class="fieldwork-card-head"><div><div class="fieldwork-client-name">${index+1}. ${escapeClientHtml(client.fio)}</div><div class="fieldwork-client-meta">${client.phone ? '📞 '+escapeClientHtml(client.phone) : '📞 Телефон не указан'}${address ? ' · 📍 '+escapeClientHtml(address) : ''}</div></div><span class="fieldwork-status ${st.cls}">${st.label}</span></div>
-          <div class="fieldwork-info-grid"><div class="fieldwork-info"><div class="fieldwork-info-label">Просрочка</div><div class="fieldwork-info-value text-red-600">${fieldworkMoney(client.overdueSum)}</div></div><div class="fieldwork-info"><div class="fieldwork-info-label">Просрочено месяцев</div><div class="fieldwork-info-value">${client.overdueMonths}</div></div><div class="fieldwork-info"><div class="fieldwork-info-label">Самая ранняя просрочка</div><div class="fieldwork-info-value">${formatClientDate(client.oldestOverdueDate)}</div></div><div class="fieldwork-info"><div class="fieldwork-info-label">Договоров с просрочкой</div><div class="fieldwork-info-value">${client.overdueContracts.length}</div></div></div>
-          <div class="fieldwork-actions"><button class="fieldwork-action" onclick="fieldworkCall(${clientJsArg(client.phone)})">📞 Звонок</button><button class="fieldwork-action whatsapp" onclick="fieldworkWhatsApp(${clientJsArg(client.phone)},${clientJsArg(client.fio)})">💬 WhatsApp</button><button class="fieldwork-action map" onclick="fieldworkOpenMap(${clientJsArg(address)})">📍 Карта</button><button class="fieldwork-action status" onclick="openFieldworkCard(${clientJsArg(client.key)})">📋 Карточка</button></div>
-          ${last ? `<div class="text-[9px] text-slate-400 mt-2">Последняя отметка: <b>${fieldworkStatusInfo(last.status).label}</b> · ${new Date(last.at).toLocaleString('ru-RU')}</div>` : ''}
+        return `<article class="fieldwork-card" onclick="openFieldworkCard(${clientJsArg(client.key)})">
+          <div class="fieldwork-card-head"><div class="fieldwork-card-main"><div class="fieldwork-client-name">${index+1}. ${escapeClientHtml(client.fio)}</div><div class="fieldwork-client-meta">${client.phone ? '📞 '+escapeClientHtml(client.phone) : '📞 Телефон не указан'}${address ? ' · 📍 '+escapeClientHtml(address) : ''} · <b class="text-red-600">${fieldworkMoney(client.overdueSum)}</b> · ${client.overdueMonths} мес.</div></div><span class="fieldwork-status ${st.cls}">${st.label}</span><div class="fieldwork-actions"><button class="fieldwork-action" onclick="event.stopPropagation(); fieldworkCall(${clientJsArg(client.phone)})" title="Позвонить">📞</button><button class="fieldwork-action whatsapp" onclick="event.stopPropagation(); fieldworkWhatsApp(${clientJsArg(client.phone)},${clientJsArg(client.fio)})" title="WhatsApp">💬</button><button class="fieldwork-action map" onclick="event.stopPropagation(); fieldworkOpenMap(${clientJsArg(address)})" title="Карта">📍</button><button class="fieldwork-action status" onclick="event.stopPropagation(); openFieldworkCard(${clientJsArg(client.key)})" title="Карточка">📋</button></div></div>
         </article>`;
       }).join('');
     };
@@ -4107,6 +4120,7 @@
       document.getElementById('product').value = contract.product || '';
       document.getElementById('store').value = contract.store || '';
       document.getElementById('guarantorFio').value = contract.guarantorFio || '';
+      document.getElementById('guarantorBirthDate').value = contract.guarantorBirthDate || '';
       document.getElementById('guarantorPhone').value = contract.guarantorPhone || '';
       document.getElementById('guarantorPassport').value = contract.guarantorPassport || '';
       document.getElementById('guarantorExtraPhone').value = contract.guarantorExtraPhone || '';
@@ -4142,6 +4156,7 @@
         product: document.getElementById('product').value || '',
         store: document.getElementById('store').value || '',
         guarantorFio: document.getElementById('guarantorFio').value || '',
+        guarantorBirthDate: document.getElementById('guarantorBirthDate').value || '',
         guarantorPhone: document.getElementById('guarantorPhone').value || '',
         guarantorPassport: document.getElementById('guarantorPassport').value || '',
         guarantorExtraPhone: document.getElementById('guarantorExtraPhone').value || '',
@@ -4350,10 +4365,10 @@
     function buildContractActionButtons(c) {
       const id = escapeHtml(c.id);
       return `
-        <div class="contract-action-grid">
-          <button class="contract-action primary" title="Внести взнос" onclick="openPayModal('${id}')">＋ Взнос</button>
-          <button class="contract-action view" title="Подробнее" onclick="openContractDetail('${id}')">👁 Подробно</button>
-          <button class="contract-action danger" title="Удалить договор" onclick="deleteContract('${id}')">🗑 Удалить</button>
+        <div class="contract-action-grid compact">
+          <button class="contract-action primary icon-action" title="Внести взнос" aria-label="Внести взнос" onclick="openPayModal('${id}')">＋</button>
+          <button class="contract-action view icon-action" title="Подробнее" aria-label="Подробнее" onclick="openContractDetail('${id}')">⌕</button>
+          <button class="contract-action danger icon-action" title="Удалить договор" aria-label="Удалить договор" onclick="deleteContract('${id}')">🗑</button>
         </div>`;
     }
 
@@ -4424,9 +4439,9 @@
               <div class="contract-mobile-info"><small>Магазин</small><b>${escapeHtml(item.store || '—')}</b></div>
             </div>
             <div class="contract-mobile-actions">
-              <button class="contract-action primary" title="Внести взнос" onclick="openPayModal('${escapeHtml(item.id)}')">＋ Взнос</button>
-              <button class="contract-action view" title="Подробнее" onclick="openContractDetail('${escapeHtml(item.id)}')">👁 Подробно</button>
-              <button class="contract-action danger" title="Удалить договор" onclick="deleteContract('${escapeHtml(item.id)}')">🗑 Удалить</button>
+              <button class="contract-action primary icon-action" title="Внести взнос" aria-label="Внести взнос" onclick="openPayModal('${escapeHtml(item.id)}')">＋</button>
+              <button class="contract-action view icon-action" title="Подробнее" aria-label="Подробнее" onclick="openContractDetail('${escapeHtml(item.id)}')">⌕</button>
+              <button class="contract-action danger icon-action" title="Удалить договор" aria-label="Удалить договор" onclick="deleteContract('${escapeHtml(item.id)}')">🗑</button>
             </div>`;
           mobile.appendChild(card);
         }
@@ -4495,13 +4510,13 @@
       }).join('');
       body.innerHTML = `
         <div class="contract-detail-grid">
-          <div class="contract-detail-card wide"><h3>👤 Клиент</h3><div class="contract-detail-value">${escapeHtml(c.fio || '—')}</div><div class="contract-detail-value mt-1">📞 ${escapeHtml(c.phone || '—')}</div><div class="contract-detail-value mt-1">Доп. телефон: ${escapeHtml(c.extraPhone || '—')}</div></div>
+          <div class="contract-detail-card wide"><h3>👤 Клиент</h3><div class="contract-detail-value">${escapeHtml(c.fio || '—')}</div><div class="contract-detail-value mt-1">📞 ${escapeHtml(c.phone || '—')}</div><div class="contract-detail-value mt-1">Доп. телефон: ${escapeHtml(c.extraPhone || '—')}</div><div class="contract-detail-value mt-1">Дата рождения: ${escapeHtml(c.birthDate || '—')}</div><div class="contract-detail-value mt-1">Паспорт: ${escapeHtml(c.passport || '—')}</div><div class="contract-detail-value mt-1">Адрес: ${escapeHtml(c.address || '—')}</div></div>
           <div class="contract-detail-card"><h3>📋 Договор</h3><div class="contract-detail-value">№${escapeHtml(c.contractNum)}</div><div class="contract-detail-value mt-1">Дата покупки: ${escapeHtml(c.buyDate || '—')}</div><div class="contract-detail-value mt-1">График: ${escapeHtml(c.payDate || '—')}</div></div>
           <div class="contract-detail-card"><h3>💰 Финансы</h3><div class="contract-detail-value">Рассрочка: ${Number(c.totalCost||0).toLocaleString('ru-RU')} ₽</div><div class="contract-detail-value mt-1">Себестоимость: ${Number(c.costPrice||0).toLocaleString('ru-RU')} ₽</div><div class="contract-detail-value mt-1">Месячный: ${Number(c.monthlyPay||0).toLocaleString('ru-RU')} ₽</div></div>
           <div class="contract-detail-card"><h3>💳 Состояние</h3><div class="contract-detail-value">Оплачено: ${Number(metrics.totalPaid + Number(c.downPayment||0)).toLocaleString('ru-RU')} ₽</div><div class="contract-detail-value mt-1">Остаток: ${Number(metrics.rest).toLocaleString('ru-RU')} ₽</div><div class="contract-detail-value mt-1">Просрочка: ${Number(metrics.overdueSum).toLocaleString('ru-RU')} ₽</div></div>
           <div class="contract-detail-card wide"><h3>🏠 Личные данные</h3><div class="contract-detail-value">Паспорт: ${escapeHtml(c.passport || '—')}</div><div class="contract-detail-value mt-1">Дата рождения: ${escapeHtml(c.birthDate || '—')}</div><div class="contract-detail-value mt-1">Адрес: ${escapeHtml(c.address || '—')}</div></div>
           <div class="contract-detail-card"><h3>📦 Товар</h3><div class="contract-detail-value">${escapeHtml(c.product || '—')}</div><div class="contract-detail-value mt-1">Магазин: ${escapeHtml(c.store || '—')}</div><div class="contract-detail-value mt-1">«Д»: ${c.shopPaid ? '✅ Оплачено' : '—'}</div></div>
-          <div class="contract-detail-card"><h3>👥 Поручитель</h3><div class="contract-detail-value">${escapeHtml(c.guarantorFio || '—')}</div><div class="contract-detail-value mt-1">📞 ${escapeHtml(c.guarantorPhone || '—')}</div><div class="contract-detail-value mt-1">Доп. телефон: ${escapeHtml(c.guarantorExtraPhone || '—')}</div><div class="contract-detail-value mt-1">Паспорт: ${escapeHtml(c.guarantorPassport || '—')}</div><div class="contract-detail-value mt-1">Адрес: ${escapeHtml(c.guarantorAddress || '—')}</div></div>
+          <div class="contract-detail-card"><h3>👥 Поручитель</h3><div class="contract-detail-value">${escapeHtml(c.guarantorFio || '—')}</div><div class="contract-detail-value mt-1">📞 ${escapeHtml(c.guarantorPhone || '—')}</div><div class="contract-detail-value mt-1">Доп. телефон: ${escapeHtml(c.guarantorExtraPhone || '—')}</div><div class="contract-detail-value mt-1">Паспорт: ${escapeHtml(c.guarantorPassport || '—')}</div><div class="contract-detail-value mt-1">Дата рождения: ${escapeHtml(c.guarantorBirthDate || '—')}</div><div class="contract-detail-value mt-1">Адрес: ${escapeHtml(c.guarantorAddress || '—')}</div></div>
         </div>
         <div class="contract-payments-wrap">
           <div class="contract-payments-head">📅 График платежей · ${dates.length} месяцев</div>
