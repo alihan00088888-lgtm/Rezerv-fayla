@@ -595,6 +595,89 @@
       .app-sidebar.open + .sidebar-overlay { opacity: 1; pointer-events:auto; }
     }
 
+    /* === Обновлённая страница договоров === */
+    .contracts-page { min-width: 0; }
+    .contracts-toolbar { background:#fff; border:1px solid #e2e8f0; border-radius:18px; padding:14px; box-shadow:0 6px 20px rgba(15,23,42,.05); }
+    .contracts-toolbar-top { display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; }
+    .contracts-page-title { font-size:20px; font-weight:900; color:#0f172a; letter-spacing:-.3px; }
+    .contracts-page-subtitle { margin-top:3px; color:#94a3b8; font-size:10px; font-weight:600; }
+    .contracts-stats { display:flex; gap:6px; flex-wrap:wrap; }
+    .contract-mini-stat { display:flex; align-items:center; gap:5px; padding:6px 9px; border-radius:9px; background:#f8fafc; border:1px solid #e2e8f0; font-size:10px; font-weight:800; color:#475569; }
+    .contract-mini-stat b { color:#0f172a; }
+    .contracts-controls { display:grid; grid-template-columns:minmax(220px,1fr) 170px 170px auto; gap:8px; margin-top:12px; }
+    .contracts-search { min-height:40px; display:flex; align-items:center; gap:8px; padding:0 11px; border:1px solid #dbe3ee; border-radius:11px; background:#f8fafc; color:#64748b; }
+    .contracts-search input { border:0; outline:0; background:transparent; width:100%; font-size:11px; font-weight:600; color:#0f172a; }
+    .contracts-select,.contracts-reset { min-height:40px; border:1px solid #dbe3ee; border-radius:11px; background:#fff; padding:0 10px; font-size:10px; font-weight:800; color:#334155; outline:none; }
+    .contracts-reset { cursor:pointer; background:#f8fafc; }
+    .contracts-reset:hover { background:#eef2f7; }
+    .contracts-table-shell { background:#fff; border:1px solid #e2e8f0; border-radius:18px; overflow:hidden; box-shadow:0 6px 20px rgba(15,23,42,.05); }
+    .contracts-table { width:100%; min-width:1040px; }
+    .contracts-table th { padding:10px 9px; border-right:1px solid #334155; white-space:nowrap; font-size:9px; }
+    .contracts-table td { padding:9px; border-right:1px solid #eef2f7; vertical-align:middle; font-size:10px; }
+    .contracts-table tbody tr:hover { background:#f8fafc; }
+    .contract-cell-name { font-weight:900; color:#0f172a; font-size:11px; }
+    .contract-cell-muted { margin-top:2px; color:#64748b; font-size:9px; }
+    .contract-finance-main { font-weight:900; color:#0f172a; }
+    .contract-finance-sub { color:#64748b; font-size:9px; margin-top:2px; }
+    .contract-status-pill { display:inline-flex; align-items:center; gap:4px; padding:4px 7px; border-radius:999px; font-size:9px; font-weight:900; white-space:nowrap; }
+    .contract-status-pill.active { background:#dcfce7; color:#166534; }
+    .contract-status-pill.today { background:#dbeafe; color:#1d4ed8; }
+    .contract-status-pill.soon { background:#fef3c7; color:#92400e; }
+    .contract-status-pill.overdue { background:#fee2e2; color:#991b1b; }
+    .contract-status-pill.closed { background:#f1f5f9; color:#64748b; }
+    .contract-action-grid { display:grid; grid-template-columns:repeat(3,auto); gap:4px; min-width:190px; }
+    .contract-action { border:0; border-radius:7px; padding:5px 7px; font-size:9px; font-weight:900; cursor:pointer; }
+    .contract-action.primary { background:#16a34a; color:#fff; }
+    .contract-action.view { background:#dbeafe; color:#1d4ed8; }
+    .contract-action.print { background:#f1f5f9; color:#334155; }
+    .contract-action.copy { background:#e2e8f0; color:#334155; }
+    .contract-action.edit { background:#dbeafe; color:#1d4ed8; }
+    .contract-action.danger { background:#fee2e2; color:#b91c1c; }
+    .contracts-mobile-list { display:none; padding:10px; }
+    .contract-mobile-card { border:1px solid #e2e8f0; border-radius:15px; padding:13px; background:#fff; box-shadow:0 4px 15px rgba(15,23,42,.04); margin-bottom:9px; }
+    .contract-mobile-head { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; }
+    .contract-mobile-grid { display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-top:10px; }
+    .contract-mobile-info { background:#f8fafc; border-radius:9px; padding:8px; }
+    .contract-mobile-info small { display:block; color:#94a3b8; font-size:8px; font-weight:900; text-transform:uppercase; }
+    .contract-mobile-info b { display:block; margin-top:2px; font-size:10px; color:#334155; }
+    .contract-mobile-actions { display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; margin-top:9px; }
+    .contract-detail-head { display:flex; justify-content:space-between; gap:12px; padding:16px 18px; border-bottom:1px solid #e2e8f0; background:linear-gradient(180deg,#f8fbff,#fff); }
+    .contract-detail-close { width:38px; height:38px; border:0; border-radius:10px; background:#f1f5f9; font-size:22px; cursor:pointer; flex:0 0 auto; }
+    .contract-detail-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:9px; }
+    .contract-detail-card { border:1px solid #e2e8f0; border-radius:13px; padding:11px; background:#fff; }
+    .contract-detail-card h3 { font-size:9px; text-transform:uppercase; letter-spacing:.08em; color:#94a3b8; font-weight:900; margin-bottom:7px; }
+    .contract-detail-value { font-size:11px; font-weight:800; color:#0f172a; word-break:break-word; }
+    .contract-detail-card.wide { grid-column:span 2; }
+    .contract-payments-wrap { margin-top:12px; border:1px solid #e2e8f0; border-radius:13px; overflow:hidden; }
+    .contract-payments-head { padding:10px 12px; background:#f8fafc; font-size:10px; font-weight:900; color:#334155; }
+    .contract-payments { width:100%; border-collapse:collapse; font-size:10px; }
+    .contract-payments th,.contract-payments td { padding:8px 9px; border-top:1px solid #eef2f7; text-align:left; }
+    .contract-payments th { color:#64748b; font-size:8px; text-transform:uppercase; background:#fff; }
+    .contract-payments .paid { color:#166534; font-weight:900; }
+    .contract-payments .overdue { color:#b91c1c; font-weight:900; }
+    .contract-detail-footer-actions { display:flex; flex-wrap:wrap; gap:7px; margin-top:12px; }
+    @media (max-width: 768px) {
+      .contracts-controls { grid-template-columns:1fr 1fr; }
+      .contracts-search { grid-column:1 / -1; }
+      .contracts-reset { grid-column:1 / -1; }
+      .contracts-table-shell > .overflow-x-auto { display:none; }
+      .contracts-mobile-list { display:block; }
+      .contract-detail-grid { grid-template-columns:1fr 1fr; }
+      .contract-detail-card.wide { grid-column:span 2; }
+      .contract-detail-modal { max-height:96vh; }
+      .contract-detail-head { padding:13px 14px; }
+    }
+    @media (max-width: 430px) {
+      .contracts-toolbar { padding:11px; }
+      .contracts-stats { width:100%; }
+      .contract-mini-stat { flex:1; justify-content:center; }
+      .contracts-controls { grid-template-columns:1fr; }
+      .contracts-search,.contracts-reset { grid-column:auto; }
+      .contract-detail-grid { grid-template-columns:1fr; }
+      .contract-detail-card.wide { grid-column:auto; }
+      .contract-mobile-actions { grid-template-columns:1fr 1fr; }
+    }
+
     /* === Выезд === */
     .fieldwork-shell { display:flex; flex-direction:column; gap:16px; }
     .fieldwork-hero { background:linear-gradient(135deg,#111827,#7f1d1d); color:#fff; border-radius:20px; padding:18px 20px; box-shadow:0 14px 32px rgba(127,29,29,.16); }
@@ -947,33 +1030,58 @@
     </div>
     
     <!-- ================= Лист 1: Договоры ================= -->
-    <div id="contractsTabContent" class="space-y-4">
-      <div class="bg-white shadow-xl rounded-xl overflow-x-auto max-h-[78vh] border">
-        <table class="min-w-full text-left border-collapse">
-          <thead class="bg-slate-800 text-white uppercase font-bold text-[10px] sticky top-0 z-20">
-            <tr>
-              <th class="p-3 border-r border-slate-700 w-12 text-center">№</th>
-              <th class="p-3 border-r border-slate-700 min-w-[150px]">ФИО Покупателя</th>
-              <th class="p-3 border-r border-slate-700">Телефон</th>
-              <th class="p-3 border-r border-slate-700">Даты (Покупка / График)</th>
-              <th class="p-3 border-r border-slate-700">Мес. Платеж</th>
-              <script>
-                for(let i=1; i<=15; i++) {
-                  document.write(`<th class="p-1 border-r border-slate-700 text-center min-w-[65px]">${i}-й</th>`);
-                }
-              </script>
-              <th class="p-3 border-r border-slate-700">Просрочка</th>
-              <th class="p-3 border-r border-slate-700">Остаток</th>
-              <th class="p-3 border-r border-slate-700">Рассрочка / Пред.</th>
-              <th class="p-3 border-r border-slate-700">Себест.</th>
-              <th class="p-3 border-r border-slate-700 text-center">«Д»</th>
-              <th class="p-3 border-r border-slate-700">Товар / Магазин</th>
-              <th class="p-3 border-r border-slate-700">Поручитель</th>
-              <th class="p-3 text-center sticky right-0 bg-slate-900 min-w-[210px]">Действия</th>
-            </tr>
-          </thead>
-          <tbody id="contractsTable" class="divide-y"></tbody>
-        </table>
+    <div id="contractsTabContent" class="contracts-page space-y-3">
+      <section class="contracts-toolbar">
+        <div class="contracts-toolbar-top">
+          <div>
+            <div class="contracts-page-title">📋 Договоры</div>
+            <div class="contracts-page-subtitle">Компактный список. Полная информация открывается в карточке договора.</div>
+          </div>
+          <div class="contracts-stats" id="contractsStats"></div>
+        </div>
+        <div class="contracts-controls">
+          <div class="contracts-search">🔍 <input id="contractsLocalSearch" type="search" placeholder="Поиск по ФИО, телефону, № договора, товару..." oninput="renderContractsView()"></div>
+          <select id="contractsStatusFilter" class="contracts-select" onchange="renderContractsView()">
+            <option value="all">Все договоры</option>
+            <option value="active">Активные</option>
+            <option value="today">Сегодня платёж</option>
+            <option value="soon">Скоро платёж</option>
+            <option value="overdue">Просроченные</option>
+            <option value="closed">Закрытые</option>
+          </select>
+          <select id="contractsSort" class="contracts-select" onchange="renderContractsView()">
+            <option value="newest">Новые сначала</option>
+            <option value="oldest">Старые сначала</option>
+            <option value="overdue">Больше просрочка</option>
+            <option value="rest">Большой остаток</option>
+            <option value="next">Ближайший платёж</option>
+            <option value="name">По ФИО</option>
+          </select>
+          <button type="button" class="contracts-reset" onclick="resetContractsFilters()">Сбросить</button>
+        </div>
+      </section>
+
+      <div class="contracts-table-shell">
+        <div class="overflow-x-auto">
+          <table class="contracts-table min-w-full text-left border-collapse">
+            <thead class="bg-slate-800 text-white uppercase font-bold text-[10px] sticky top-0 z-20">
+              <tr>
+                <th>№</th>
+                <th>Клиент</th>
+                <th>Договор</th>
+                <th>Финансы</th>
+                <th>Следующий платёж</th>
+                <th>Статус</th>
+                <th>Просрочка</th>
+                <th>Остаток</th>
+                <th>Товар / Магазин</th>
+                <th class="actions-col">Действия</th>
+              </tr>
+            </thead>
+            <tbody id="contractsTable" class="divide-y"></tbody>
+          </table>
+        </div>
+        <div id="contractsMobileList" class="contracts-mobile-list"></div>
       </div>
     </div>
 
@@ -1439,6 +1547,21 @@
           <button type="button" onclick="performInvestmentCopy()" class="px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-bold">📋 Копировать</button>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- ПОДРОБНАЯ КАРТОЧКА ДОГОВОРА -->
+  <div id="contractDetailModal" class="fixed inset-0 bg-black/60 hidden flex items-center justify-center p-3 z-[75]">
+    <div class="contract-detail-modal bg-white rounded-2xl w-full max-w-5xl max-h-[94vh] overflow-y-auto shadow-2xl">
+      <div class="contract-detail-head">
+        <div>
+          <div class="text-[9px] uppercase font-black tracking-widest text-blue-500">Карточка договора</div>
+          <h2 id="contractDetailTitle" class="text-xl md:text-2xl font-black text-slate-900 mt-1"></h2>
+          <div id="contractDetailStatus" class="mt-2"></div>
+        </div>
+        <button type="button" onclick="closeContractDetail()" class="contract-detail-close">×</button>
+      </div>
+      <div id="contractDetailBody" class="p-4 md:p-6"></div>
     </div>
   </div>
 
@@ -1958,6 +2081,7 @@
       if (e.key === 'Escape') {
         closeSidebar();
         closeClientDetail();
+        closeContractDetail();
         closeInvestmentCopyModal();
         closeFieldworkDetail();
       }
@@ -2045,6 +2169,7 @@
         cTab.classList.remove('hidden');
         cBtn.className = "tab-btn active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
         addC.classList.remove('hidden');
+        renderContractsView();
       } else if (tab === 'accounting') {
         aTab.classList.remove('hidden');
         aBtn.className = "tab-btn active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
@@ -4150,50 +4275,230 @@
       copyToClip(`Договор №${c.contractNum}\nКлиент: ${c.fio}\nПоручитель: ${c.guarantorFio || '—'} (${c.guarantorPhone || '—'})`, btn);
     };
 
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
+    }
+
+    function getContractStatusInfo(contract) {
+      const metrics = calculateContractMetrics(contract);
+      if (metrics.isClosed) return { key:'closed', label:'Закрыт', icon:'⚫', next:null };
+      const today = new Date(); today.setHours(0,0,0,0);
+      const dates = calculatePaymentDates(contract);
+      const installments = contract.installments || {};
+      let next = null;
+      let overdueCount = 0;
+      for (const pd of dates) {
+        const paid = installments[pd.index] && Number(installments[pd.index].amount) > 0;
+        if (!paid) {
+          if (pd.date < today) overdueCount++;
+          if (!next || pd.date < next.date) next = pd;
+        }
+      }
+      if (overdueCount > 0) return { key:'overdue', label:'Просрочен', icon:'🔴', next };
+      if (next) {
+        const diff = Math.ceil((next.date.getTime() - today.getTime()) / 86400000);
+        if (diff === 0) return { key:'today', label:'Сегодня платёж', icon:'🔵', next };
+        if (diff > 0 && diff <= 3) return { key:'soon', label:'Скоро платёж', icon:'🟡', next };
+        return { key:'active', label:'Активен', icon:'🟢', next };
+      }
+      return { key:'active', label:'Активен', icon:'🟢', next:null };
+    }
+
+    function formatContractDate(dateObj) {
+      if (!dateObj || isNaN(dateObj.getTime())) return '—';
+      return dateObj.toLocaleDateString('ru-RU');
+    }
+
+    function getContractSearchText(c) {
+      return [c.fio,c.phone,c.extraPhone,c.contractNum,c.product,c.store,c.guarantorFio,c.guarantorPhone,c.address]
+        .map(v => String(v || '').toLowerCase()).join(' ');
+    }
+
+    function getContractSortValue(c, sortKey) {
+      const m = calculateContractMetrics(c);
+      const st = getContractStatusInfo(c);
+      if (sortKey === 'oldest') return new Date(c.buyDate || 0).getTime() || 0;
+      if (sortKey === 'overdue') return m.overdueSum || 0;
+      if (sortKey === 'rest') return m.rest || 0;
+      if (sortKey === 'next') return st.next ? st.next.date.getTime() : Number.MAX_SAFE_INTEGER;
+      if (sortKey === 'name') return String(c.fio || '').toLowerCase();
+      return new Date(c.buyDate || 0).getTime() || 0;
+    }
+
+    function buildContractActionButtons(c) {
+      const id = escapeHtml(c.id);
+      return `
+        <div class="contract-action-grid">
+          <button class="contract-action primary" onclick="openPayModal('${id}')">＋ Взнос</button>
+          <button class="contract-action view" onclick="openContractDetail('${id}')">👁 Подробнее</button>
+          <button class="contract-action print" onclick="printContractFromRow('${id}')">🖨 Печать</button>
+          <button class="contract-action copy" onclick="copyHistory('${id}', this)">📋 Оплаты</button>
+          <button class="contract-action copy" onclick="copyGuarantor('${id}', this)">👥 Поруч.</button>
+          <button class="contract-action edit" onclick="openEditModal('${id}')">✏️ Изменить</button>
+          <button class="contract-action danger" onclick="deleteContract('${id}')">🗑 Удалить</button>
+        </div>`;
+    }
+
+    function renderContractStats() {
+      const stats = document.getElementById('contractsStats');
+      if (!stats) return;
+      const counts = {active:0,today:0,soon:0,overdue:0,closed:0};
+      allContracts.forEach(c => counts[getContractStatusInfo(c).key]++);
+      stats.innerHTML = `
+        <span class="contract-mini-stat">Всего <b>${allContracts.length}</b></span>
+        <span class="contract-mini-stat">🟢 <b>${counts.active}</b></span>
+        <span class="contract-mini-stat">🔵 <b>${counts.today}</b></span>
+        <span class="contract-mini-stat">🟡 <b>${counts.soon}</b></span>
+        <span class="contract-mini-stat">🔴 <b>${counts.overdue}</b></span>
+        <span class="contract-mini-stat">⚫ <b>${counts.closed}</b></span>`;
+    }
+
     function renderTable(contracts) {
       const tbody = document.getElementById('contractsTable');
+      const mobile = document.getElementById('contractsMobileList');
+      if (!tbody) return;
       tbody.innerHTML = '';
-      
+      if (mobile) mobile.innerHTML = '';
+      renderContractStats();
+
+      if (!contracts.length) {
+        tbody.innerHTML = '<tr><td colspan="10" class="text-center text-slate-400 py-12 font-bold">🔍 Договоры не найдены</td></tr>';
+        if (mobile) mobile.innerHTML = '<div class="text-center text-slate-400 py-12 font-bold">🔍 Договоры не найдены</div>';
+        return;
+      }
+
       contracts.forEach((item, index) => {
         const metrics = calculateContractMetrics(item);
-        const rest = metrics.rest;
-        const overdueSum = metrics.overdueSum;
-        const insts = item.installments || {};
-        
+        const status = getContractStatusInfo(item);
+        const next = status.next;
+        const total = Number(item.totalCost) || 0;
+        const cost = Number(item.costPrice) || 0;
+        const nextText = next ? `${formatContractDate(next.date)} · ${Number(next.amount || item.monthlyPay || 0).toLocaleString('ru-RU')} ₽` : '—';
         const tr = document.createElement('tr');
-        if (Number(item.costPrice) > Number(item.totalCost)) tr.className = 'row-error';
-        
-        let instHtml = '';
-        for(let i=1; i<=15; i++) {
-          const v = insts[i];
-          instHtml += v ? `<td class="p-1 border-r text-center pay-paid" title="Дата: ${v.date}">${v.amount}</td>` : `<td class="p-1 border-r text-center text-gray-300">—</td>`;
-        }
-
+        if (cost > total) tr.className = 'row-error';
         tr.innerHTML = `
-          <td class="p-2 border-r text-center font-black text-slate-500">${index + 1}</td>
-          <td class="p-2 border-r font-bold">${item.fio}</td>
-          <td class="p-2 border-r text-[10px]">${item.phone}</td>
-          <td class="p-2 border-r text-[10px]">${item.buyDate}<br><b class="text-blue-600">${item.payDate}</b></td>
-          <td class="p-2 border-r font-bold text-center">${item.monthlyPay}</td>
-          ${instHtml}
-          <td class="p-2 border-r text-red-600 font-bold text-center">${overdueSum > 0 ? overdueSum.toLocaleString('ru-RU') : 0}</td>
-          <td class="p-2 border-r font-bold text-center ${rest <= 0 ? 'text-green-600' : 'text-orange-600'}">${rest.toLocaleString('ru-RU')}</td>
-          <td class="p-2 border-r text-[10px] text-center">${item.totalCost} / ${item.downPayment}</td>
-          <td class="p-2 border-r text-center">${item.costPrice}</td>
-          <td class="p-2 border-r text-center font-black ${item.shopPaid ? 'text-green-600' : 'text-gray-300'}">${item.shopPaid ? 'Д' : '—'}</td>
-          <td class="p-2 border-r text-[10px]">${item.product || '—'}</td>
-          <td class="p-2 border-r text-[10px]">${item.guarantorFio || '—'}</td>
-          <td class="p-2 text-center space-x-1 sticky right-0 bg-white shadow-[-5px_0_10px_rgba(0,0,0,0.05)]">
-            <button onclick="openPayModal('${item.id}')" class="bg-green-600 text-white px-1 py-0.5 rounded text-[9px] font-bold">+Взнос</button>
-            <button onclick="copyHistory('${item.id}', this)" class="bg-slate-500 text-white px-1 py-0.5 rounded text-[9px]">📋 Опл.</button>
-            <button onclick="copyGuarantor('${item.id}', this)" class="bg-indigo-500 text-white px-1 py-0.5 rounded text-[9px]">👥 Пор.</button>
-            <button onclick="openEditModal('${item.id}')" class="bg-blue-500 text-white px-1 py-0.5 rounded text-[9px]">✏️</button>
-            <button onclick="deleteContract('${item.id}')" class="bg-red-500 text-white px-1 py-0.5 rounded text-[9px]">🗑️</button>
-          </td>
-        `;
+          <td class="text-center font-black text-slate-400">${index + 1}</td>
+          <td><div class="contract-cell-name">${escapeHtml(item.fio || 'Без ФИО')}</div><div class="contract-cell-muted">📞 ${escapeHtml(item.phone || '—')}</div></td>
+          <td><div class="contract-cell-name">№${escapeHtml(item.contractNum)}</div><div class="contract-cell-muted">${escapeHtml(item.buyDate || '—')}</div></td>
+          <td><div class="contract-finance-main">${total.toLocaleString('ru-RU')} ₽</div><div class="contract-finance-sub">Предоплата: ${Number(item.downPayment || 0).toLocaleString('ru-RU')} ₽ · Мес.: ${Number(item.monthlyPay || 0).toLocaleString('ru-RU')} ₽</div></td>
+          <td>${next ? `<b>${nextText}</b>` : '—'}</td>
+          <td><span class="contract-status-pill ${status.key}">${status.icon} ${status.label}</span></td>
+          <td class="font-black ${metrics.overdueSum > 0 ? 'text-red-600' : 'text-slate-400'}">${metrics.overdueSum.toLocaleString('ru-RU')} ₽</td>
+          <td class="font-black ${metrics.rest <= 0 ? 'text-green-600' : 'text-orange-600'}">${metrics.rest.toLocaleString('ru-RU')} ₽</td>
+          <td><div class="contract-cell-name">${escapeHtml(item.product || '—')}</div><div class="contract-cell-muted">${escapeHtml(item.store || 'Магазин не указан')}</div></td>
+          <td class="actions-col">${buildContractActionButtons(item)}</td>`;
         tbody.appendChild(tr);
+
+        if (mobile) {
+          const card = document.createElement('article');
+          card.className = 'contract-mobile-card';
+          card.innerHTML = `
+            <div class="contract-mobile-head">
+              <div><div class="contract-cell-name">№${escapeHtml(item.contractNum)} · ${escapeHtml(item.fio || 'Без ФИО')}</div><div class="contract-cell-muted">📞 ${escapeHtml(item.phone || '—')} · ${escapeHtml(item.buyDate || '—')}</div></div>
+              <span class="contract-status-pill ${status.key}">${status.icon} ${status.label}</span>
+            </div>
+            <div class="contract-mobile-grid">
+              <div class="contract-mobile-info"><small>Рассрочка</small><b>${total.toLocaleString('ru-RU')} ₽</b></div>
+              <div class="contract-mobile-info"><small>Остаток</small><b>${metrics.rest.toLocaleString('ru-RU')} ₽</b></div>
+              <div class="contract-mobile-info"><small>Следующий платёж</small><b>${nextText}</b></div>
+              <div class="contract-mobile-info"><small>Просрочка</small><b class="${metrics.overdueSum > 0 ? 'text-red-600' : ''}">${metrics.overdueSum.toLocaleString('ru-RU')} ₽</b></div>
+              <div class="contract-mobile-info"><small>Товар</small><b>${escapeHtml(item.product || '—')}</b></div>
+              <div class="contract-mobile-info"><small>Магазин</small><b>${escapeHtml(item.store || '—')}</b></div>
+            </div>
+            <div class="contract-mobile-actions">
+              <button class="contract-action primary" onclick="openPayModal('${escapeHtml(item.id)}')">＋ Взнос</button>
+              <button class="contract-action view" onclick="openContractDetail('${escapeHtml(item.id)}')">👁 Подробнее</button>
+              <button class="contract-action print" onclick="printContractFromRow('${escapeHtml(item.id)}')">🖨 Печать</button>
+              <button class="contract-action edit" onclick="openEditModal('${escapeHtml(item.id)}')">✏️ Изменить</button>
+            </div>`;
+          mobile.appendChild(card);
+        }
       });
     }
+
+    window.renderContractsView = function() {
+      const q = String(document.getElementById('contractsLocalSearch')?.value || '').trim().toLowerCase();
+      const statusFilter = document.getElementById('contractsStatusFilter')?.value || 'all';
+      const sortKey = document.getElementById('contractsSort')?.value || 'newest';
+      let list = allContracts.filter(c => {
+        if (q && !getContractSearchText(c).includes(q)) return false;
+        if (statusFilter !== 'all' && getContractStatusInfo(c).key !== statusFilter) return false;
+        return true;
+      });
+      list.sort((a,b) => {
+        const av = getContractSortValue(a, sortKey), bv = getContractSortValue(b, sortKey);
+        if (sortKey === 'oldest' || sortKey === 'next' || sortKey === 'name') return av > bv ? 1 : av < bv ? -1 : 0;
+        return bv - av;
+      });
+      renderTable(list);
+    };
+
+    window.resetContractsFilters = function() {
+      const s = document.getElementById('contractsLocalSearch');
+      const f = document.getElementById('contractsStatusFilter');
+      const sort = document.getElementById('contractsSort');
+      if (s) s.value = '';
+      if (f) f.value = 'all';
+      if (sort) sort.value = 'newest';
+      renderContractsView();
+    };
+
+    window.printContractFromRow = function(id) {
+      const select = document.getElementById('printContractSelect');
+      if (select) {
+        select.value = id;
+        switchTab('print');
+        setTimeout(() => loadContractForPrint(), 0);
+      }
+    };
+
+    window.closeContractDetail = function() {
+      const modal = document.getElementById('contractDetailModal');
+      if (modal) modal.classList.add('hidden');
+    };
+
+    window.openContractDetail = function(id) {
+      const c = allContracts.find(x => x.id === id);
+      if (!c) return;
+      const metrics = calculateContractMetrics(c);
+      const status = getContractStatusInfo(c);
+      const modal = document.getElementById('contractDetailModal');
+      const title = document.getElementById('contractDetailTitle');
+      const statusEl = document.getElementById('contractDetailStatus');
+      const body = document.getElementById('contractDetailBody');
+      title.textContent = `№${c.contractNum} · ${c.fio || 'Без ФИО'}`;
+      statusEl.innerHTML = `<span class="contract-status-pill ${status.key}">${status.icon} ${status.label}</span>`;
+      const dates = calculatePaymentDates(c);
+      const installments = c.installments || {};
+      const rows = dates.map(pd => {
+        const p = installments[pd.index];
+        const paid = p && Number(p.amount) > 0;
+        const overdue = !paid && pd.date < new Date(new Date().setHours(0,0,0,0));
+        return `<tr><td>${pd.index}</td><td>${formatContractDate(pd.date)}</td><td>${Number(pd.amount || c.monthlyPay || 0).toLocaleString('ru-RU')} ₽</td><td class="${paid ? 'paid' : overdue ? 'overdue' : ''}">${paid ? `✅ Оплачено · ${Number(p.amount).toLocaleString('ru-RU')} ₽ (${escapeHtml(p.date || '')})` : overdue ? '🔴 Просрочен' : '⏳ Ожидается'}</td></tr>`;
+      }).join('');
+      body.innerHTML = `
+        <div class="contract-detail-grid">
+          <div class="contract-detail-card wide"><h3>👤 Клиент</h3><div class="contract-detail-value">${escapeHtml(c.fio || '—')}</div><div class="contract-detail-value mt-1">📞 ${escapeHtml(c.phone || '—')}</div><div class="contract-detail-value mt-1">Доп. телефон: ${escapeHtml(c.extraPhone || '—')}</div></div>
+          <div class="contract-detail-card"><h3>📋 Договор</h3><div class="contract-detail-value">№${escapeHtml(c.contractNum)}</div><div class="contract-detail-value mt-1">Дата покупки: ${escapeHtml(c.buyDate || '—')}</div><div class="contract-detail-value mt-1">График: ${escapeHtml(c.payDate || '—')}</div></div>
+          <div class="contract-detail-card"><h3>💰 Финансы</h3><div class="contract-detail-value">Рассрочка: ${Number(c.totalCost||0).toLocaleString('ru-RU')} ₽</div><div class="contract-detail-value mt-1">Себестоимость: ${Number(c.costPrice||0).toLocaleString('ru-RU')} ₽</div><div class="contract-detail-value mt-1">Месячный: ${Number(c.monthlyPay||0).toLocaleString('ru-RU')} ₽</div></div>
+          <div class="contract-detail-card"><h3>💳 Состояние</h3><div class="contract-detail-value">Оплачено: ${Number(metrics.totalPaid + Number(c.downPayment||0)).toLocaleString('ru-RU')} ₽</div><div class="contract-detail-value mt-1">Остаток: ${Number(metrics.rest).toLocaleString('ru-RU')} ₽</div><div class="contract-detail-value mt-1">Просрочка: ${Number(metrics.overdueSum).toLocaleString('ru-RU')} ₽</div></div>
+          <div class="contract-detail-card wide"><h3>🏠 Личные данные</h3><div class="contract-detail-value">Паспорт: ${escapeHtml(c.passport || '—')}</div><div class="contract-detail-value mt-1">Дата рождения: ${escapeHtml(c.birthDate || '—')}</div><div class="contract-detail-value mt-1">Адрес: ${escapeHtml(c.address || '—')}</div></div>
+          <div class="contract-detail-card"><h3>📦 Товар</h3><div class="contract-detail-value">${escapeHtml(c.product || '—')}</div><div class="contract-detail-value mt-1">Магазин: ${escapeHtml(c.store || '—')}</div><div class="contract-detail-value mt-1">«Д»: ${c.shopPaid ? '✅ Оплачено' : '—'}</div></div>
+          <div class="contract-detail-card"><h3>👥 Поручитель</h3><div class="contract-detail-value">${escapeHtml(c.guarantorFio || '—')}</div><div class="contract-detail-value mt-1">📞 ${escapeHtml(c.guarantorPhone || '—')}</div></div>
+        </div>
+        <div class="contract-payments-wrap">
+          <div class="contract-payments-head">📅 График платежей · ${dates.length} месяцев</div>
+          <div class="overflow-x-auto"><table class="contract-payments"><thead><tr><th>№</th><th>Дата</th><th>Сумма</th><th>Статус</th></tr></thead><tbody>${rows || '<tr><td colspan="4" class="text-center text-slate-400">График не сформирован</td></tr>'}</tbody></table></div>
+        </div>
+        <div class="contract-detail-footer-actions">
+          <button class="contract-action primary" onclick="closeContractDetail(); openPayModal('${escapeHtml(c.id)}')">＋ Внести оплату</button>
+          <button class="contract-action edit" onclick="closeContractDetail(); openEditModal('${escapeHtml(c.id)}')">✏️ Редактировать</button>
+          <button class="contract-action print" onclick="closeContractDetail(); printContractFromRow('${escapeHtml(c.id)}')">🖨 Распечатать</button>
+          <button class="contract-action copy" onclick="copyHistory('${escapeHtml(c.id)}', this)">📋 Скопировать оплаты</button>
+          <button class="contract-action copy" onclick="copyGuarantor('${escapeHtml(c.id)}', this)">👥 Скопировать поручителя</button>
+        </div>`;
+      modal.classList.remove('hidden');
+    };
 
     const accModal = document.getElementById('accModal');
     
@@ -4672,7 +4977,9 @@
     window.handleSearch = function() {
       const q = document.getElementById('searchInput').value.toLowerCase();
       if (activeTab === 'contracts') {
-        renderTable(allContracts.filter(c => String(c.fio || '').toLowerCase().includes(q) || String(c.contractNum || '').includes(q)));
+        const local = document.getElementById('contractsLocalSearch');
+        if (local && local.value !== q) local.value = q;
+        renderContractsView();
       } else if (activeTab === 'accounting') {
         renderAccountingTable(allAccounting.filter(a => a.note.toLowerCase().includes(q) || a.account.toLowerCase().includes(q) || a.date.includes(q)));
       } else if (activeTab === 'taken') {
