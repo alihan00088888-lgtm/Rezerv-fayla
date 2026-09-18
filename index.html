@@ -30,6 +30,7 @@
     .tab-btn.today-tab.active { background-color: #22c55e; color: #ffffff; }
     .tab-btn.three-days-tab.active { background-color: #3b82f6; color: #ffffff; }
     .tab-btn.debtors-tab.active { background-color: #ef4444; color: #ffffff; }
+    .tab-btn.fieldwork-tab.active { background-color: #991b1b; color: #ffffff; }
     .tab-btn.partners-tab.active { background-color: #8b5cf6; color: #ffffff; }
     .tab-btn.print-tab.active { background-color: #f59e0b; color: #ffffff; }
     .tab-btn.income-tab.active { background-color: #0d9488; color: #ffffff; }
@@ -594,6 +595,54 @@
       .app-sidebar.open + .sidebar-overlay { opacity: 1; pointer-events:auto; }
     }
 
+    /* === Выезд === */
+    .fieldwork-shell { display:flex; flex-direction:column; gap:16px; }
+    .fieldwork-hero { background:linear-gradient(135deg,#111827,#7f1d1d); color:#fff; border-radius:20px; padding:18px 20px; box-shadow:0 14px 32px rgba(127,29,29,.16); }
+    .fieldwork-hero-inner { display:flex; justify-content:space-between; align-items:flex-start; gap:14px; flex-wrap:wrap; }
+    .fieldwork-title { font-size:25px; font-weight:900; letter-spacing:-.5px; }
+    .fieldwork-subtitle { margin-top:5px; font-size:11px; opacity:.78; }
+    .fieldwork-link-btn { border:1px solid rgba(255,255,255,.22); background:rgba(255,255,255,.12); color:#fff; padding:9px 12px; border-radius:10px; font-size:11px; font-weight:900; cursor:pointer; }
+    .fieldwork-stats { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }
+    .fieldwork-stat { background:#fff; border:1px solid #e2e8f0; border-radius:15px; padding:14px; box-shadow:0 5px 18px rgba(15,23,42,.05); }
+    .fieldwork-stat-label { font-size:9px; font-weight:900; color:#64748b; text-transform:uppercase; letter-spacing:.05em; }
+    .fieldwork-stat-value { margin-top:5px; font-size:21px; font-weight:900; color:#0f172a; }
+    .fieldwork-stat-value.red { color:#dc2626; }
+    .fieldwork-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+    .fieldwork-card { background:#fff; border:1px solid #e2e8f0; border-radius:16px; padding:15px; box-shadow:0 5px 18px rgba(15,23,42,.05); }
+    .fieldwork-card-head { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
+    .fieldwork-client-name { font-size:15px; font-weight:900; color:#0f172a; }
+    .fieldwork-client-meta { margin-top:3px; color:#64748b; font-size:10px; }
+    .fieldwork-status { display:inline-flex; align-items:center; border-radius:999px; padding:5px 9px; font-size:9px; font-weight:900; white-space:nowrap; }
+    .fieldwork-status.s0 { background:#fee2e2; color:#991b1b; }
+    .fieldwork-status.s1 { background:#fef3c7; color:#92400e; }
+    .fieldwork-status.s2 { background:#ffedd5; color:#9a3412; }
+    .fieldwork-status.s3 { background:#dbeafe; color:#1d4ed8; }
+    .fieldwork-status.s4 { background:#ede9fe; color:#6d28d9; }
+    .fieldwork-status.s5 { background:#dcfce7; color:#166534; }
+    .fieldwork-status.s6 { background:#f1f5f9; color:#475569; }
+    .fieldwork-info-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:7px; margin-top:12px; }
+    .fieldwork-info { background:#f8fafc; border-radius:10px; padding:8px 9px; }
+    .fieldwork-info-label { font-size:8px; color:#94a3b8; font-weight:900; text-transform:uppercase; }
+    .fieldwork-info-value { margin-top:2px; font-size:11px; font-weight:900; color:#334155; }
+    .fieldwork-actions { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:7px; margin-top:11px; }
+    .fieldwork-action { border:1px solid #e2e8f0; background:#fff; border-radius:9px; padding:9px 6px; font-size:10px; font-weight:900; color:#334155; cursor:pointer; }
+    .fieldwork-action:hover { background:#f8fafc; }
+    .fieldwork-action.whatsapp { color:#15803d; background:#f0fdf4; border-color:#bbf7d0; }
+    .fieldwork-action.map { color:#1d4ed8; background:#eff6ff; border-color:#bfdbfe; }
+    .fieldwork-action.status { color:#991b1b; background:#fff1f2; border-color:#fecdd3; }
+    .fieldwork-modal-history { max-height:250px; overflow:auto; border:1px solid #e2e8f0; border-radius:12px; }
+    .fieldwork-history-row { padding:9px 11px; border-bottom:1px solid #f1f5f9; display:flex; justify-content:space-between; gap:10px; align-items:center; font-size:10px; }
+    .fieldwork-history-row:last-child { border-bottom:0; }
+    .fieldwork-mode-banner { display:none; }
+    body.fieldworker-mode { background:#f1f5f9; }
+    body.fieldworker-mode > .sticky.top-0, body.fieldworker-mode #appSidebar, body.fieldworker-mode #sidebarOverlay { display:none !important; }
+    body.fieldworker-mode #homeTabContent, body.fieldworker-mode #contractsTabContent, body.fieldworker-mode #accountingTabContent, body.fieldworker-mode #takenTabContent, body.fieldworker-mode #incomeTabContent, body.fieldworker-mode #todayTabContent, body.fieldworker-mode #threeDaysTabContent, body.fieldworker-mode #debtorsTabContent, body.fieldworker-mode #clientsTabContent, body.fieldworker-mode #partnersTabContent, body.fieldworker-mode #printTabContent, body.fieldworker-mode #initTabContent { display:none !important; }
+    body.fieldworker-mode #fieldworkTabContent { display:block !important; max-width:1100px; margin:0 auto; }
+    body.fieldworker-mode .fieldwork-mode-banner { display:block; }
+    body.fieldworker-mode .fieldwork-link-btn { display:none; }
+    @media (max-width: 900px) { .fieldwork-stats { grid-template-columns:repeat(2,minmax(0,1fr)); } .fieldwork-list { grid-template-columns:1fr; } }
+    @media (max-width: 640px) { .fieldwork-hero { padding:16px; border-radius:16px; } .fieldwork-title { font-size:21px; } .fieldwork-stats { gap:8px; } .fieldwork-stat { padding:11px; } .fieldwork-stat-value { font-size:17px; } .fieldwork-actions { grid-template-columns:repeat(2,minmax(0,1fr)); } .fieldwork-info-grid { grid-template-columns:1fr 1fr; } }
+
     /* === Главная: финансовый дашборд === */
     .dashboard-shell { display:flex; flex-direction:column; gap:18px; }
     .dashboard-hero {
@@ -1104,6 +1153,42 @@
       </div>
     </div>
 
+    <!-- ================= Лист: Выезд ================= -->
+    <div id="fieldworkTabContent" class="hidden fieldwork-shell">
+      <section class="fieldwork-hero">
+        <div class="fieldwork-hero-inner">
+          <div>
+            <div class="dashboard-kicker">YUSRA · Работа с просрочкой</div>
+            <div class="fieldwork-title">🚗 Выезд</div>
+            <div id="fieldworkCaption" class="fieldwork-subtitle">Клиенты с двумя и более просроченными месячными платежами</div>
+          </div>
+          <button type="button" onclick="copyFieldWorkerLink()" class="fieldwork-link-btn">🔗 Ссылка для выездника</button>
+        </div>
+      </section>
+
+      <div class="fieldwork-mode-banner bg-white border rounded-xl p-4 shadow-sm mb-3">
+        <div class="font-black text-slate-900">👤 Кабинет выездника</div>
+        <div class="text-xs text-slate-500 mt-1">Только работа со списком выезда: звонок, WhatsApp, карта и статус. Данные клиента редактировать нельзя.</div>
+      </div>
+
+      <section class="fieldwork-stats">
+        <div class="fieldwork-stat"><div class="fieldwork-stat-label">Клиентов для выезда</div><div id="fieldworkCount" class="fieldwork-stat-value red">0</div></div>
+        <div class="fieldwork-stat"><div class="fieldwork-stat-label">Общая просрочка</div><div id="fieldworkOverdue" class="fieldwork-stat-value red">0 ₽</div></div>
+        <div class="fieldwork-stat"><div class="fieldwork-stat-label">Просрочено месяцев</div><div id="fieldworkMonths" class="fieldwork-stat-value">0</div></div>
+        <div class="fieldwork-stat"><div class="fieldwork-stat-label">Более 3 месяцев</div><div id="fieldworkCritical" class="fieldwork-stat-value red">0</div></div>
+      </section>
+
+      <section class="bg-white border rounded-2xl shadow-sm overflow-hidden">
+        <div class="p-4 border-b flex flex-wrap justify-between items-center gap-3">
+          <div><div class="font-black text-slate-900">Список на выезд</div><div class="text-[10px] text-slate-400 mt-1">Автоматически формируется по просроченным месячным платежам</div></div>
+          <select id="fieldworkFilter" onchange="renderFieldwork()" class="p-2 border rounded-lg text-xs font-bold">
+            <option value="all">Все</option><option value="new">Не связывались</option><option value="work">В работе</option><option value="planned">Выезд запланирован</option><option value="done">Выезд выполнен</option><option value="resolved">Решено</option>
+          </select>
+        </div>
+        <div id="fieldworkList" class="p-3 fieldwork-list"></div>
+      </section>
+    </div>
+
     <!-- ================= Лист: Клиенты ================= -->
     <div id="clientsTabContent" class="hidden space-y-4">
       <div class="bg-white shadow-xl rounded-xl p-4 md:p-6 border rounded-xl">
@@ -1285,6 +1370,7 @@
       <button type="button" onclick="switchTab('today')" id="tabBtnToday" class="tab-btn flex items-center gap-2">📅 Сегодня</button>
       <button type="button" onclick="switchTab('threeDays')" id="tabBtnThreeDays" class="tab-btn flex items-center gap-2">⏰ Через 3 дня</button>
       <button type="button" onclick="switchTab('debtors')" id="tabBtnDebtors" class="tab-btn flex items-center gap-2">🚫 Неплательщики</button>
+      <button type="button" onclick="switchTab('fieldwork')" id="tabBtnFieldwork" class="tab-btn fieldwork-tab flex items-center gap-2">🚗 Выезд</button>
       <button type="button" onclick="switchTab('clients')" id="tabBtnClients" class="tab-btn flex items-center gap-2">👥 Клиенты</button>
     </div>
     <div class="sidebar-section">
@@ -1301,6 +1387,14 @@
     </div>
   </aside>
   <div id="sidebarOverlay" class="sidebar-overlay no-print" onclick="closeSidebar()"></div>
+
+  <!-- КАРТОЧКА ВЫЕЗДА -->
+  <div id="fieldworkDetailModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center p-3 z-[75]">
+    <div class="bg-white rounded-2xl p-5 max-w-2xl w-full max-h-[92vh] overflow-y-auto shadow-2xl">
+      <div class="flex justify-between items-center mb-4"><h3 id="fieldworkDetailTitle" class="text-lg font-black text-red-700">Выезд</h3><button type="button" onclick="closeFieldworkDetail()" class="w-9 h-9 rounded-lg bg-slate-100 text-xl">×</button></div>
+      <div id="fieldworkDetailBody"></div>
+    </div>
+  </div>
 
   <!-- КАРТОЧКА КЛИЕНТА -->
   <div id="clientDetailModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center p-3 z-[70]">
@@ -1566,7 +1660,7 @@
     // FIREBASE
     // ================================================================
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDuPqMwudSodv37VjNCNmVg71ES09AmyW0",
@@ -1609,6 +1703,10 @@
     let allAccounting = JSON.parse(localStorage.getItem('accounting_db') || '[]');
     let allTaken = JSON.parse(localStorage.getItem('taken_db') || '[]');
     let allIncomeExpenses = JSON.parse(localStorage.getItem('income_expenses_db') || '[]');
+    let fieldVisitRecords = JSON.parse(localStorage.getItem('field_visit_records_db') || '{}');
+    if (!fieldVisitRecords || typeof fieldVisitRecords !== 'object' || Array.isArray(fieldVisitRecords)) fieldVisitRecords = {};
+    const IS_FIELDWORKER_MODE = new URLSearchParams(window.location.search).get('role') === 'fieldworker';
+    if (IS_FIELDWORKER_MODE) document.body.classList.add('fieldworker-mode');
     let customAccounts = JSON.parse(localStorage.getItem('accounts_db') || 'null');
 
     let initInvestors;
@@ -1715,6 +1813,7 @@
             accounts: customAccounts,
             investors: initInvestors,
             monthlyReports: initMonthlyReports,
+            fieldVisitRecords: fieldVisitRecords,
             updatedAt: Date.now()
           });
           setSyncStatus('synced', 'Синхронизировано');
@@ -1734,6 +1833,7 @@
       if (data.accounts) customAccounts = data.accounts;
       if (data.investors) initInvestors = data.investors;
       if (data.monthlyReports) initMonthlyReports = data.monthlyReports;
+      if (data.fieldVisitRecords && typeof data.fieldVisitRecords === 'object') fieldVisitRecords = data.fieldVisitRecords;
 
       localStorage.setItem('contracts_db', JSON.stringify(allContracts));
       localStorage.setItem('accounting_db', JSON.stringify(allAccounting));
@@ -1742,6 +1842,7 @@
       localStorage.setItem('accounts_db', JSON.stringify(customAccounts));
       localStorage.setItem('investors_db', JSON.stringify(initInvestors));
       localStorage.setItem('monthly_reports_db', JSON.stringify(initMonthlyReports));
+      localStorage.setItem('field_visit_records_db', JSON.stringify(fieldVisitRecords));
 
       try {
         renderTable(allContracts);
@@ -1753,6 +1854,7 @@
         if (activeTab === 'today') renderTodayClients();
         if (activeTab === 'threeDays') renderThreeDaysClients();
         if (activeTab === 'debtors') renderDebtorsClients();
+        if (activeTab === 'fieldwork') renderFieldwork();
         if (activeTab === 'clients') renderClients();
         if (activeTab === 'partners') renderPartners();
         if (activeTab === 'print') {
@@ -1777,7 +1879,8 @@
              emptyArr(data.incomeExpenses) && 
              emptyArr(data.investors) && 
              emptyObj(data.monthlyReports) && 
-             emptyArr(data.accounts);
+             emptyArr(data.accounts) &&
+             emptyObj(data.fieldVisitRecords);
     }
 
     async function initSync() {
@@ -1796,6 +1899,7 @@
             accounts: customAccounts,
             investors: initInvestors,
             monthlyReports: initMonthlyReports,
+            fieldVisitRecords: fieldVisitRecords,
             updatedAt: Date.now()
           });
         }
@@ -1803,6 +1907,7 @@
         isCloudLoaded = true;
         setSyncStatus('synced', 'Синхронизировано');
         hideLoadingScreen();
+        if (IS_FIELDWORKER_MODE) switchTab('fieldwork');
         
         onSnapshot(DOC_REF, (docSnap) => {
           if (!docSnap.exists()) return;
@@ -1854,6 +1959,7 @@
         closeSidebar();
         closeClientDetail();
         closeInvestmentCopyModal();
+        closeFieldworkDetail();
       }
     });
 
@@ -1875,6 +1981,7 @@
       const todayTab = document.getElementById('todayTabContent');
       const threeDaysTab = document.getElementById('threeDaysTabContent');
       const debtorsTab = document.getElementById('debtorsTabContent');
+      const fieldworkTab = document.getElementById('fieldworkTabContent');
       const clientsTab = document.getElementById('clientsTabContent');
       const partnersTab = document.getElementById('partnersTabContent');
       const printTab = document.getElementById('printTabContent');
@@ -1889,6 +1996,7 @@
       const todayBtn = document.getElementById('tabBtnToday');
       const threeDaysBtn = document.getElementById('tabBtnThreeDays');
       const debtorsBtn = document.getElementById('tabBtnDebtors');
+      const fieldworkBtn = document.getElementById('tabBtnFieldwork');
       const clientsBtn = document.getElementById('tabBtnClients');
       const partnersBtn = document.getElementById('tabBtnPartners');
       const printBtn = document.getElementById('tabBtnPrint');
@@ -1906,6 +2014,7 @@
       todayTab.classList.add('hidden');
       threeDaysTab.classList.add('hidden');
       debtorsTab.classList.add('hidden');
+      fieldworkTab.classList.add('hidden');
       clientsTab.classList.add('hidden');
       partnersTab.classList.add('hidden');
       printTab.classList.add('hidden');
@@ -1966,6 +2075,10 @@
         debtorsTab.classList.remove('hidden');
         debtorsBtn.className = "tab-btn debtors-tab active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
         renderDebtorsClients();
+      } else if (tab === 'fieldwork') {
+        fieldworkTab.classList.remove('hidden');
+        fieldworkBtn.className = "tab-btn fieldwork-tab active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
+        renderFieldwork();
       } else if (tab === 'clients') {
         clientsTab.classList.remove('hidden');
         clientsBtn.className = "tab-btn clients-tab active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
@@ -1984,7 +2097,7 @@
       const activeButton = document.getElementById({
         home:'tabBtnHome', contracts:'tabBtnContracts', accounting:'tabBtnAccounting', taken:'tabBtnTaken',
         income:'tabBtnIncome', init:'tabBtnInit', today:'tabBtnToday', threeDays:'tabBtnThreeDays',
-        debtors:'tabBtnDebtors', clients:'tabBtnClients', partners:'tabBtnPartners', print:'tabBtnPrint'
+        debtors:'tabBtnDebtors', fieldwork:'tabBtnFieldwork', clients:'tabBtnClients', partners:'tabBtnPartners', print:'tabBtnPrint'
       }[tab]);
       if (activeButton) {
         activeButton.classList.add('active');
@@ -2002,7 +2115,8 @@
         incomeExpenses: JSON.parse(JSON.stringify(allIncomeExpenses)),
         accounts: JSON.parse(JSON.stringify(customAccounts)),
         investors: JSON.parse(JSON.stringify(initInvestors)),
-        monthlyReports: JSON.parse(JSON.stringify(initMonthlyReports))
+        monthlyReports: JSON.parse(JSON.stringify(initMonthlyReports)),
+        fieldVisitRecords: JSON.parse(JSON.stringify(fieldVisitRecords))
       };
       undoStack.push(JSON.stringify(stateSnapshot));
       if (undoStack.length > 50) undoStack.shift();
@@ -2019,7 +2133,8 @@
         incomeExpenses: JSON.parse(JSON.stringify(allIncomeExpenses)),
         accounts: JSON.parse(JSON.stringify(customAccounts)),
         investors: JSON.parse(JSON.stringify(initInvestors)),
-        monthlyReports: JSON.parse(JSON.stringify(initMonthlyReports))
+        monthlyReports: JSON.parse(JSON.stringify(initMonthlyReports)),
+        fieldVisitRecords: JSON.parse(JSON.stringify(fieldVisitRecords))
       };
       redoStack.push(JSON.stringify(currentState));
       
@@ -2031,6 +2146,7 @@
       customAccounts = previousState.accounts || customAccounts;
       initInvestors = previousState.investors || initInvestors;
       initMonthlyReports = previousState.monthlyReports || initMonthlyReports;
+      fieldVisitRecords = previousState.fieldVisitRecords || fieldVisitRecords;
       finishAction();
     };
 
@@ -2043,7 +2159,8 @@
         incomeExpenses: JSON.parse(JSON.stringify(allIncomeExpenses)),
         accounts: JSON.parse(JSON.stringify(customAccounts)),
         investors: JSON.parse(JSON.stringify(initInvestors)),
-        monthlyReports: JSON.parse(JSON.stringify(initMonthlyReports))
+        monthlyReports: JSON.parse(JSON.stringify(initMonthlyReports)),
+        fieldVisitRecords: JSON.parse(JSON.stringify(fieldVisitRecords))
       };
       undoStack.push(JSON.stringify(currentState));
       
@@ -2055,6 +2172,7 @@
       customAccounts = nextState.accounts || customAccounts;
       initInvestors = nextState.investors || initInvestors;
       initMonthlyReports = nextState.monthlyReports || initMonthlyReports;
+      fieldVisitRecords = nextState.fieldVisitRecords || fieldVisitRecords;
       finishAction();
     };
 
@@ -2066,6 +2184,7 @@
       localStorage.setItem('accounts_db', JSON.stringify(customAccounts));
       localStorage.setItem('investors_db', JSON.stringify(initInvestors));
       localStorage.setItem('monthly_reports_db', JSON.stringify(initMonthlyReports));
+      localStorage.setItem('field_visit_records_db', JSON.stringify(fieldVisitRecords));
       renderTable(allContracts);
       renderAccountingTable(allAccounting);
       renderTakenSheet();
@@ -2075,6 +2194,7 @@
       if (activeTab === 'today') renderTodayClients();
       if (activeTab === 'threeDays') renderThreeDaysClients();
       if (activeTab === 'debtors') renderDebtorsClients();
+      if (activeTab === 'fieldwork') renderFieldwork();
       if (activeTab === 'clients') renderClients();
       if (activeTab === 'partners') renderPartners();
       if (activeTab === 'print') {
@@ -2104,6 +2224,7 @@
       localStorage.setItem('accounts_db', JSON.stringify(customAccounts));
       localStorage.setItem('investors_db', JSON.stringify(initInvestors));
       localStorage.setItem('monthly_reports_db', JSON.stringify(initMonthlyReports));
+      localStorage.setItem('field_visit_records_db', JSON.stringify(fieldVisitRecords));
       renderTable(allContracts);
       renderAccountingTable(allAccounting);
       renderTakenSheet();
@@ -3205,6 +3326,168 @@
       html += '</div>';
       container.innerHTML = html;
     }
+
+    // ================================================================
+    // ВЫЕЗД
+    // ================================================================
+    const FIELDWORK_STATUSES = [
+      { key:'new', label:'Не связывались', cls:'s0' },
+      { key:'contacted', label:'Связались', cls:'s1' },
+      { key:'agreed', label:'Договорились', cls:'s2' },
+      { key:'planned', label:'Выезд запланирован', cls:'s3' },
+      { key:'visited', label:'Выезд выполнен', cls:'s4' },
+      { key:'resolved', label:'Решено', cls:'s5' },
+      { key:'other', label:'Отказ / другое', cls:'s6' }
+    ];
+
+    function fieldworkClientKey(client) {
+      return [String(client.fio || '').trim().toLocaleLowerCase('ru-RU'), String(client.phone || '').replace(/\D/g,''), String(client.extraPhone || '').replace(/\D/g,'')].join('|');
+    }
+
+    function getFieldworkRecord(client) {
+      const key = fieldworkClientKey(client);
+      const rec = fieldVisitRecords[key];
+      if (!rec || typeof rec !== 'object') return { status:'new', history:[] };
+      return { status: rec.status || 'new', history: Array.isArray(rec.history) ? rec.history : [], updatedAt: rec.updatedAt || null };
+    }
+
+    function getFieldworkClients() {
+      const result = [];
+      getClientGroups().forEach(client => {
+        let overdueMonths = 0;
+        let overdueSum = 0;
+        let oldestOverdueDate = null;
+        const overdueContracts = [];
+        client.contracts.forEach(contract => {
+          const metrics = calculateContractMetrics(contract);
+          if (metrics.isClosed) return;
+          const info = getMonthStatus(contract);
+          const overdue = info.months.filter(m => m.status === 'overdue' && !m.isPaid);
+          if (!overdue.length) return;
+          overdueMonths += overdue.length;
+          overdueSum += overdue.reduce((sum,m) => sum + Number(m.amount || 0), 0);
+          overdue.forEach(m => { if (!oldestOverdueDate || m.date < oldestOverdueDate) oldestOverdueDate = m.date; });
+          overdueContracts.push({ contract, overdueCount: overdue.length, overdueSum: overdue.reduce((sum,m) => sum + Number(m.amount || 0), 0) });
+        });
+        if (overdueMonths < 2) return;
+        const record = getFieldworkRecord(client);
+        result.push({ ...client, key: fieldworkClientKey(client), overdueMonths, overdueSum, oldestOverdueDate, overdueContracts, record });
+      });
+      result.sort((a,b) => b.overdueMonths - a.overdueMonths || b.overdueSum - a.overdueSum || a.fio.localeCompare(b.fio,'ru'));
+      return result;
+    }
+
+    function fieldworkStatusInfo(key) { return FIELDWORK_STATUSES.find(s => s.key === key) || FIELDWORK_STATUSES[0]; }
+    function fieldworkMoney(v) { return `${Math.round(Number(v)||0).toLocaleString('ru-RU')} ₽`; }
+    function fieldworkPhone(phone) { return String(phone || '').replace(/\D/g,''); }
+    function fieldworkMapUrl(address) { return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(String(address || ''))}`; }
+
+    window.copyFieldWorkerLink = async function() {
+      const u = new URL(window.location.href);
+      u.search = '';
+      u.hash = '';
+      u.searchParams.set('role','fieldworker');
+      const link = u.toString();
+      try {
+        await navigator.clipboard.writeText(link);
+        showCopyNotification('🔗 Ссылка для выездника скопирована');
+      } catch (e) {
+        prompt('Скопируйте ссылку для выездника:', link);
+      }
+    };
+
+    window.setFieldworkStatus = async function(key, status) {
+      const clients = getFieldworkClients();
+      const client = clients.find(c => c.key === key);
+      if (!client) return;
+      const prev = getFieldworkRecord(client);
+      if (prev.status === status) return;
+      const now = Date.now();
+      fieldVisitRecords[key] = {
+        status,
+        history: [...prev.history, { status, at: now }].slice(-50),
+        updatedAt: now
+      };
+      localStorage.setItem('field_visit_records_db', JSON.stringify(fieldVisitRecords));
+      renderFieldwork();
+      if (IS_FIELDWORKER_MODE) {
+        try {
+          if (isCloudLoaded) await updateDoc(DOC_REF, { fieldVisitRecords: fieldVisitRecords, updatedAt: now });
+        } catch (e) {
+          console.error('Ошибка сохранения статуса выезда:', e);
+          alert('Не удалось сохранить статус. Проверьте интернет-соединение.');
+        }
+      } else {
+        saveState();
+        saveToStorage();
+      }
+    };
+
+    window.openFieldworkCard = function(key) {
+      const client = getFieldworkClients().find(c => c.key === key);
+      if (!client) return;
+      const rec = getFieldworkRecord(client);
+      const status = fieldworkStatusInfo(rec.status);
+      const history = rec.history.slice().reverse().map(h => {
+        const st = fieldworkStatusInfo(h.status);
+        return `<div class="fieldwork-history-row"><span class="fieldwork-status ${st.cls}">${st.label}</span><span class="text-slate-400">${new Date(h.at).toLocaleString('ru-RU')}</span></div>`;
+      }).join('') || '<div class="p-4 text-center text-slate-400">Истории пока нет</div>';
+      const modal = document.getElementById('fieldworkDetailModal');
+      document.getElementById('fieldworkDetailTitle').textContent = client.fio;
+      document.getElementById('fieldworkDetailBody').innerHTML = `
+        <div class="space-y-3">
+          <div class="flex flex-wrap gap-2"><span class="fieldwork-status ${status.cls}">${status.label}</span><span class="bg-red-50 text-red-700 rounded-full px-3 py-1 text-[10px] font-black">Просрочка: ${fieldworkMoney(client.overdueSum)}</span><span class="bg-orange-50 text-orange-700 rounded-full px-3 py-1 text-[10px] font-black">${client.overdueMonths} мес.</span></div>
+          <div class="grid grid-cols-2 gap-2 text-[11px]"><div class="bg-slate-50 p-3 rounded-xl"><b>Телефон</b><div class="mt-1">${escapeClientHtml(client.phone || '—')}</div></div><div class="bg-slate-50 p-3 rounded-xl"><b>Адрес</b><div class="mt-1">${escapeClientHtml(client.contracts[0]?.address || '—')}</div></div></div>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <button class="fieldwork-action" onclick="fieldworkCall(${clientJsArg(client.phone)})">📞 Позвонить</button>
+            <button class="fieldwork-action whatsapp" onclick="fieldworkWhatsApp(${clientJsArg(client.phone)}, ${clientJsArg(client.fio)})">💬 WhatsApp</button>
+            <button class="fieldwork-action map" onclick="fieldworkOpenMap(${clientJsArg(client.contracts[0]?.address || '')})">📍 Карта</button>
+            <button class="fieldwork-action" onclick="closeFieldworkDetail()">Закрыть</button>
+          </div>
+          <div><div class="font-black text-sm mb-2">Изменить статус</div><div class="grid grid-cols-2 gap-2">${FIELDWORK_STATUSES.map(st => `<button type="button" onclick="setFieldworkStatus(${clientJsArg(client.key)},${clientJsArg(st.key)}); openFieldworkCard(${clientJsArg(client.key)})" class="p-2.5 rounded-lg border text-[10px] font-black ${st.key===rec.status?'bg-slate-900 text-white':'bg-white text-slate-700 hover:bg-slate-50'}">${st.label}</button>`).join('')}</div></div>
+          <div><div class="font-black text-sm mb-2">История</div><div class="fieldwork-modal-history">${history}</div></div>
+          <div><div class="font-black text-sm mb-2">Договоры с просрочкой</div><div class="space-y-2">${client.overdueContracts.map(x => `<div class="p-3 bg-red-50 rounded-xl text-[10px] flex justify-between gap-2"><span><b>№${escapeClientHtml(x.contract.contractNum || '—')}</b> · ${escapeClientHtml(x.contract.product || 'Товар')}</span><span class="font-black text-red-700">${x.overdueCount} мес. · ${fieldworkMoney(x.overdueSum)}</span></div>`).join('')}</div></div>
+        </div>`;
+      modal.classList.remove('hidden'); modal.classList.add('flex');
+    };
+
+    window.closeFieldworkDetail = function() { const m=document.getElementById('fieldworkDetailModal'); if(m){m.classList.add('hidden');m.classList.remove('flex');} };
+    window.fieldworkCall = function(phone) { const p=fieldworkPhone(phone); if(p) window.location.href=`tel:${p}`; else alert('Телефон не указан.'); };
+    window.fieldworkWhatsApp = function(phone, fio) { const p=fieldworkPhone(phone); if(!p){alert('Телефон не указан.');return;} const text=`Здравствуйте, ${fio || ''}. Пишем по поводу вашей задолженности по договору. Пожалуйста, свяжитесь с нами.`; window.open(`https://wa.me/${p}?text=${encodeURIComponent(text)}`,'_blank','noopener'); };
+    window.fieldworkOpenMap = function(address) { if(!address){alert('Адрес клиента не указан.');return;} window.open(fieldworkMapUrl(address),'_blank','noopener'); };
+
+    window.renderFieldwork = function() {
+      const list = document.getElementById('fieldworkList'); if (!list) return;
+      const clients = getFieldworkClients();
+      const filter = document.getElementById('fieldworkFilter')?.value || 'all';
+      const filtered = clients.filter(c => {
+        const s=c.record.status;
+        if(filter==='all') return true;
+        if(filter==='new') return s==='new';
+        if(filter==='work') return ['contacted','agreed','other'].includes(s);
+        if(filter==='planned') return s==='planned';
+        if(filter==='done') return s==='visited';
+        if(filter==='resolved') return s==='resolved';
+        return true;
+      });
+      const totalOverdue=clients.reduce((sum,c)=>sum+c.overdueSum,0);
+      const totalMonths=clients.reduce((sum,c)=>sum+c.overdueMonths,0);
+      const critical=clients.filter(c=>c.overdueMonths>3).length;
+      const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+      set('fieldworkCount',clients.length); set('fieldworkOverdue',fieldworkMoney(totalOverdue)); set('fieldworkMonths',totalMonths); set('fieldworkCritical',critical);
+      if(!filtered.length){list.innerHTML='<div class="col-span-full text-center text-slate-400 py-12">🚗 Нет клиентов в выбранном статусе</div>';return;}
+      list.innerHTML=filtered.map((client,index)=>{
+        const st=fieldworkStatusInfo(client.record.status);
+        const address=client.contracts[0]?.address || '';
+        const last=client.record.history?.length ? client.record.history[client.record.history.length-1] : null;
+        return `<article class="fieldwork-card">
+          <div class="fieldwork-card-head"><div><div class="fieldwork-client-name">${index+1}. ${escapeClientHtml(client.fio)}</div><div class="fieldwork-client-meta">${client.phone ? '📞 '+escapeClientHtml(client.phone) : '📞 Телефон не указан'}${address ? ' · 📍 '+escapeClientHtml(address) : ''}</div></div><span class="fieldwork-status ${st.cls}">${st.label}</span></div>
+          <div class="fieldwork-info-grid"><div class="fieldwork-info"><div class="fieldwork-info-label">Просрочка</div><div class="fieldwork-info-value text-red-600">${fieldworkMoney(client.overdueSum)}</div></div><div class="fieldwork-info"><div class="fieldwork-info-label">Просрочено месяцев</div><div class="fieldwork-info-value">${client.overdueMonths}</div></div><div class="fieldwork-info"><div class="fieldwork-info-label">Самая ранняя просрочка</div><div class="fieldwork-info-value">${formatClientDate(client.oldestOverdueDate)}</div></div><div class="fieldwork-info"><div class="fieldwork-info-label">Договоров с просрочкой</div><div class="fieldwork-info-value">${client.overdueContracts.length}</div></div></div>
+          <div class="fieldwork-actions"><button class="fieldwork-action" onclick="fieldworkCall(${clientJsArg(client.phone)})">📞 Звонок</button><button class="fieldwork-action whatsapp" onclick="fieldworkWhatsApp(${clientJsArg(client.phone)},${clientJsArg(client.fio)})">💬 WhatsApp</button><button class="fieldwork-action map" onclick="fieldworkOpenMap(${clientJsArg(address)})">📍 Карта</button><button class="fieldwork-action status" onclick="openFieldworkCard(${clientJsArg(client.key)})">📋 Карточка</button></div>
+          ${last ? `<div class="text-[9px] text-slate-400 mt-2">Последняя отметка: <b>${fieldworkStatusInfo(last.status).label}</b> · ${new Date(last.at).toLocaleString('ru-RU')}</div>` : ''}
+        </article>`;
+      }).join('');
+    };
 
     // ================================================================
     // КЛИЕНТЫ
@@ -5233,7 +5516,7 @@
       renderAccountingTable(allAccounting);
       renderTakenSheet();
       updateHistoryButtons();
-      switchTab('home');
+      switchTab(IS_FIELDWORKER_MODE ? 'fieldwork' : 'home');
     } catch (e) {
       console.error('Ошибка начальной инициализации:', e);
     }
