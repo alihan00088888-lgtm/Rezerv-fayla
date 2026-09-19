@@ -101,6 +101,42 @@
     .client-overdue { color: #ef4444; font-weight: bold; }
     .client-rest { color: #f59e0b; font-weight: bold; }
 
+
+    /* === Компактные строки только для страниц «Сегодня» и «Через 3 дня» === */
+    #todayClientsList .client-item,
+    #threeDaysClientsList .client-item {
+      padding: 7px 10px;
+      gap: 4px;
+      align-items: center;
+    }
+    #todayClientsList .client-info,
+    #threeDaysClientsList .client-info {
+      gap: 7px;
+      line-height: 1.15;
+    }
+    #todayClientsList .client-name,
+    #threeDaysClientsList .client-name {
+      font-size: 13px;
+    }
+    #todayClientsList .client-phone,
+    #todayClientsList .client-detail,
+    #threeDaysClientsList .client-phone,
+    #threeDaysClientsList .client-detail {
+      font-size: 11px;
+    }
+    #todayClientsList .client-item > .flex,
+    #threeDaysClientsList .client-item > .flex {
+      gap: 6px;
+    }
+    #todayClientsList .client-item > .w-full,
+    #threeDaysClientsList .client-item > .w-full {
+      margin-top: 2px !important;
+    }
+    #threeDaysClientsList .payment-circles,
+    #threeDaysClientsList .payment-legend {
+      display: none !important;
+    }
+
     /* === Печать договора === */
     .print-contract {
       font-family: 'Times New Roman', serif;
@@ -3951,27 +3987,10 @@
         const clientOverdue = Number(monthInfo.overdueSum || 0);
         const rest = Number(client.rest || calculateContractMetrics(client).rest || 0);
         const paymentAmount = Number(client.unpaidMonthAmount || client.monthlyPay || 0);
-        let circles = '';
+        // Индикаторы-кружки на странице «Через 3 дня» отключены для компактного отображения.
+        const circles = '';
 
-        monthInfo.months.forEach(m => {
-          const monthDate = getYmd(m.date);
-          let cls = 'future';
-          let label = 'Будущий платёж';
-          if (m.isPaid || m.status === 'paid') {
-            cls = 'paid';
-            label = 'Оплачено';
-          } else if (m.status === 'overdue') {
-            cls = 'overdue';
-            label = 'Просрочено';
-          } else if (monthDate === todayStr) {
-            cls = 'today';
-            label = 'Платёж сегодня';
-          } else if (monthDate === threeDaysStr) {
-            cls = 'three-days';
-            label = 'Платёж через 3 дня';
-          }
-          circles += `<span class="payment-circle ${cls}" title="${m.date} · ${Number(m.amount || 0).toLocaleString('ru-RU')} ₽ · ${label}">${m.month}</span>`;
-        });
+        /* Визуальные кружки на странице «Через 3 дня» не выводятся. */
 
         const phone = String(client.phone || '').replace(/[^0-9]/g, '');
         const waHref = phone ? `https://wa.me/7${phone}?text=${encodeURIComponent(buildThreeDaysWhatsAppMessage(client, threeDaysStr))}` : '#';
@@ -3989,16 +4008,6 @@
               ${clientOverdue > 0 ? `<span class="client-overdue">Просрочка: ${clientOverdue.toLocaleString('ru-RU')} ₽</span>` : '<span class="text-xs font-semibold text-green-600">Просрочки нет</span>'}
               <span class="client-rest">Остаток: ${rest.toLocaleString('ru-RU')} ₽</span>
               <a href="${waHref}" ${waAttrs} class="text-green-600 hover:text-green-800 font-bold text-sm" title="Открыть WhatsApp с готовым сообщением">💬 WhatsApp</a>
-            </div>
-            <div class="w-full mt-2">
-              <div class="payment-circles">${circles}</div>
-              <div class="payment-legend">
-                <span class="payment-legend-item"><span class="payment-legend-dot paid"></span>Оплачено</span>
-                <span class="payment-legend-item"><span class="payment-legend-dot today"></span>Сегодня</span>
-                <span class="payment-legend-item"><span class="payment-legend-dot three-days"></span>Через 3 дня</span>
-                <span class="payment-legend-item"><span class="payment-legend-dot overdue"></span>Просрочено</span>
-                <span class="payment-legend-item"><span class="payment-legend-dot future"></span>Будущее</span>
-              </div>
             </div>
           </div>
         `;
