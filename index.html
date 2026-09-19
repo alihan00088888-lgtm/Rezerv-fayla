@@ -59,6 +59,23 @@
       display: inline-block; padding: 2px 8px; border-radius: 4px;
       margin: 2px; font-size: 10px; font-weight: bold;
     }
+
+    .payment-circles { display:flex; flex-wrap:wrap; gap:5px; align-items:center; }
+    .payment-circle { width:18px; height:18px; border-radius:9999px; display:inline-flex; align-items:center; justify-content:center; font-size:8px; font-weight:900; border:1px solid rgba(15,23,42,.10); cursor:default; flex:0 0 auto; }
+    .payment-circle.paid { background:#22c55e; color:#fff; }
+    .payment-circle.today { background:#3b82f6; color:#fff; }
+    .payment-circle.three-days { background:#facc15; color:#713f12; }
+    .payment-circle.overdue { background:#ef4444; color:#fff; }
+    .payment-circle.future { background:#e5e7eb; color:#64748b; }
+    .payment-legend { display:flex; flex-wrap:wrap; gap:8px 12px; margin-top:7px; font-size:10px; color:#64748b; }
+    .payment-legend-item { display:inline-flex; align-items:center; gap:4px; }
+    .payment-legend-dot { width:10px; height:10px; border-radius:9999px; display:inline-block; border:1px solid rgba(15,23,42,.10); }
+    .payment-legend-dot.paid { background:#22c55e; }
+    .payment-legend-dot.today { background:#3b82f6; }
+    .payment-legend-dot.three-days { background:#facc15; }
+    .payment-legend-dot.overdue { background:#ef4444; }
+    .payment-legend-dot.future { background:#e5e7eb; }
+
     .payment-circles { display:flex; align-items:center; flex-wrap:wrap; gap:4px; margin-top:6px; }
     .payment-circle { width:20px; height:20px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:9px; font-weight:800; color:#fff; border:2px solid rgba(255,255,255,.9); box-shadow:0 1px 2px rgba(15,23,42,.15); cursor:default; }
     .payment-circle.paid { background:#22c55e; }
@@ -1270,12 +1287,11 @@
     <!-- ================= Лист 5: 3 дня ================= -->
     <div id="threeDaysTabContent" class="hidden space-y-4">
       <div class="bg-white shadow-xl rounded-xl p-6 border">
-        <div class="flex justify-between items-center mb-4">
-          <h2 class="text-xl font-bold text-blue-600">⏰ Клиенты через 3 дня</h2>
-          <button onclick="sendWhatsAppThreeDays()" class="whatsapp-btn">
-            <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-            Отправить всем WhatsApp
-          </button>
+        <div class="flex justify-between items-center mb-4 gap-3 flex-wrap">
+          <div>
+            <h2 class="text-xl font-bold text-blue-600">⏰ Клиенты через 3 дня</h2>
+            <div id="threeDaysSummary" class="text-xs text-slate-500 font-semibold mt-1"></div>
+          </div>
         </div>
         <div id="threeDaysClientsList" class="client-list"></div>
       </div>
@@ -3893,13 +3909,102 @@
       renderClientList('todayClientsList', clients, 'Нет клиентов, которые должны оплатить сегодня', `Сегодня (${todayStr})`);
     }
 
+    function buildThreeDaysWhatsAppMessage(client, dateStr) {
+      const monthInfo = client.monthInfo || getMonthStatus(client);
+      const payment = Number(client.unpaidMonthAmount || client.monthlyPay || 0);
+      const overdueSum = monthInfo.months.reduce((sum, m) => sum + (m.status === 'overdue' && !m.isPaid ? Number(m.amount || 0) : 0), 0);
+      const rest = Number(client.rest || 0);
+      const name = String(client.fio || '').trim();
+      let message = `السلام عليكم ورحمة الله\nМир вам\n\n`;
+      message += `Уважаемый${name ? ` ${name}` : ''}, напоминаем, что через 3 дня необходимо внести платёж.\n`;
+      message += `💰 Сумма платежа: ${payment.toLocaleString('ru-RU')} ₽\n`;
+      if (dateStr) message += `📅 Дата платежа: ${dateStr}\n`;
+      if (overdueSum > 0) message += `⚠️ Просрочка: ${overdueSum.toLocaleString('ru-RU')} ₽\n`;
+      message += `📊 Остаток: ${rest.toLocaleString('ru-RU')} ₽`;
+      return message;
+    }
+
     function renderThreeDaysClients() {
       const today = new Date();
+      const todayStr = today.toISOString().slice(0, 10);
       const threeDaysLater = new Date(today);
       threeDaysLater.setDate(today.getDate() + 3);
       const threeDaysStr = threeDaysLater.toISOString().slice(0, 10);
       const clients = getClientsForDate(threeDaysStr);
-      renderClientList('threeDaysClientsList', clients, 'Нет клиентов, которым нужно оплатить через 3 дня', `Через 3 дня (${threeDaysStr})`);
+      const total = clients.reduce((sum, client) => sum + Number(client.unpaidMonthAmount || client.monthlyPay || 0), 0);
+      const summary = document.getElementById('threeDaysSummary');
+      if (summary) {
+        summary.textContent = `${clients.length} ${clients.length === 1 ? 'клиент' : clients.length >= 2 && clients.length <= 4 ? 'клиента' : 'клиентов'} · ${total.toLocaleString('ru-RU')} ₽ к оплате ${threeDaysStr}`;
+      }
+
+      const container = document.getElementById('threeDaysClientsList');
+      if (!container) return;
+      if (clients.length === 0) {
+        container.innerHTML = '<div class="text-center text-gray-500 py-8 text-sm">📭 Нет клиентов, которым нужно оплатить через 3 дня</div>';
+        return;
+      }
+
+      const getYmd = (date) => new Date(date).toISOString().slice(0, 10);
+      let html = '<div class="divide-y">';
+      clients.forEach((client) => {
+        const monthInfo = client.monthInfo || getMonthStatus(client);
+        const clientOverdue = Number(monthInfo.overdueSum || 0);
+        const rest = Number(client.rest || calculateContractMetrics(client).rest || 0);
+        const paymentAmount = Number(client.unpaidMonthAmount || client.monthlyPay || 0);
+        let circles = '';
+
+        monthInfo.months.forEach(m => {
+          const monthDate = getYmd(m.date);
+          let cls = 'future';
+          let label = 'Будущий платёж';
+          if (m.isPaid || m.status === 'paid') {
+            cls = 'paid';
+            label = 'Оплачено';
+          } else if (m.status === 'overdue') {
+            cls = 'overdue';
+            label = 'Просрочено';
+          } else if (monthDate === todayStr) {
+            cls = 'today';
+            label = 'Платёж сегодня';
+          } else if (monthDate === threeDaysStr) {
+            cls = 'three-days';
+            label = 'Платёж через 3 дня';
+          }
+          circles += `<span class="payment-circle ${cls}" title="${m.date} · ${Number(m.amount || 0).toLocaleString('ru-RU')} ₽ · ${label}">${m.month}</span>`;
+        });
+
+        const phone = String(client.phone || '').replace(/[^0-9]/g, '');
+        const waHref = phone ? `https://wa.me/7${phone}?text=${encodeURIComponent(buildThreeDaysWhatsAppMessage(client, threeDaysStr))}` : '#';
+        const waAttrs = phone ? 'target="_blank" rel="noopener noreferrer"' : 'onclick="alert(\'Телефон не указан.\'); return false;"';
+
+        html += `
+          <div class="client-item">
+            <div class="client-info">
+              <span class="client-name">${client.fio}</span>
+              <span class="client-phone">📞 ${client.phone || 'Телефон не указан'}</span>
+              <span class="client-detail">💰 Платёж через 3 дня: ${paymentAmount.toLocaleString('ru-RU')} ₽</span>
+              <span class="client-detail">📅 Дата платежа: ${threeDaysStr}</span>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              ${clientOverdue > 0 ? `<span class="client-overdue">Просрочка: ${clientOverdue.toLocaleString('ru-RU')} ₽</span>` : '<span class="text-xs font-semibold text-green-600">Просрочки нет</span>'}
+              <span class="client-rest">Остаток: ${rest.toLocaleString('ru-RU')} ₽</span>
+              <a href="${waHref}" ${waAttrs} class="text-green-600 hover:text-green-800 font-bold text-sm" title="Открыть WhatsApp с готовым сообщением">💬 WhatsApp</a>
+            </div>
+            <div class="w-full mt-2">
+              <div class="payment-circles">${circles}</div>
+              <div class="payment-legend">
+                <span class="payment-legend-item"><span class="payment-legend-dot paid"></span>Оплачено</span>
+                <span class="payment-legend-item"><span class="payment-legend-dot today"></span>Сегодня</span>
+                <span class="payment-legend-item"><span class="payment-legend-dot three-days"></span>Через 3 дня</span>
+                <span class="payment-legend-item"><span class="payment-legend-dot overdue"></span>Просрочено</span>
+                <span class="payment-legend-item"><span class="payment-legend-dot future"></span>Будущее</span>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+      html += '</div>';
+      container.innerHTML = html;
     }
 
     function renderDebtorsClients() {
@@ -3940,53 +4045,6 @@
         notification.remove();
       }, 3000);
     }
-
-    window.sendWhatsAppThreeDays = function() {
-      const today = new Date();
-      const threeDaysLater = new Date(today);
-      threeDaysLater.setDate(today.getDate() + 3);
-      const threeDaysStr = threeDaysLater.toISOString().slice(0, 10);
-      const clients = getClientsForDate(threeDaysStr);
-      
-      if (clients.length === 0) {
-        alert('📭 Нет клиентов, которым нужно оплатить через 3 дня');
-        return;
-      }
-      
-      let message = '🔔 *Напоминание об оплате через 3 дня!*\n\n';
-      let phoneNumbers = [];
-      
-      clients.forEach((client, index) => {
-        const phone = client.phone.replace(/[^0-9]/g, '');
-        if (phone) phoneNumbers.push(phone);
-        
-        const monthInfo = client.monthInfo || getMonthStatus(client);
-        let overdueSum = 0;
-        monthInfo.months.forEach(m => {
-          if (m.status === 'overdue' && !m.isPaid) overdueSum += m.amount;
-        });
-        
-        message += `${index + 1}. *${client.fio}*\n`;
-        message += `   💰 Сумма: ${client.monthlyPay} ₽\n`;
-        message += `   📱 WhatsApp: wa.me/7${phone}\n`;
-        if (overdueSum > 0) {
-          message += `   ⚠️ Просрочка: ${overdueSum} ₽\n`;
-        }
-        message += `   📊 Остаток: ${client.rest} ₽\n\n`;
-      });
-      
-      message += `\n📅 Дата платежа: ${threeDaysStr}\n`;
-      message += `👥 Всего клиентов: ${clients.length}`;
-      
-      const phoneList = phoneNumbers.map(p => `7${p}`).join(', ');
-      navigator.clipboard.writeText(phoneList).then(() => {
-        showCopyNotification(`✅ Скопировано ${phoneNumbers.length} номеров!`);
-      }).catch(() => {
-        showCopyNotification(`⚠️ Найдено ${phoneNumbers.length} клиентов.`);
-      });
-      
-      window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
-    };
 
     window.sendWhatsAppDebtors = function() {
       const clients = getDebtors();
