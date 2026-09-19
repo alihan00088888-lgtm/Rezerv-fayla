@@ -627,6 +627,7 @@
     .client-status { display:inline-flex; align-items:center; gap:5px; border-radius:999px; padding:3px 8px; font-size:10px; font-weight:800; }
     .client-status.active { background:#dcfce7; color:#166534; }
     .client-status.closed { background:#f1f5f9; color:#64748b; }
+    .client-status.overdue { background:#fee2e2; color:#991b1b; }
     .client-modal-grid { display:grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap:12px; }
     .client-contract-card { border:1px solid #e2e8f0; border-radius:12px; overflow:hidden; }
     .client-contract-head { padding:10px 12px; background:#f8fafc; display:flex; justify-content:space-between; gap:8px; align-items:center; flex-wrap:wrap; }
@@ -802,6 +803,15 @@
     .fieldwork-modal-history { max-height:250px; overflow:auto; border:1px solid #e2e8f0; border-radius:12px; }
     .fieldwork-history-row { padding:9px 11px; border-bottom:1px solid #f1f5f9; display:flex; justify-content:space-between; gap:10px; align-items:center; font-size:10px; }
     .fieldwork-history-row:last-child { border-bottom:0; }
+    .fieldwork-history-content { flex:1; min-width:0; }
+    .fieldwork-history-note { white-space:pre-wrap; word-break:break-word; color:#334155; font-weight:700; }
+    .fieldwork-history-delete { flex:0 0 auto; border:1px solid #fecaca; background:#fff1f2; color:#b91c1c; border-radius:7px; padding:4px 7px; font-size:9px; font-weight:900; cursor:pointer; }
+    .fieldwork-note-box { display:grid; grid-template-columns:1fr auto; gap:8px; }
+    .client-contract-summary { cursor:pointer; transition:background .15s,border-color .15s; }
+    .client-contract-summary:hover { background:#f8fafc; border-color:#bfdbfe; }
+    .client-contract-summary .contract-summary-main { min-width:0; }
+    .client-contract-detail-back { display:inline-flex; align-items:center; gap:6px; margin-bottom:12px; border:1px solid #e2e8f0; background:#f8fafc; padding:7px 10px; border-radius:9px; font-size:10px; font-weight:900; cursor:pointer; }
+    @media (max-width:640px){ .fieldwork-note-box{grid-template-columns:1fr;} }
     .fieldwork-mode-banner { display:none; }
     body.fieldworker-mode { background:#f1f5f9; }
     body.fieldworker-mode > .sticky.top-0, body.fieldworker-mode #appSidebar, body.fieldworker-mode #sidebarOverlay { display:none !important; }
@@ -1391,6 +1401,7 @@
           </div>
           <div class="flex items-center gap-2 w-full md:w-auto">
             <input id="clientsSearchInput" type="search" oninput="renderClients()" placeholder="Поиск по ФИО, телефону или № договора..." class="p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-400 w-full md:w-80">
+            <select id="clientsFilter" onchange="renderClients()" class="p-2.5 border rounded-lg text-xs font-bold"><option value="all">Все</option><option value="active">Активные</option><option value="overdue">Есть просрочка</option><option value="closed">Есть закрытые</option></select>
           </div>
         </div>
         <div id="clientsList" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3"></div>
@@ -3659,31 +3670,65 @@
       }
     };
 
+    async function persistFieldworkRecords() {
+      localStorage.setItem('field_visit_records_db', JSON.stringify(fieldVisitRecords));
+      const now = Date.now();
+      if (IS_FIELDWORKER_MODE) {
+        try {
+          if (isCloudLoaded) await updateDoc(DOC_REF, { fieldVisitRecords: fieldVisitRecords, updatedAt: now });
+        } catch (e) {
+          console.error('Ошибка сохранения данных выезда:', e);
+          alert('Не удалось сохранить изменения. Проверьте интернет-соединение.');
+        }
+      } else {
+        saveState();
+        saveToStorage();
+      }
+    }
+
     window.setFieldworkStatus = async function(key, status) {
-      const clients = getFieldworkClients();
-      const client = clients.find(c => c.key === key);
+      const client = getFieldworkClients().find(c => c.key === key);
       if (!client) return;
       const prev = getFieldworkRecord(client);
       if (prev.status === status) return;
       const now = Date.now();
       fieldVisitRecords[key] = {
         status,
-        history: [...prev.history, { status, at: now }].slice(-50),
+        history: [...prev.history, { type:'status', status, at: now }].slice(-100),
         updatedAt: now
       };
-      localStorage.setItem('field_visit_records_db', JSON.stringify(fieldVisitRecords));
+      await persistFieldworkRecords();
       renderFieldwork();
-      if (IS_FIELDWORKER_MODE) {
-        try {
-          if (isCloudLoaded) await updateDoc(DOC_REF, { fieldVisitRecords: fieldVisitRecords, updatedAt: now });
-        } catch (e) {
-          console.error('Ошибка сохранения статуса выезда:', e);
-          alert('Не удалось сохранить статус. Проверьте интернет-соединение.');
-        }
-      } else {
-        saveState();
-        saveToStorage();
-      }
+    };
+
+    window.addFieldworkNote = async function(key) {
+      const input = document.getElementById('fieldworkNoteInput');
+      const note = String(input?.value || '').trim();
+      if (!note) return;
+      const client = getFieldworkClients().find(c => c.key === key);
+      if (!client) return;
+      const prev = getFieldworkRecord(client);
+      const now = Date.now();
+      fieldVisitRecords[key] = {
+        status: prev.status,
+        history: [...prev.history, { type:'note', note, at: now }].slice(-100),
+        updatedAt: now
+      };
+      await persistFieldworkRecords();
+      openFieldworkCard(key);
+    };
+
+    window.deleteFieldworkHistory = async function(key, historyIndex) {
+      const client = getFieldworkClients().find(c => c.key === key);
+      if (!client) return;
+      const prev = getFieldworkRecord(client);
+      if (!Number.isInteger(historyIndex) || historyIndex < 0 || historyIndex >= prev.history.length) return;
+      if (!confirm('Удалить эту запись из истории?')) return;
+      const history = prev.history.slice();
+      history.splice(historyIndex, 1);
+      fieldVisitRecords[key] = { status: prev.status, history, updatedAt: Date.now() };
+      await persistFieldworkRecords();
+      openFieldworkCard(key);
     };
 
     window.openFieldworkCard = function(key) {
@@ -3691,9 +3736,13 @@
       if (!client) return;
       const rec = getFieldworkRecord(client);
       const status = fieldworkStatusInfo(rec.status);
-      const history = rec.history.slice().reverse().map(h => {
-        const st = fieldworkStatusInfo(h.status);
-        return `<div class="fieldwork-history-row"><span class="fieldwork-status ${st.cls}">${st.label}</span><span class="text-slate-400">${new Date(h.at).toLocaleString('ru-RU')}</span></div>`;
+      const history = rec.history.slice().reverse().map((h, reverseIndex) => {
+        const realIndex = rec.history.length - 1 - reverseIndex;
+        const when = new Date(h.at).toLocaleString('ru-RU');
+        const content = h.type === 'note'
+          ? `<div class="fieldwork-history-note">📝 ${escapeClientHtml(h.note || '')}</div>`
+          : `<span class="fieldwork-status ${fieldworkStatusInfo(h.status).cls}">${fieldworkStatusInfo(h.status).label}</span>`;
+        return `<div class="fieldwork-history-row"><div class="fieldwork-history-content">${content}<div class="text-slate-400 mt-1">${when}</div></div><button type="button" class="fieldwork-history-delete" onclick="deleteFieldworkHistory(${clientJsArg(client.key)},${realIndex})">Удалить</button></div>`;
       }).join('') || '<div class="p-4 text-center text-slate-400">Истории пока нет</div>';
       const modal = document.getElementById('fieldworkDetailModal');
       document.getElementById('fieldworkDetailTitle').textContent = client.fio;
@@ -3707,7 +3756,8 @@
             <button class="fieldwork-action map" onclick="fieldworkOpenMap(${clientJsArg(client.contracts[0]?.address || '')})">📍 Карта</button>
             <button class="fieldwork-action" onclick="closeFieldworkDetail()">Закрыть</button>
           </div>
-          <div><div class="font-black text-sm mb-2">Изменить статус</div><div class="grid grid-cols-2 gap-2">${FIELDWORK_STATUSES.map(st => `<button type="button" onclick="setFieldworkStatus(${clientJsArg(client.key)},${clientJsArg(st.key)}); openFieldworkCard(${clientJsArg(client.key)})" class="p-2.5 rounded-lg border text-[10px] font-black ${st.key===rec.status?'bg-slate-900 text-white':'bg-white text-slate-700 hover:bg-slate-50'}">${st.label}</button>`).join('')}</div></div>
+          <div><div class="font-black text-sm mb-2">Добавить запись в историю</div><div class="fieldwork-note-box"><input id="fieldworkNoteInput" type="text" maxlength="500" placeholder="Напишите всё, что хотите сохранить..." class="w-full p-2.5 border rounded-lg text-xs" onkeydown="if(event.key==='Enter'){addFieldworkNote(${clientJsArg(client.key)})}"><button type="button" onclick="addFieldworkNote(${clientJsArg(client.key)})" class="px-4 py-2.5 rounded-lg bg-slate-900 text-white text-xs font-black">Добавить</button></div></div>
+          <div><div class="font-black text-sm mb-2">Статус</div><div class="grid grid-cols-2 gap-2">${FIELDWORK_STATUSES.map(st => `<button type="button" onclick="setFieldworkStatus(${clientJsArg(client.key)},${clientJsArg(st.key)}); openFieldworkCard(${clientJsArg(client.key)})" class="p-2.5 rounded-lg border text-[10px] font-black ${st.key===rec.status?'bg-slate-900 text-white':'bg-white text-slate-700 hover:bg-slate-50'}">${st.label}</button>`).join('')}</div></div>
           <div><div class="font-black text-sm mb-2">История</div><div class="fieldwork-modal-history">${history}</div></div>
           <div><div class="font-black text-sm mb-2">Договоры с просрочкой</div><div class="space-y-2">${client.overdueContracts.map(x => `<div class="p-3 bg-red-50 rounded-xl text-[10px] flex justify-between gap-2"><span><b>№${escapeClientHtml(x.contract.contractNum || '—')}</b> · ${escapeClientHtml(x.contract.product || 'Товар')}</span><span class="font-black text-red-700">${x.overdueCount} мес. · ${fieldworkMoney(x.overdueSum)}</span></div>`).join('')}</div></div>
         </div>`;
@@ -3782,41 +3832,40 @@
       return metrics.isClosed ? 'closed' : 'active';
     }
 
+    function clientContractDisplayStatus(contract) {
+      if (clientContractStatus(contract) === 'closed') return { key:'closed', label:'Закрытый', cls:'closed' };
+      const overdue = getMonthStatus(contract).months.some(m => m.status === 'overdue' && !m.isPaid);
+      return overdue ? { key:'overdue', label:'Просроченный', cls:'overdue' } : { key:'active', label:'Активный', cls:'active' };
+    }
+
     window.renderClients = function(query) {
       const container = document.getElementById('clientsList');
       if (!container) return;
       const input = document.getElementById('clientsSearchInput');
       const q = String(query !== undefined ? query : (input ? input.value : '')).trim().toLocaleLowerCase('ru-RU');
+      const filter = document.getElementById('clientsFilter')?.value || 'all';
       const clients = getClientGroups().filter(client => {
+        const active = client.contracts.filter(c => clientContractStatus(c) === 'active').length;
+        const hasOverdue = client.contracts.some(c => {
+          if (clientContractStatus(c) !== 'active') return false;
+          return getMonthStatus(c).months.some(m => m.status === 'overdue' && !m.isPaid);
+        });
+        if (filter === 'active' && !active) return false;
+        if (filter === 'overdue' && !hasOverdue) return false;
+        if (filter === 'closed' && client.contracts.length === active) return false;
         if (!q) return true;
-        return client.fio.toLocaleLowerCase('ru-RU').includes(q) ||
-          String(client.phone || '').toLowerCase().includes(q) ||
-          String(client.extraPhone || '').toLowerCase().includes(q) ||
-          client.contracts.some(c => String(c.contractNum || '').toLowerCase().includes(q));
+        return client.fio.toLocaleLowerCase('ru-RU').includes(q) || String(client.phone || '').toLowerCase().includes(q) || String(client.extraPhone || '').toLowerCase().includes(q) || client.contracts.some(c => String(c.contractNum || '').toLowerCase().includes(q));
       });
-
-      if (!clients.length) {
-        container.innerHTML = '<div class="col-span-full text-center text-slate-500 py-10">🔍 Клиенты не найдены</div>';
-        return;
-      }
-
+      if (!clients.length) { container.innerHTML = '<div class="col-span-full text-center text-slate-500 py-10">🔍 Клиенты не найдены</div>'; return; }
       container.innerHTML = clients.map((client, index) => {
         const active = client.contracts.filter(c => clientContractStatus(c) === 'active').length;
         const closed = client.contracts.length - active;
         const rest = client.contracts.reduce((sum,c) => sum + Number(calculateContractMetrics(c).rest || 0), 0);
-        const phoneText = client.phone ? `📞 ${client.phone}` : '📞 Телефон не указан';
+        const overdue = client.contracts.reduce((sum,c) => { if (clientContractStatus(c) !== 'active') return sum; const info=getMonthStatus(c); return sum + info.months.reduce((s,m)=>s+(m.status==='overdue'&&!m.isPaid?Number(m.amount||0):0),0); },0);
         return `<button type="button" class="client-card text-left w-full" onclick="openClientDetail(${clientJsArg(client.fio)})">
-          <div class="flex justify-between items-start gap-2">
-            <div class="font-black text-slate-900 text-sm">${index + 1}. ${escapeClientHtml(client.fio)}</div>
-            <span class="client-status ${active ? 'active' : 'closed'}">${active ? '● Активный' : '● Нет активных'}</span>
-          </div>
-          <div class="text-xs text-slate-500 mt-2">${phoneText}${client.extraPhone ? ` · ${escapeClientHtml(client.extraPhone)}` : ''}</div>
-          <div class="flex flex-wrap gap-2 mt-3 text-[10px] font-bold">
-            <span class="bg-blue-50 text-blue-700 px-2 py-1 rounded-full">Договоров: ${client.contracts.length}</span>
-            <span class="bg-green-50 text-green-700 px-2 py-1 rounded-full">Активных: ${active}</span>
-            <span class="bg-slate-100 text-slate-600 px-2 py-1 rounded-full">Закрытых: ${closed}</span>
-            <span class="bg-orange-50 text-orange-700 px-2 py-1 rounded-full">Остаток: ${rest.toLocaleString('ru-RU')} ₽</span>
-          </div>
+          <div class="flex justify-between items-start gap-2"><div class="font-black text-slate-900 text-sm">${index + 1}. ${escapeClientHtml(client.fio)}</div><span class="client-status ${active ? 'active' : 'closed'}">${active ? '● Есть активные' : '● Все закрыты'}</span></div>
+          <div class="text-xs text-slate-500 mt-2">${client.phone ? `📞 ${escapeClientHtml(client.phone)}` : '📞 Телефон не указан'}${client.extraPhone ? ` · ${escapeClientHtml(client.extraPhone)}` : ''}</div>
+          <div class="flex flex-wrap gap-2 mt-3 text-[10px] font-bold"><span class="bg-blue-50 text-blue-700 px-2 py-1 rounded-full">Договоров: ${client.contracts.length}</span><span class="bg-green-50 text-green-700 px-2 py-1 rounded-full">Активных: ${active}</span><span class="bg-slate-100 text-slate-600 px-2 py-1 rounded-full">Закрытых: ${closed}</span><span class="bg-orange-50 text-orange-700 px-2 py-1 rounded-full">Остаток: ${rest.toLocaleString('ru-RU')} ₽</span>${overdue ? `<span class="bg-red-50 text-red-700 px-2 py-1 rounded-full">Просрочка: ${overdue.toLocaleString('ru-RU')} ₽</span>` : ''}</div>
         </button>`;
       }).join('');
     };
@@ -3828,141 +3877,56 @@
     }
 
     function buildContractWhatsAppText(contract) {
-      const metrics = calculateContractMetrics(contract);
-      const status = metrics.isClosed ? 'ЗАКРЫТ' : 'АКТИВЕН';
-      const info = getMonthStatus(contract);
-      let text = `📄 *Договор №${contract.contractNum || '—'} — ${status}*\n`;
-      text += `Клиент: ${contract.fio || '—'}\n`;
-      text += `Товар: ${contract.product || '—'}\n`;
-      text += `Дата покупки: ${formatClientDate(contract.buyDate)}\n`;
-      text += `График платежа: ${formatClientDate(contract.payDate)}\n`;
-      text += `Общая сумма: ${Number(contract.totalCost || 0).toLocaleString('ru-RU')} ₽\n`;
-      text += `Первоначальный взнос: ${Number(contract.downPayment || 0).toLocaleString('ru-RU')} ₽\n`;
-      text += `Ежемесячный платеж: ${Number(contract.monthlyPay || 0).toLocaleString('ru-RU')} ₽\n`;
-      text += `Остаток: ${Number(metrics.rest || 0).toLocaleString('ru-RU')} ₽\n`;
-      text += `Просрочка: ${Number(metrics.overdueSum || info.overdueSum || 0).toLocaleString('ru-RU')} ₽\n\n`;
-      text += `📅 *График платежей:*\n`;
-      info.months.forEach(m => {
-        const mark = m.isPaid ? '✅' : (m.status === 'overdue' ? '⚠️' : '⏳');
-        text += `${mark} ${m.month}-й: ${formatClientDate(m.date)} — ${Number(m.amount || 0).toLocaleString('ru-RU')} ₽${m.isPaid ? ' — оплачено' : (m.status === 'overdue' ? ' — просрочен' : ' — ожидает')}\n`;
-      });
+      const metrics = calculateContractMetrics(contract), status = metrics.isClosed ? 'ЗАКРЫТ' : 'АКТИВЕН', info = getMonthStatus(contract);
+      let text = `📄 *Договор №${contract.contractNum || '—'} — ${status}*\nКлиент: ${contract.fio || '—'}\nТовар: ${contract.product || '—'}\nДата покупки: ${formatClientDate(contract.buyDate)}\nГрафик платежа: ${formatClientDate(contract.payDate)}\nОбщая сумма: ${Number(contract.totalCost || 0).toLocaleString('ru-RU')} ₽\nПервоначальный взнос: ${Number(contract.downPayment || 0).toLocaleString('ru-RU')} ₽\nЕжемесячный платеж: ${Number(contract.monthlyPay || 0).toLocaleString('ru-RU')} ₽\nОстаток: ${Number(metrics.rest || 0).toLocaleString('ru-RU')} ₽\nПросрочка: ${Number(metrics.overdueSum || info.overdueSum || 0).toLocaleString('ru-RU')} ₽\n\n📅 *График платежей:*\n`;
+      info.months.forEach(m => { const mark=m.isPaid?'✅':(m.status==='overdue'?'⚠️':'⏳'); text += `${mark} ${m.month}-й: ${formatClientDate(m.date)} — ${Number(m.amount||0).toLocaleString('ru-RU')} ₽${m.isPaid?' — оплачено':(m.status==='overdue'?' — просрочен':' — ожидает')}\n`; });
       return text;
     }
 
-    function openWhatsAppForClient(phone, text) {
-      const digits = String(phone || '').replace(/\D/g, '');
-      if (!digits) {
-        alert('У клиента не указан номер телефона.');
-        return;
-      }
-      let normalized = digits;
-      if (normalized.startsWith('8') && normalized.length === 11) normalized = '7' + normalized.slice(1);
-      if (normalized.length === 10 && normalized.startsWith('9')) normalized = '7' + normalized;
-      window.open(`https://wa.me/${normalized}?text=${encodeURIComponent(text)}`, '_blank', 'noopener');
-    }
+    function openWhatsAppForClient(phone, text) { const digits=String(phone||'').replace(/\D/g,''); if(!digits){alert('У клиента не указан номер телефона.');return;} let normalized=digits; if(normalized.startsWith('8')&&normalized.length===11)normalized='7'+normalized.slice(1); if(normalized.length===10&&normalized.startsWith('9'))normalized='7'+normalized; window.open(`https://wa.me/${normalized}?text=${encodeURIComponent(text)}`,'_blank','noopener'); }
 
     window.openClientWhatsApp = function(fio, mode) {
-      const client = getClientGroups().find(c => String(c.fio) === String(fio));
-      if (!client) return;
-      let contracts = client.contracts;
-      if (mode === 'active') contracts = contracts.filter(c => clientContractStatus(c) === 'active');
-      if (mode === 'one') {
-        const select = document.getElementById('clientWhatsAppContract');
-        const selected = select ? select.value : '';
-        contracts = contracts.filter(c => String(c.id) === selected);
-      }
-      if (!contracts.length) {
-        alert('Нет договоров для отправки.');
-        return;
-      }
-      const text = contracts.length === 1
-        ? buildContractWhatsAppText(contracts[0])
-        : `👤 *Клиент: ${client.fio}*\n\n${contracts.map(buildContractWhatsAppText).join('\n━━━━━━━━━━━━━━━━━━━━\n\n')}`;
-      openWhatsAppForClient(client.phone || client.extraPhone, text);
+      const client=getClientGroups().find(c=>String(c.fio)===String(fio)); if(!client)return; let contracts=client.contracts;
+      if(mode==='active') contracts=contracts.filter(c=>clientContractStatus(c)==='active');
+      if(mode==='one'){const select=document.getElementById('clientWhatsAppContract'); const selected=select?select.value:''; contracts=contracts.filter(c=>String(c.id)===selected);}
+      if(!contracts.length){alert('Нет договоров для отправки.');return;}
+      openWhatsAppForClient(client.phone||client.extraPhone, contracts.length===1?buildContractWhatsAppText(contracts[0]):`👤 *Клиент: ${client.fio}*\n\n${contracts.map(buildContractWhatsAppText).join('\n━━━━━━━━━━━━━━━━━━━━\n\n')}`);
     };
+
+    function renderClientContractDetail(client, contract) {
+      const metrics=calculateContractMetrics(contract), info=getMonthStatus(contract), statusInfo=clientContractDisplayStatus(contract);
+      const status=statusInfo.key;
+      const overdue=Number(metrics.overdueSum||info.overdueSum||0), paid=info.months.filter(m=>m.isPaid).reduce((s,m)=>s+Number(m.amount||0),0);
+      return `<button type="button" class="client-contract-detail-back" onclick="openClientDetail(${clientJsArg(client.fio)})">← Все договоры клиента</button>
+        <section class="client-contract-card"><div class="client-contract-head"><div><b>Договор №${escapeClientHtml(contract.contractNum||'—')}</b><div class="text-[10px] text-slate-500">${escapeClientHtml(contract.product||'Товар не указан')}</div></div><span class="client-status ${statusInfo.cls}">● ${statusInfo.label}</span></div>
+        <div class="p-3 space-y-3"><div class="grid grid-cols-2 gap-2 text-[11px]"><div>Покупка: <b>${formatClientDate(contract.buyDate)}</b></div><div>График: <b>${formatClientDate(contract.payDate)}</b></div><div>Сумма: <b>${Number(contract.totalCost||0).toLocaleString('ru-RU')} ₽</b></div><div>Мес. платеж: <b>${Number(contract.monthlyPay||0).toLocaleString('ru-RU')} ₽</b></div><div>Оплачено: <b class="text-green-700">${paid.toLocaleString('ru-RU')} ₽</b></div><div>Остаток: <b>${Number(metrics.rest||0).toLocaleString('ru-RU')} ₽</b></div><div>Просрочка: <b class="${overdue?'text-red-600':'text-green-700'}">${overdue.toLocaleString('ru-RU')} ₽</b></div><div>Магазин: <b>${escapeClientHtml(contract.store||'—')}</b></div></div>
+        <div><div class="font-black text-sm mb-2">Все оплаты</div><div class="client-history-table-wrap"><table class="client-history-table"><thead><tr><th>Месяц</th><th>Дата</th><th>Сумма</th><th>Статус</th></tr></thead><tbody>${info.months.map(m=>`<tr><td>${m.month}-й</td><td>${formatClientDate(m.date)}</td><td>${Number(m.amount||0).toLocaleString('ru-RU')} ₽</td><td>${m.isPaid?'<span class="paid-mark">✓ Оплачено</span>':(m.status==='overdue'?'<span class="unpaid-mark">⚠ Просрочка</span>':'<span class="text-slate-500">⏳ Ожидает</span>')}</td></tr>`).join('')}</tbody></table></div></div>
+        <button type="button" onclick="selectClientWhatsAppContract(${clientJsArg(client.fio)},${clientJsArg(contract.id)})" class="w-full bg-green-50 hover:bg-green-100 text-green-700 px-3 py-2 rounded-lg font-bold">💬 Отправить этот договор в WhatsApp</button></div></section>`;
+    }
 
     window.openClientDetail = function(fio) {
-      const client = getClientGroups().find(c => String(c.fio) === String(fio));
-      if (!client) return;
-      document.getElementById('clientDetailName').textContent = client.fio;
-      document.getElementById('clientDetailContacts').textContent =
-        [client.phone && `📞 ${client.phone}`, client.extraPhone && `Доп.: ${client.extraPhone}`].filter(Boolean).join(' · ') || 'Контактные данные не указаны';
-
-      const activeCount = client.contracts.filter(c => clientContractStatus(c) === 'active').length;
-      const closedCount = client.contracts.length - activeCount;
-      let body = `<div class="flex flex-wrap gap-2 mb-4">
-        <span class="client-status active">Активных договоров: ${activeCount}</span>
-        <span class="client-status closed">Закрытых договоров: ${closedCount}</span>
-        <button type="button" onclick="toggleClientWhatsAppOptions()" class="ml-auto bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg font-bold">💬 WhatsApp</button>
-      </div>`;
-      body += `<div class="grid grid-cols-1 xl:grid-cols-2 gap-4">`;
-
-      client.contracts.slice().sort((a,b) => Number(a.contractNum || 0) - Number(b.contractNum || 0)).forEach(contract => {
-        const metrics = calculateContractMetrics(contract);
-        const info = getMonthStatus(contract);
-        const status = clientContractStatus(contract);
-        const overdue = Number(metrics.overdueSum || info.overdueSum || 0);
-        const paid = info.months.filter(m => m.isPaid).reduce((s,m) => s + Number(m.amount || 0), 0);
-        body += `<section class="client-contract-card">
-          <div class="client-contract-head">
-            <div><b>Договор №${contract.contractNum || '—'}</b><div class="text-[10px] text-slate-500">${contract.product || 'Товар не указан'}</div></div>
-            <span class="client-status ${status}">${status === 'active' ? '● Активный' : '● Закрытый'}</span>
-          </div>
-          <div class="p-3 space-y-2">
-            <div class="grid grid-cols-2 gap-2 text-[11px]">
-              <div>Покупка: <b>${formatClientDate(contract.buyDate)}</b></div>
-              <div>График: <b>${formatClientDate(contract.payDate)}</b></div>
-              <div>Сумма: <b>${Number(contract.totalCost || 0).toLocaleString('ru-RU')} ₽</b></div>
-              <div>Мес. платеж: <b>${Number(contract.monthlyPay || 0).toLocaleString('ru-RU')} ₽</b></div>
-              <div>Оплачено: <b class="text-green-700">${paid.toLocaleString('ru-RU')} ₽</b></div>
-              <div>Остаток: <b>${Number(metrics.rest || 0).toLocaleString('ru-RU')} ₽</b></div>
-              <div>Просрочка: <b class="${overdue ? 'text-red-600' : 'text-green-700'}">${overdue.toLocaleString('ru-RU')} ₽</b></div>
-              <div>Магазин: <b>${contract.store || '—'}</b></div>
-            </div>
-            <div class="client-history-table-wrap mt-2"><table class="client-history-table">
-              <thead><tr><th>Месяц</th><th>Дата</th><th>Сумма</th><th>Статус</th></tr></thead><tbody>
-                ${info.months.map(m => `<tr><td>${m.month}-й</td><td>${formatClientDate(m.date)}</td><td>${Number(m.amount || 0).toLocaleString('ru-RU')} ₽</td><td>${m.isPaid ? '<span class="paid-mark">✓ Оплачено</span>' : (m.status === 'overdue' ? '<span class="unpaid-mark">⚠ Просрочка</span>' : '<span class="text-slate-500">⏳ Ожидает</span>')}</td></tr>`).join('')}
-              </tbody></table></div>
-            <button type="button" onclick="selectClientWhatsAppContract(${clientJsArg(client.fio)}, ${clientJsArg(contract.id)})" class="w-full mt-2 bg-green-50 hover:bg-green-100 text-green-700 px-3 py-2 rounded-lg font-bold">💬 Отправить этот договор</button>
-          </div>
-        </section>`;
+      const client=getClientGroups().find(c=>String(c.fio)===String(fio)); if(!client)return;
+      document.getElementById('clientDetailName').textContent=client.fio;
+      document.getElementById('clientDetailContacts').textContent=[client.phone&&`📞 ${client.phone}`,client.extraPhone&&`Доп.: ${client.extraPhone}`].filter(Boolean).join(' · ')||'Контактные данные не указаны';
+      const activeCount=client.contracts.filter(c=>clientContractStatus(c)==='active').length, closedCount=client.contracts.length-activeCount;
+      let body=`<div class="flex flex-wrap gap-2 mb-4"><span class="client-status active">Активных договоров: ${activeCount}</span><span class="client-status closed">Закрытых договоров: ${closedCount}</span><button type="button" onclick="toggleClientWhatsAppOptions()" class="ml-auto bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg font-bold">💬 WhatsApp</button></div><div class="space-y-3">`;
+      client.contracts.slice().sort((a,b)=>Number(a.contractNum||0)-Number(b.contractNum||0)).forEach(contract=>{
+        const metrics=calculateContractMetrics(contract), statusInfo=clientContractDisplayStatus(contract), info=getMonthStatus(contract), overdue=Number(metrics.overdueSum||info.overdueSum||0);
+        body+=`<button type="button" onclick="openClientContractDetail(${clientJsArg(client.fio)},${clientJsArg(contract.id)})" class="client-contract-summary w-full text-left client-contract-card"><div class="client-contract-head"><div class="contract-summary-main"><b>Договор №${escapeClientHtml(contract.contractNum||'—')}</b><div class="text-[10px] text-slate-500 mt-1">${escapeClientHtml(contract.product||'Товар не указан')} · от ${formatClientDate(contract.buyDate)}</div></div><span class="client-status ${statusInfo.cls}">● ${statusInfo.label}</span></div><div class="p-3 flex flex-wrap gap-2 text-[10px] font-bold"><span class="bg-slate-100 text-slate-700 px-2 py-1 rounded-full">Сумма: ${Number(contract.totalCost||0).toLocaleString('ru-RU')} ₽</span><span class="bg-orange-50 text-orange-700 px-2 py-1 rounded-full">Остаток: ${Number(metrics.rest||0).toLocaleString('ru-RU')} ₽</span>${overdue?`<span class="bg-red-50 text-red-700 px-2 py-1 rounded-full">Просрочка: ${overdue.toLocaleString('ru-RU')} ₽</span>`:''}<span class="bg-blue-50 text-blue-700 px-2 py-1 rounded-full">Нажмите для подробностей →</span></div></button>`;
       });
-      body += `</div>
-        <div id="clientWhatsAppOptions" class="hidden mt-5 border-t pt-4">
-          <h3 class="font-black text-sm mb-3">WhatsApp — выберите вариант</h3>
-          <div class="copy-option-grid">
-            <button type="button" onclick="openClientWhatsApp(${clientJsArg(client.fio)}, 'one')" class="p-3 rounded-lg border border-green-200 bg-green-50 text-green-700 font-bold">1. Конкретный договор</button>
-            <button type="button" onclick="openClientWhatsApp(${clientJsArg(client.fio)}, 'active')" class="p-3 rounded-lg border border-green-200 bg-green-50 text-green-700 font-bold">2. Все активные</button>
-            <button type="button" onclick="openClientWhatsApp(${clientJsArg(client.fio)}, 'all')" class="p-3 rounded-lg border border-green-200 bg-green-50 text-green-700 font-bold">3. Все договоры</button>
-            <select id="clientWhatsAppContract" class="p-3 border rounded-lg" aria-label="Конкретный договор">
-              ${client.contracts.map(c => `<option value="${escapeClientHtml(c.id)}">Договор №${escapeClientHtml(c.contractNum || '—')} — ${clientContractStatus(c) === 'active' ? 'активный' : 'закрытый'}</option>`).join('')}
-            </select>
-          </div>
-        </div>`;
-      document.getElementById('clientDetailBody').innerHTML = body;
-      const modal = document.getElementById('clientDetailModal');
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
+      body+=`</div><div id="clientWhatsAppOptions" class="hidden mt-5 border-t pt-4"><h3 class="font-black text-sm mb-3">WhatsApp — выберите вариант</h3><div class="copy-option-grid"><button type="button" onclick="openClientWhatsApp(${clientJsArg(client.fio)},'one')" class="p-3 rounded-lg border border-green-200 bg-green-50 text-green-700 font-bold">1. Конкретный договор</button><button type="button" onclick="openClientWhatsApp(${clientJsArg(client.fio)},'active')" class="p-3 rounded-lg border border-green-200 bg-green-50 text-green-700 font-bold">2. Все активные</button><button type="button" onclick="openClientWhatsApp(${clientJsArg(client.fio)},'all')" class="p-3 rounded-lg border border-green-200 bg-green-50 text-green-700 font-bold">3. Все договоры</button><select id="clientWhatsAppContract" class="p-3 border rounded-lg" aria-label="Конкретный договор">${client.contracts.map(c=>`<option value="${escapeClientHtml(c.id)}">Договор №${escapeClientHtml(c.contractNum||'—')} — ${clientContractStatus(c)==='active'?'активный':'закрытый'}</option>`).join('')}</select></div></div>`;
+      document.getElementById('clientDetailBody').innerHTML=body; const modal=document.getElementById('clientDetailModal'); modal.classList.remove('hidden'); modal.classList.add('flex');
     };
 
-    window.toggleClientWhatsAppOptions = function() {
-      const box = document.getElementById('clientWhatsAppOptions');
-      if (box) {
-        box.classList.toggle('hidden');
-        if (!box.classList.contains('hidden')) box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }
+    window.openClientContractDetail = function(fio, contractId) {
+      const client=getClientGroups().find(c=>String(c.fio)===String(fio)); if(!client)return;
+      const contract=client.contracts.find(c=>String(c.id)===String(contractId)); if(!contract)return;
+      document.getElementById('clientDetailBody').innerHTML=renderClientContractDetail(client,contract);
     };
 
-    window.selectClientWhatsAppContract = function(fio, contractId) {
-      const select = document.getElementById('clientWhatsAppContract');
-      if (select) select.value = contractId;
-      openClientWhatsApp(fio, 'one');
-    };
-
-    window.closeClientDetail = function() {
-      const modal = document.getElementById('clientDetailModal');
-      if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
-    };
+    window.toggleClientWhatsAppOptions = function(){const box=document.getElementById('clientWhatsAppOptions');if(box){box.classList.toggle('hidden');if(!box.classList.contains('hidden'))box.scrollIntoView({behavior:'smooth',block:'nearest'});}};
+    window.selectClientWhatsAppContract = function(fio,contractId){const select=document.getElementById('clientWhatsAppContract');if(select)select.value=contractId;openClientWhatsApp(fio,'one');};
+    window.closeClientDetail = function(){const modal=document.getElementById('clientDetailModal');if(modal){modal.classList.add('hidden');modal.classList.remove('flex');}};
 
     function renderTodayClients() {
       const today = new Date();
