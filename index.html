@@ -101,41 +101,32 @@
     .client-overdue { color: #ef4444; font-weight: bold; }
     .client-rest { color: #f59e0b; font-weight: bold; }
 
-
-    /* === Компактные строки только для страниц «Сегодня» и «Через 3 дня» === */
-    #todayClientsList .client-item,
-    #threeDaysClientsList .client-item {
+    /* Компактные строки для страниц «Сегодня» и «Через 3 дня» */
+    .schedule-client-list .client-item {
       padding: 7px 10px;
-      gap: 4px;
+      gap: 5px 8px;
       align-items: center;
-    }
-    #todayClientsList .client-info,
-    #threeDaysClientsList .client-info {
-      gap: 7px;
       line-height: 1.15;
     }
-    #todayClientsList .client-name,
-    #threeDaysClientsList .client-name {
-      font-size: 13px;
+    .schedule-client-list .client-info { gap: 6px 10px; }
+    .schedule-client-list .client-name { font-size: 12px; }
+    .schedule-client-list .client-phone,
+    .schedule-client-list .client-detail { font-size: 10px; }
+    .schedule-client-list .month-status {
+      padding: 2px 6px;
+      margin: 1px;
+      border-radius: 4px;
+      font-size: 9px;
+      line-height: 1.15;
     }
-    #todayClientsList .client-phone,
-    #todayClientsList .client-detail,
-    #threeDaysClientsList .client-phone,
-    #threeDaysClientsList .client-detail {
-      font-size: 11px;
-    }
-    #todayClientsList .client-item > .flex,
-    #threeDaysClientsList .client-item > .flex {
-      gap: 6px;
-    }
-    #todayClientsList .client-item > .w-full,
-    #threeDaysClientsList .client-item > .w-full {
-      margin-top: 2px !important;
-    }
-    #threeDaysClientsList .payment-circles,
-    #threeDaysClientsList .payment-legend {
-      display: none !important;
-    }
+    .schedule-client-list .client-item > .w-full { margin-top: 0 !important; }
+    .schedule-client-list .client-item > .flex.flex-wrap.items-center { gap: 5px; }
+    .schedule-client-list .client-overdue,
+    .schedule-client-list .client-rest { font-size: 10px; }
+    .schedule-client-list .client-item a { font-size: 10px; }
+    .schedule-client-list .month-future { background:#e5e7eb; color:#64748b; }
+    .schedule-client-list .month-today { background:#3b82f6; color:#fff; }
+    .schedule-client-list .month-three-days { background:#facc15; color:#713f12; }
 
     /* === Печать договора === */
     .print-contract {
@@ -1316,7 +1307,7 @@
             <div id="todaySummary" class="text-xs text-slate-500 font-semibold mt-1"></div>
           </div>
         </div>
-        <div id="todayClientsList" class="client-list"></div>
+        <div id="todayClientsList" class="client-list schedule-client-list"></div>
       </div>
     </div>
 
@@ -1329,7 +1320,7 @@
             <div id="threeDaysSummary" class="text-xs text-slate-500 font-semibold mt-1"></div>
           </div>
         </div>
-        <div id="threeDaysClientsList" class="client-list"></div>
+        <div id="threeDaysClientsList" class="client-list schedule-client-list"></div>
       </div>
     </div>
 
@@ -3506,50 +3497,65 @@
       return message;
     }
 
-    function renderClientList(containerId, clients, title, dateStr) {
+    function renderClientList(containerId, clients, title, dateStr, scheduleMode = 'today') {
       const container = document.getElementById(containerId);
       if (clients.length === 0) {
         container.innerHTML = `<div class="text-center text-gray-500 py-8 text-sm">📭 ${title}</div>`;
         return;
       }
-      
+
+      const targetDate = dateStr ? String(dateStr).slice(0, 10) : '';
       let html = '<div class="divide-y">';
       clients.forEach((client) => {
         const monthInfo = client.monthInfo || getMonthStatus(client);
         let monthsHtml = '';
         let overdueSum = 0;
-        
+
         monthInfo.months.forEach(m => {
+          const monthDate = String(m.date || '').slice(0, 10);
           let statusClass = 'month-future';
-          let statusText = '⏳ Ожидает';
-          if (m.status === 'paid') {
+          let statusText = `📅 ${Number(m.amount || 0).toLocaleString('ru-RU')} ₽`;
+
+          if (m.status === 'paid' || m.isPaid) {
             statusClass = 'month-paid';
-            statusText = `✅ ${m.amount} ₽`;
+            statusText = `✓ ${Number(m.amount || 0).toLocaleString('ru-RU')} ₽`;
           } else if (m.status === 'overdue') {
             statusClass = 'month-overdue';
-            statusText = `❌ ${m.amount} ₽`;
-            overdueSum += m.amount;
-          } else {
-            statusText = `📅 ${m.amount} ₽`;
+            statusText = `❌ ${Number(m.amount || 0).toLocaleString('ru-RU')} ₽`;
+            overdueSum += Number(m.amount || 0);
+          } else if (scheduleMode === 'threeDays' && monthDate === targetDate) {
+            statusClass = 'month-three-days';
+            statusText = `⏰ ${Number(m.amount || 0).toLocaleString('ru-RU')} ₽`;
+          } else if (scheduleMode === 'today' && monthDate === targetDate) {
+            statusClass = 'month-today';
+            statusText = `${Number(m.amount || 0).toLocaleString('ru-RU')} ₽`;
           }
+
           monthsHtml += `<span class="month-status ${statusClass}" title="${m.date}">${m.month}-й: ${statusText}</span>`;
         });
-        
+
         const clientOverdue = overdueSum || monthInfo.overdueSum || 0;
         const rest = client.rest || calculateContractMetrics(client).rest;
-        
+        const phoneDigits = String(client.phone || '').replace(/[^0-9]/g, '');
+        const waHref = phoneDigits
+          ? `https://wa.me/7${phoneDigits}?text=${encodeURIComponent(buildClientWhatsAppMessage(client, dateStr))}`
+          : '#';
+        const waAttrs = phoneDigits
+          ? 'target="_blank" rel="noopener noreferrer"'
+          : 'onclick="alert(\'Телефон не указан.\'); return false;"';
+
         html += `
           <div class="client-item">
             <div class="client-info">
               <span class="client-name">${client.fio}</span>
-              <span class="client-phone">📞 ${client.phone}</span>
-              <span class="client-detail">💰 Мес. платеж: ${client.monthlyPay} ₽</span>
-              ${dateStr ? `<span class="client-detail">📅 ${dateStr}</span>` : ''}
+              <span class="client-phone">📞 ${client.phone || 'Телефон не указан'}</span>
+              <span class="client-detail">💰 Мес. платеж: ${Number(client.monthlyPay || 0).toLocaleString('ru-RU')} ₽</span>
+              ${dateStr ? `<span class="client-detail">📅 ${scheduleMode === 'threeDays' ? 'Через 3 дня: ' : ''}${dateStr}</span>` : ''}
             </div>
             <div class="flex flex-wrap items-center gap-2">
-              <span class="client-overdue">Просрочка: ${clientOverdue.toLocaleString('ru-RU')} ₽</span>
-              <span class="client-rest">Остаток: ${rest.toLocaleString('ru-RU')} ₽</span>
-              <a href="https://wa.me/7${client.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(buildClientWhatsAppMessage(client, dateStr))}" target="_blank" rel="noopener noreferrer" class="text-green-600 hover:text-green-800 font-bold text-sm" title="Открыть WhatsApp с готовым сообщением">💬 WhatsApp</a>
+              <span class="client-overdue">Просрочка: ${Number(clientOverdue || 0).toLocaleString('ru-RU')} ₽</span>
+              <span class="client-rest">Остаток: ${Number(rest || 0).toLocaleString('ru-RU')} ₽</span>
+              <a href="${waHref}" ${waAttrs} class="text-green-600 hover:text-green-800 font-bold text-sm" title="Открыть WhatsApp с готовым сообщением">💬 WhatsApp</a>
             </div>
             <div class="w-full mt-1 flex flex-wrap gap-1">${monthsHtml}</div>
           </div>
@@ -3942,7 +3948,7 @@
       if (summary) {
         summary.textContent = `${clients.length} ${clients.length === 1 ? 'клиент' : clients.length >= 2 && clients.length <= 4 ? 'клиента' : 'клиентов'} · ${total.toLocaleString('ru-RU')} ₽ к оплате сегодня`;
       }
-      renderClientList('todayClientsList', clients, 'Нет клиентов, которые должны оплатить сегодня', `Сегодня (${todayStr})`);
+      renderClientList('todayClientsList', clients, 'Нет клиентов, которые должны оплатить сегодня', todayStr, 'today');
     }
 
     function buildThreeDaysWhatsAppMessage(client, dateStr) {
@@ -3972,48 +3978,7 @@
       if (summary) {
         summary.textContent = `${clients.length} ${clients.length === 1 ? 'клиент' : clients.length >= 2 && clients.length <= 4 ? 'клиента' : 'клиентов'} · ${total.toLocaleString('ru-RU')} ₽ к оплате ${threeDaysStr}`;
       }
-
-      const container = document.getElementById('threeDaysClientsList');
-      if (!container) return;
-      if (clients.length === 0) {
-        container.innerHTML = '<div class="text-center text-gray-500 py-8 text-sm">📭 Нет клиентов, которым нужно оплатить через 3 дня</div>';
-        return;
-      }
-
-      const getYmd = (date) => new Date(date).toISOString().slice(0, 10);
-      let html = '<div class="divide-y">';
-      clients.forEach((client) => {
-        const monthInfo = client.monthInfo || getMonthStatus(client);
-        const clientOverdue = Number(monthInfo.overdueSum || 0);
-        const rest = Number(client.rest || calculateContractMetrics(client).rest || 0);
-        const paymentAmount = Number(client.unpaidMonthAmount || client.monthlyPay || 0);
-        // Индикаторы-кружки на странице «Через 3 дня» отключены для компактного отображения.
-        const circles = '';
-
-        /* Визуальные кружки на странице «Через 3 дня» не выводятся. */
-
-        const phone = String(client.phone || '').replace(/[^0-9]/g, '');
-        const waHref = phone ? `https://wa.me/7${phone}?text=${encodeURIComponent(buildThreeDaysWhatsAppMessage(client, threeDaysStr))}` : '#';
-        const waAttrs = phone ? 'target="_blank" rel="noopener noreferrer"' : 'onclick="alert(\'Телефон не указан.\'); return false;"';
-
-        html += `
-          <div class="client-item">
-            <div class="client-info">
-              <span class="client-name">${client.fio}</span>
-              <span class="client-phone">📞 ${client.phone || 'Телефон не указан'}</span>
-              <span class="client-detail">💰 Платёж через 3 дня: ${paymentAmount.toLocaleString('ru-RU')} ₽</span>
-              <span class="client-detail">📅 Дата платежа: ${threeDaysStr}</span>
-            </div>
-            <div class="flex flex-wrap items-center gap-2">
-              ${clientOverdue > 0 ? `<span class="client-overdue">Просрочка: ${clientOverdue.toLocaleString('ru-RU')} ₽</span>` : '<span class="text-xs font-semibold text-green-600">Просрочки нет</span>'}
-              <span class="client-rest">Остаток: ${rest.toLocaleString('ru-RU')} ₽</span>
-              <a href="${waHref}" ${waAttrs} class="text-green-600 hover:text-green-800 font-bold text-sm" title="Открыть WhatsApp с готовым сообщением">💬 WhatsApp</a>
-            </div>
-          </div>
-        `;
-      });
-      html += '</div>';
-      container.innerHTML = html;
+      renderClientList('threeDaysClientsList', clients, 'Нет клиентов, которым нужно оплатить через 3 дня', threeDaysStr, 'threeDays');
     }
 
     function renderDebtorsClients() {
