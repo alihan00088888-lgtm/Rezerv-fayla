@@ -59,6 +59,21 @@
       display: inline-block; padding: 2px 8px; border-radius: 4px;
       margin: 2px; font-size: 10px; font-weight: bold;
     }
+    .payment-circles { display:flex; align-items:center; flex-wrap:wrap; gap:4px; margin-top:6px; }
+    .payment-circle { width:20px; height:20px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:9px; font-weight:800; color:#fff; border:2px solid rgba(255,255,255,.9); box-shadow:0 1px 2px rgba(15,23,42,.15); cursor:default; }
+    .payment-circle.paid { background:#22c55e; }
+    .payment-circle.today { background:#3b82f6; }
+    .payment-circle.soon { background:#f59e0b; }
+    .payment-circle.overdue { background:#ef4444; }
+    .payment-circle.future { background:#cbd5e1; color:#475569; }
+    .payment-circle-legend { display:flex; flex-wrap:wrap; gap:8px; margin-top:5px; font-size:9px; color:#64748b; }
+    .payment-circle-legend span { display:inline-flex; align-items:center; gap:3px; }
+    .payment-circle-legend i { width:8px; height:8px; border-radius:50%; display:inline-block; }
+    .payment-circle-legend .paid { background:#22c55e; }
+    .payment-circle-legend .today { background:#3b82f6; }
+    .payment-circle-legend .soon { background:#f59e0b; }
+    .payment-circle-legend .overdue { background:#ef4444; }
+    .payment-circle-legend .future { background:#cbd5e1; }
     .month-paid { background-color: #22c55e; color: white; }
     .month-overdue { background-color: #ef4444; color: white; }
     .month-future { background-color: #3b82f6; color: white; }
@@ -1242,12 +1257,11 @@
     <!-- ================= Лист 4: Сегодня ================= -->
     <div id="todayTabContent" class="hidden space-y-4">
       <div class="bg-white shadow-xl rounded-xl p-6 border">
-        <div class="flex justify-between items-center mb-4">
-          <h2 class="text-xl font-bold text-green-600">📅 Клиенты на сегодня</h2>
-          <button onclick="sendWhatsAppToday()" class="whatsapp-btn">
-            <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-            Отправить всем WhatsApp
-          </button>
+        <div class="flex justify-between items-center mb-4 gap-3 flex-wrap">
+          <div>
+            <h2 class="text-xl font-bold text-green-600">📅 Клиенты на сегодня</h2>
+            <div id="todaySummary" class="text-xs text-slate-500 font-semibold mt-1"></div>
+          </div>
         </div>
         <div id="todayClientsList" class="client-list"></div>
       </div>
@@ -3425,6 +3439,21 @@
       return result;
     }
 
+    function buildClientWhatsAppMessage(client, dateStr) {
+      const monthInfo = client.monthInfo || getMonthStatus(client);
+      const todayPayment = Number(client.unpaidMonthAmount || client.monthlyPay || 0);
+      const overdueSum = monthInfo.months.reduce((sum, m) => sum + (m.status === 'overdue' && !m.isPaid ? Number(m.amount || 0) : 0), 0);
+      const rest = Number(client.rest || 0);
+      const name = String(client.fio || '').trim();
+      let message = `السلام عليكم ورحمة الله\nМир вам\n\n`;
+      message += `Уважаемый${name ? ` ${name}` : ''}, напоминаем о платеже.\n`;
+      message += `💰 Сумма платежа: ${todayPayment.toLocaleString('ru-RU')} ₽\n`;
+      if (dateStr) message += `📅 Дата платежа: ${dateStr}\n`;
+      if (overdueSum > 0) message += `⚠️ Просрочка: ${overdueSum.toLocaleString('ru-RU')} ₽\n`;
+      message += `📊 Остаток: ${rest.toLocaleString('ru-RU')} ₽`;
+      return message;
+    }
+
     function renderClientList(containerId, clients, title, dateStr) {
       const container = document.getElementById(containerId);
       if (clients.length === 0) {
@@ -3468,7 +3497,7 @@
             <div class="flex flex-wrap items-center gap-2">
               <span class="client-overdue">Просрочка: ${clientOverdue.toLocaleString('ru-RU')} ₽</span>
               <span class="client-rest">Остаток: ${rest.toLocaleString('ru-RU')} ₽</span>
-              <a href="https://wa.me/7${client.phone.replace(/[^0-9]/g, '')}?text=Здравствуйте! Напоминаем о платеже." target="_blank" class="text-green-600 hover:text-green-800 font-bold text-sm">💬</a>
+              <a href="https://wa.me/7${client.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(buildClientWhatsAppMessage(client, dateStr))}" target="_blank" rel="noopener noreferrer" class="text-green-600 hover:text-green-800 font-bold text-sm" title="Открыть WhatsApp с готовым сообщением">💬 WhatsApp</a>
             </div>
             <div class="w-full mt-1 flex flex-wrap gap-1">${monthsHtml}</div>
           </div>
@@ -3856,6 +3885,11 @@
       const today = new Date();
       const todayStr = today.toISOString().slice(0, 10);
       const clients = getClientsForDate(todayStr);
+      const total = clients.reduce((sum, client) => sum + Number(client.unpaidMonthAmount || client.monthlyPay || 0), 0);
+      const summary = document.getElementById('todaySummary');
+      if (summary) {
+        summary.textContent = `${clients.length} ${clients.length === 1 ? 'клиент' : clients.length >= 2 && clients.length <= 4 ? 'клиента' : 'клиентов'} · ${total.toLocaleString('ru-RU')} ₽ к оплате сегодня`;
+      }
       renderClientList('todayClientsList', clients, 'Нет клиентов, которые должны оплатить сегодня', `Сегодня (${todayStr})`);
     }
 
@@ -3906,51 +3940,6 @@
         notification.remove();
       }, 3000);
     }
-
-    window.sendWhatsAppToday = function() {
-      const today = new Date();
-      const todayStr = today.toISOString().slice(0, 10);
-      const clients = getClientsForDate(todayStr);
-      
-      if (clients.length === 0) {
-        alert('📭 Нет клиентов, которые должны оплатить сегодня');
-        return;
-      }
-      
-      let message = '🔔 *Напоминание об оплате сегодня!*\n\n';
-      let phoneNumbers = [];
-      
-      clients.forEach((client, index) => {
-        const phone = client.phone.replace(/[^0-9]/g, '');
-        if (phone) phoneNumbers.push(phone);
-        
-        const monthInfo = client.monthInfo || getMonthStatus(client);
-        let overdueSum = 0;
-        monthInfo.months.forEach(m => {
-          if (m.status === 'overdue' && !m.isPaid) overdueSum += m.amount;
-        });
-        
-        message += `${index + 1}. *${client.fio}*\n`;
-        message += `   💰 Сумма: ${client.monthlyPay} ₽\n`;
-        message += `   📱 WhatsApp: wa.me/7${phone}\n`;
-        if (overdueSum > 0) {
-          message += `   ⚠️ Просрочка: ${overdueSum} ₽\n`;
-        }
-        message += `   📊 Остаток: ${client.rest} ₽\n\n`;
-      });
-      
-      message += `\n📅 Дата платежа: ${todayStr}\n`;
-      message += `👥 Всего клиентов: ${clients.length}`;
-      
-      const phoneList = phoneNumbers.map(p => `7${p}`).join(', ');
-      navigator.clipboard.writeText(phoneList).then(() => {
-        showCopyNotification(`✅ Скопировано ${phoneNumbers.length} номеров для рассылки!`);
-      }).catch(() => {
-        showCopyNotification(`⚠️ Найдено ${phoneNumbers.length} клиентов.`);
-      });
-      
-      window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
-    };
 
     window.sendWhatsAppThreeDays = function() {
       const today = new Date();
@@ -4372,6 +4361,32 @@
         </div>`;
     }
 
+    function getPaymentCircleStatus(pd, payment, today) {
+      const isPaid = !!payment && Number(payment.amount) > 0;
+      if (isPaid) return 'paid';
+      const diff = Math.round((pd.date.getTime() - today.getTime()) / 86400000);
+      if (diff === 0) return 'today';
+      if (diff > 0 && diff <= 3) return 'soon';
+      if (diff < 0) return 'overdue';
+      return 'future';
+    }
+
+    function buildPaymentCircles(contract) {
+      const dates = calculatePaymentDates(contract);
+      if (!dates.length) return '';
+      const installments = contract.installments || {};
+      const today = new Date();
+      today.setHours(0,0,0,0);
+      const circles = dates.map(pd => {
+        const payment = installments[pd.index];
+        const status = getPaymentCircleStatus(pd, payment, today);
+        const amount = payment && Number(payment.amount) > 0 ? Number(payment.amount) : Number(pd.amount || contract.monthlyPay || 0);
+        const label = `${pd.index}-й платёж • ${formatContractDate(pd.date)} • ${amount.toLocaleString('ru-RU')} ₽`;
+        return `<span class="payment-circle ${status}" title="${escapeHtml(label)}" aria-label="${escapeHtml(label)}">${pd.index}</span>`;
+      }).join('');
+      return `<div class="payment-circles" aria-label="График платежей">${circles}</div>`;
+    }
+
     function renderContractStats() {
       const stats = document.getElementById('contractsStats');
       if (!stats) return;
@@ -4414,7 +4429,7 @@
           <td><div class="contract-cell-name">${escapeHtml(item.fio || 'Без ФИО')}</div><div class="contract-cell-muted">📞 ${escapeHtml(item.phone || '—')}</div></td>
           <td><div class="contract-cell-name">№${escapeHtml(item.contractNum)}</div><div class="contract-cell-muted">${escapeHtml(item.buyDate || '—')}</div></td>
           <td><div class="contract-finance-main">${total.toLocaleString('ru-RU')} ₽</div><div class="contract-finance-sub">Предоплата: ${Number(item.downPayment || 0).toLocaleString('ru-RU')} ₽ · Мес.: ${Number(item.monthlyPay || 0).toLocaleString('ru-RU')} ₽</div></td>
-          <td>${next ? `<b>${nextText}</b>` : '—'}</td>
+          <td><div>${next ? `<b>${nextText}</b>` : '—'}</div>${buildPaymentCircles(item)}</td>
           <td><span class="contract-status-pill ${status.key}">${status.icon} ${status.label}</span></td>
           <td class="font-black ${metrics.overdueSum > 0 ? 'text-red-600' : 'text-slate-400'}">${metrics.overdueSum.toLocaleString('ru-RU')} ₽</td>
           <td class="font-black ${metrics.rest <= 0 ? 'text-green-600' : 'text-orange-600'}">${metrics.rest.toLocaleString('ru-RU')} ₽</td>
@@ -4433,7 +4448,7 @@
             <div class="contract-mobile-grid">
               <div class="contract-mobile-info"><small>Рассрочка</small><b>${total.toLocaleString('ru-RU')} ₽</b></div>
               <div class="contract-mobile-info"><small>Остаток</small><b>${metrics.rest.toLocaleString('ru-RU')} ₽</b></div>
-              <div class="contract-mobile-info"><small>Следующий платёж</small><b>${nextText}</b></div>
+              <div class="contract-mobile-info"><small>Следующий платёж</small><b>${nextText}</b>${buildPaymentCircles(item)}</div>
               <div class="contract-mobile-info"><small>Просрочка</small><b class="${metrics.overdueSum > 0 ? 'text-red-600' : ''}">${metrics.overdueSum.toLocaleString('ru-RU')} ₽</b></div>
               <div class="contract-mobile-info"><small>Товар</small><b>${escapeHtml(item.product || '—')}</b></div>
               <div class="contract-mobile-info"><small>Магазин</small><b>${escapeHtml(item.store || '—')}</b></div>
