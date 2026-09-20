@@ -761,7 +761,7 @@
       .sticky.top-0 .p-3 { padding: 8px !important; }
       .sticky.top-0 .p-3 > div { max-width: 100%; }
       #searchInput { width: min(42vw, 180px) !important; min-height: 40px; }
-      #addContractBtn,#addAccBtn,#addTakenBtn,#addIncomeExpBtn { min-height: 40px; }
+      #addContractBtn,#accountingQuickButtons,#addTakenBtn,#addIncomeExpBtn { min-height: 40px; }
       .client-modal-grid { grid-template-columns:1fr; }
       .copy-option-grid { grid-template-columns:1fr; }
       #clientDetailModal > div { padding: 14px !important; max-height: 92vh; }
@@ -848,6 +848,17 @@
     .contract-detail-footer-actions .contract-action { min-height:46px; font-size:11px; padding:9px 12px; }
     .contract-name-button { border:0; background:transparent; padding:0; text-align:left; cursor:pointer; color:#0f172a; }
     .contract-name-button:hover { color:#2563eb; text-decoration:underline; }
+    .accounting-toolbar{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:8px;box-shadow:0 4px 14px rgba(15,23,42,.04)}
+    .accounting-filters{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+    .accounting-filter{height:32px;border:1px solid #dbe3ee;border-radius:8px;background:#f8fafc;padding:0 8px;font-size:10px;font-weight:800;color:#334155;outline:none;min-width:0}
+    .accounting-filter.search{width:150px}.accounting-filter.date{width:128px}.accounting-filter.account{width:105px}.accounting-filter.type{width:112px}
+    .accounting-filter.reset{cursor:pointer;background:#fff}.accounting-quick{display:flex;gap:6px;margin-left:auto}
+    .accounting-quick button{height:32px;border:0;border-radius:8px;padding:0 11px;font-size:10px;font-weight:900;cursor:pointer;white-space:nowrap}
+    .accounting-quick .income{background:#dcfce7;color:#166534}.accounting-quick .expense{background:#fee2e2;color:#b91c1c}
+    .accounting-signature-row{margin-top:8px;border:1px solid #e2e8f0;border-radius:10px;background:#f8fafc;padding:8px 10px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+    .accounting-signature-row span{display:block;color:#64748b;font-size:8px;font-weight:800;text-transform:uppercase}.accounting-signature-line{height:20px;border-bottom:1px solid #94a3b8;margin-top:4px}
+    .print-contract-search{display:flex;gap:6px;align-items:center}.print-contract-search input{height:38px;width:125px;border:1px solid #dbe3ee;border-radius:9px;padding:0 9px;font-size:11px;font-weight:700;outline:none}.print-contract-search button{height:38px;border:0;border-radius:9px;padding:0 10px;background:#334155;color:#fff;font-size:10px;font-weight:900;cursor:pointer}
+    @media (max-width:640px){.accounting-quick{width:100%;margin-left:0}.accounting-quick button{flex:1}.accounting-filter.search{width:100%}.accounting-filter.date{flex:1;width:auto}.accounting-filter.account,.accounting-filter.type{flex:1;width:auto}.accounting-signature-row{grid-template-columns:1fr}.print-contract-search{width:100%}.print-contract-search input{flex:1;width:auto}}
     @media (max-width: 768px) {
       .contracts-controls { grid-template-columns:1fr 1fr; }
       .contracts-search { grid-column:1 / -1; }
@@ -1020,38 +1031,6 @@
       .dashboard-date-input { flex:1; min-width:0; width:100%; }
     }
 
-
-    /* === Учёт: обновлённый интерфейс === */
-    .accounting-quick-btn{border:0;border-radius:10px;padding:9px 14px;font-size:12px;font-weight:800;box-shadow:0 4px 12px rgba(15,23,42,.08);transition:.18s;min-width:145px}
-    .accounting-quick-btn:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(15,23,42,.12)}
-    .accounting-quick-income{background:#059669;color:#fff}.accounting-quick-income:hover{background:#047857}
-    .accounting-quick-expense{background:#dc2626;color:#fff}.accounting-quick-expense:hover{background:#b91c1c}
-    .accounting-filter-panel{background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:12px}
-    .accounting-filter-title{font-size:11px;font-weight:900;color:#334155;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
-    .accounting-period-presets{display:flex;gap:6px;flex-wrap:wrap}
-    .accounting-period-btn{border:1px solid #cbd5e1;background:#fff;color:#475569;border-radius:8px;padding:6px 9px;font-size:10px;font-weight:800;transition:.15s}
-    .accounting-period-btn:hover{background:#f1f5f9}.accounting-period-btn.active{background:#0f172a;color:#fff;border-color:#0f172a}
-    .accounting-filter-label{display:block;font-size:9px;font-weight:900;color:#64748b;text-transform:uppercase;margin:0 0 4px}
-    .accounting-filter-input{width:100%;min-height:36px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;padding:7px 9px;font-size:11px;font-weight:700;color:#334155;outline:none}
-    .accounting-filter-input:focus{border-color:#60a5fa;box-shadow:0 0 0 2px rgba(96,165,250,.16)}
-    .accounting-reset-btn{border:1px solid #cbd5e1;background:#fff;color:#475569;border-radius:8px;padding:6px 10px;font-size:10px;font-weight:800}.accounting-reset-btn:hover{background:#f1f5f9}
-    .accounting-mobile-list{display:none}
-    .accounting-empty{padding:34px 16px;text-align:center;color:#94a3b8;font-size:12px;font-weight:700}
-    @media(max-width:768px){
-      .accounting-page{padding-bottom:72px}
-      .accounting-page-head{padding:12px}
-      .accounting-quick-btn{flex:1;min-width:0;padding:10px 8px}
-      .accounting-period-presets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
-      .accounting-period-btn{padding:8px 5px}
-      .accounting-table-wrap{display:none}
-      .accounting-mobile-list{display:block;padding:8px}
-      .accounting-mobile-card{border:1px solid #e2e8f0;border-radius:12px;padding:11px;margin-bottom:8px;background:#fff;box-shadow:0 2px 8px rgba(15,23,42,.04)}
-      .accounting-mobile-top{display:flex;justify-content:space-between;gap:8px;align-items:center}
-      .accounting-mobile-date{font-size:11px;font-weight:900;color:#334155}.accounting-mobile-type{font-size:9px;font-weight:900;padding:4px 7px;border-radius:999px}
-      .accounting-mobile-type.income{background:#dcfce7;color:#047857}.accounting-mobile-type.expense{background:#fee2e2;color:#b91c1c}.accounting-mobile-type.both{background:#e2e8f0;color:#475569}
-      .accounting-mobile-amount{font-size:17px;font-weight:900;margin-top:7px}.accounting-mobile-note{font-size:11px;color:#334155;font-weight:700;margin-top:5px;line-height:1.35}.accounting-mobile-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}.accounting-mobile-meta span{font-size:9px;font-weight:800;color:#64748b;background:#f1f5f9;border-radius:6px;padding:4px 6px}
-      .accounting-mobile-actions{display:flex;gap:6px;margin-top:9px}.accounting-mobile-actions button{flex:1;padding:7px;border-radius:7px;font-size:10px;font-weight:900}
-    }
   </style>
 </head>
 <body class="bg-slate-100 text-gray-800 text-xs min-h-screen">
@@ -1100,6 +1079,10 @@
         <button type="button" id="addContractBtn" onclick="openCreateModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-1.5 rounded-lg shadow transition">
           + Новый Договор
         </button>
+        <div id="accountingQuickButtons" class="hidden flex items-center gap-2">
+          <button type="button" id="addAccIncomeBtn" onclick="openAccModal('income')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-lg shadow transition">+ Поступление</button>
+          <button type="button" id="addAccExpenseBtn" onclick="openAccModal('expense')" class="bg-red-600 hover:bg-red-700 text-white font-bold px-3 py-1.5 rounded-lg shadow transition">+ Расход</button>
+        </div>
         <button type="button" id="addTakenBtn" onclick="openTakenModal()" class="hidden bg-amber-600 hover:bg-amber-700 text-white font-bold px-3 py-1.5 rounded-lg shadow transition">
           + Запись Взяли / Положили
         </button>
@@ -1275,7 +1258,6 @@
           <div class="contracts-stats" id="contractsStats"></div>
         </div>
         <div class="contracts-controls">
-          <div class="contracts-search">🔍 <input id="contractsLocalSearch" type="search" placeholder="Поиск по ФИО, телефону, № договора, товару..." oninput="renderContractsView()"></div>
           <select id="contractsStatusFilter" class="contracts-select" onchange="renderContractsView()">
             <option value="all">Все договоры</option>
             <option value="active">Активные</option>
@@ -1321,94 +1303,19 @@
     </div>
 
     <!-- ================= Лист 2: Учет ================= -->
-    <div id="accountingTabContent" class="hidden space-y-4 accounting-page">
-      <div class="accounting-page-head bg-white rounded-2xl border shadow-sm p-4 md:p-5">
-        <div class="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <h2 class="text-xl md:text-2xl font-black text-slate-900">📊 Учёт</h2>
-            <p class="text-xs text-slate-500 mt-1">Поступления и расходы компании</p>
-          </div>
-          <div class="flex flex-wrap gap-2 w-full sm:w-auto">
-            <button type="button" onclick="openAccModal('income')" class="accounting-quick-btn accounting-quick-income">＋ Поступление</button>
-            <button type="button" onclick="openAccModal('expense')" class="accounting-quick-btn accounting-quick-expense">− Расход</button>
-          </div>
-        </div>
-
-        <div class="accounting-filter-panel mt-4">
-          <div class="accounting-filter-title">🔎 Фильтры учёта</div>
-          <div class="accounting-period-presets" role="group" aria-label="Период">
-            <button type="button" class="accounting-period-btn active" data-period="all" onclick="setAccountingPeriod('all')">Все</button>
-            <button type="button" class="accounting-period-btn" data-period="today" onclick="setAccountingPeriod('today')">Сегодня</button>
-            <button type="button" class="accounting-period-btn" data-period="yesterday" onclick="setAccountingPeriod('yesterday')">Вчера</button>
-            <button type="button" class="accounting-period-btn" data-period="7days" onclick="setAccountingPeriod('7days')">7 дней</button>
-            <button type="button" class="accounting-period-btn" data-period="month" onclick="setAccountingPeriod('month')">Этот месяц</button>
-            <button type="button" class="accounting-period-btn" data-period="prevmonth" onclick="setAccountingPeriod('prevmonth')">Прошлый месяц</button>
-            <button type="button" class="accounting-period-btn" data-period="custom" onclick="setAccountingPeriod('custom')">Свой период</button>
-          </div>
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2 mt-3">
-            <div>
-              <label class="accounting-filter-label">С даты</label>
-              <input id="accountingDateFrom" type="date" class="accounting-filter-input" onchange="setAccountingPeriod('custom', true)">
-            </div>
-            <div>
-              <label class="accounting-filter-label">По дату</label>
-              <input id="accountingDateTo" type="date" class="accounting-filter-input" onchange="setAccountingPeriod('custom', true)">
-            </div>
-            <div>
-              <label class="accounting-filter-label">Тип операции</label>
-              <select id="accountingTypeFilter" class="accounting-filter-input" onchange="applyAccountingFilters()">
-                <option value="all">Все операции</option>
-                <option value="income">Только поступления</option>
-                <option value="expense">Только расходы</option>
-              </select>
-            </div>
-            <div>
-              <label class="accounting-filter-label">Счёт</label>
-              <select id="accountingAccountFilter" class="accounting-filter-input" onchange="applyAccountingFilters()">
-                <option value="all">Все счета</option>
-              </select>
-            </div>
-            <div>
-              <label class="accounting-filter-label">Отметка</label>
-              <input id="accountingNoteFilter" type="search" placeholder="Поиск по отметке..." class="accounting-filter-input" oninput="applyAccountingFilters()">
-            </div>
-          </div>
-          <div class="flex flex-wrap items-center justify-between gap-2 mt-3">
-            <div id="accountingFilterInfo" class="text-[11px] font-bold text-slate-500">Показаны все записи</div>
-            <button type="button" onclick="resetAccountingFilters()" class="accounting-reset-btn">Сбросить фильтры</button>
-          </div>
-        </div>
+    <div id="accountingTabContent" class="hidden space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-white p-4 rounded-xl border-l-4 border-emerald-500 shadow-md flex justify-between items-center"><div><p class="text-[10px] uppercase font-bold text-gray-400">Общий доход</p><h3 id="totalIncome" class="text-xl font-black text-emerald-600">0 ₽</h3></div><span class="text-2xl">📈</span></div>
+        <div class="bg-white p-4 rounded-xl border-l-4 border-red-500 shadow-md flex justify-between items-center"><div><p class="text-[10px] uppercase font-bold text-gray-400">Общий расход</p><h3 id="totalExpense" class="text-xl font-black text-red-600">0 ₽</h3></div><span class="text-2xl">📉</span></div>
       </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div class="bg-white p-4 rounded-xl border-l-4 border-emerald-500 shadow-sm flex justify-between items-center">
-          <div><p class="text-[10px] uppercase font-bold text-gray-400">Поступило за выборку</p><h3 id="totalIncome" class="text-xl font-black text-emerald-600">0 ₽</h3></div>
-          <span class="text-2xl">📈</span>
-        </div>
-        <div class="bg-white p-4 rounded-xl border-l-4 border-red-500 shadow-sm flex justify-between items-center">
-          <div><p class="text-[10px] uppercase font-bold text-gray-400">Расход за выборку</p><h3 id="totalExpense" class="text-xl font-black text-red-600">0 ₽</h3></div>
-          <span class="text-2xl">📉</span>
-        </div>
-      </div>
-
-      <div class="bg-white shadow-xl rounded-xl overflow-hidden border">
-        <div class="accounting-table-wrap overflow-x-auto max-h-[62vh]">
-          <table class="min-w-full text-left border-collapse accounting-table">
-            <thead class="bg-slate-800 text-white uppercase font-bold text-[10px] sticky top-0 z-20">
-              <tr>
-                <th class="p-3 border-r border-slate-700 min-w-[100px]">Дата</th>
-                <th class="p-3 border-r border-slate-700 text-emerald-400 min-w-[120px]">Поступило</th>
-                <th class="p-3 border-r border-slate-700 text-red-400 min-w-[120px]">Расход</th>
-                <th class="p-3 border-r border-slate-700 min-w-[180px]">Отметка</th>
-                <th class="p-3 border-r border-slate-700 min-w-[100px]">Счёт</th>
-                <th class="p-3 text-center sticky right-0 bg-slate-900 w-[100px]">Действия</th>
-              </tr>
-            </thead>
-            <tbody id="accountingTable" class="divide-y"></tbody>
-          </table>
-        </div>
-        <div id="accountingMobileList" class="accounting-mobile-list"></div>
-      </div>
+      <div class="accounting-toolbar"><div class="accounting-filters">
+        <input id="accFilterSearch" class="accounting-filter search" type="search" placeholder="🔎 Отметка..." oninput="applyAccountingFilters()">
+        <select id="accFilterType" class="accounting-filter type" onchange="applyAccountingFilters()"><option value="all">Все операции</option><option value="income">Только поступление</option><option value="expense">Только расход</option></select>
+        <select id="accFilterPeriod" class="accounting-filter" onchange="applyAccountingFilters()"><option value="all">Все даты</option><option value="today">Сегодня</option><option value="yesterday">Вчера</option><option value="7">7 дней</option><option value="month">Этот месяц</option><option value="prevMonth">Прошлый месяц</option></select>
+        <input id="accFilterFrom" class="accounting-filter date" type="date" title="Дата от" onchange="applyAccountingFilters()"><input id="accFilterTo" class="accounting-filter date" type="date" title="Дата до" onchange="applyAccountingFilters()">
+        <input id="accFilterAccount" class="accounting-filter account" type="search" placeholder="Счёт..." oninput="applyAccountingFilters()"><button type="button" class="accounting-filter reset" onclick="resetAccountingFilters()">Сбросить</button>
+      </div></div>
+      <div class="bg-white shadow-xl rounded-xl overflow-x-auto max-h-[68vh] border"><table class="min-w-full text-left border-collapse"><thead class="bg-slate-800 text-white uppercase font-bold text-[10px] sticky top-0 z-20"><tr><th class="p-3 border-r border-slate-700 min-w-[100px]">Дата</th><th class="p-3 border-r border-slate-700 text-emerald-400 min-w-[120px]">Поступило</th><th class="p-3 border-r border-slate-700 text-red-400 min-w-[120px]">Расход</th><th class="p-3 border-r border-slate-700">Отметка</th><th class="p-3 border-r border-slate-700 min-w-[100px]">Счет</th><th class="p-3 text-center sticky right-0 bg-slate-900 w-[100px]">Действия</th></tr></thead><tbody id="accountingTable" class="divide-y"></tbody></table></div>
     </div>
 
     <!-- ================= Лист 3: Взяли ================= -->
@@ -1637,6 +1544,7 @@
             <select id="printContractSelect" class="p-2 border rounded text-sm font-bold" onchange="loadContractForPrint()">
               <option value="">-- Выберите договор --</option>
             </select>
+            <div class="print-contract-search"><input id="printContractNumberSearch" type="search" inputmode="numeric" placeholder="№ договора" onkeydown="if(event.key==='Enter') searchContractByNumber()"><button type="button" onclick="searchContractByNumber()">Найти</button></div>
             <button onclick="printContract()" class="bg-amber-500 hover:bg-amber-600 text-white font-bold px-4 py-2 rounded-lg shadow transition">
               🖨️ Печать
             </button>
@@ -1984,17 +1892,12 @@
 
   <div id="accModal" class="fixed inset-0 bg-black/60 hidden flex items-center justify-center p-4 z-50">
     <div class="bg-white rounded-xl p-6 max-w-md w-full shadow-2xl border-t-4 border-emerald-500">
-      <h3 id="accModalTitle" class="font-bold text-base text-slate-800 mb-3 border-b pb-2 uppercase">Поступление</h3>
-      <input type="hidden" id="accNewType" value="income">
+      <h3 id="accModalTitle" class="font-bold text-base text-slate-800 mb-4 border-b pb-2 uppercase">Запись учета</h3>
       <form id="accForm" class="space-y-3">
         <input type="hidden" id="accEditId">
         <div>
           <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Дата</label>
           <input type="date" id="accDate" required class="p-2 border rounded-md w-full outline-none">
-        </div>
-        <div id="accTypeChooser" class="grid grid-cols-2 gap-2 mb-1">
-          <button type="button" id="accTypeIncomeBtn" onclick="setAccNewType('income')" class="rounded-lg border-2 border-emerald-500 bg-emerald-50 text-emerald-700 px-3 py-2 text-[11px] font-black">＋ Поступление</button>
-          <button type="button" id="accTypeExpenseBtn" onclick="setAccNewType('expense')" class="rounded-lg border-2 border-slate-200 bg-white text-slate-600 px-3 py-2 text-[11px] font-black">− Расход</button>
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div>
@@ -2274,7 +2177,7 @@
 
       try {
         renderTable(allContracts);
-        if (activeTab === 'accounting') applyAccountingFilters(); else renderAccountingTable(allAccounting);
+        renderAccountingTable(allAccounting);
         renderTakenSheet();
         if (activeTab === 'home') renderDashboard();
         if (activeTab === 'income') renderIncomePage();
@@ -2431,7 +2334,7 @@
       const printBtn = document.getElementById('tabBtnPrint');
 
       const addC = document.getElementById('addContractBtn');
-      const addA = document.getElementById('addAccBtn');
+      const accQuick = document.getElementById('accountingQuickButtons');
       const addT = document.getElementById('addTakenBtn');
       const addI = document.getElementById('addIncomeExpBtn');
 
@@ -2449,7 +2352,7 @@
       printTab.classList.add('hidden');
       initTab.classList.add('hidden');
       addC.classList.add('hidden');
-      if (addA) addA.classList.add('hidden');
+      accQuick.classList.add('hidden');
       addT.classList.add('hidden');
       addI.classList.add('hidden');
 
@@ -2478,8 +2381,7 @@
       } else if (tab === 'accounting') {
         aTab.classList.remove('hidden');
         aBtn.className = "tab-btn active px-5 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2";
-        if (addA) addA.classList.remove('hidden');
-        populateAccountingAccountFilter();
+        accQuick.classList.remove('hidden');
         applyAccountingFilters();
       } else if (tab === 'taken') {
         tTab.classList.remove('hidden');
@@ -2618,7 +2520,7 @@
       localStorage.setItem('monthly_reports_db', JSON.stringify(initMonthlyReports));
       localStorage.setItem('field_visit_records_db', JSON.stringify(fieldVisitRecords));
       renderTable(allContracts);
-      if (activeTab === 'accounting') applyAccountingFilters(); else renderAccountingTable(allAccounting);
+      renderAccountingTable(allAccounting);
       renderTakenSheet();
       if (activeTab === 'home') renderDashboard();
       if (activeTab === 'income') renderIncomePage();
@@ -2658,7 +2560,7 @@
       localStorage.setItem('monthly_reports_db', JSON.stringify(initMonthlyReports));
       localStorage.setItem('field_visit_records_db', JSON.stringify(fieldVisitRecords));
       renderTable(allContracts);
-      if (activeTab === 'accounting') applyAccountingFilters(); else renderAccountingTable(allAccounting);
+      renderAccountingTable(allAccounting);
       renderTakenSheet();
       if (activeTab === 'home') renderDashboard();
       if (activeTab === 'income') renderIncomePage();
@@ -3156,6 +3058,8 @@
         select.value = currentValue;
       }
     }
+
+    window.searchContractByNumber=function(){const input=document.getElementById('printContractNumberSearch'),select=document.getElementById('printContractSelect'),q=String(input?.value||'').trim().toLowerCase();if(!q){input?.focus();return;}const matches=allContracts.filter(c=>String(c.contractNum||'').toLowerCase().includes(q));if(!matches.length){alert('Договор с таким номером не найден.');return;}select.value=matches[0].id;loadContractForPrint();if(matches.length>1)alert(`Найдено договоров: ${matches.length}. Выбран первый результат.`);};
 
     window.loadContractForPrint = function() {
       const select = document.getElementById('printContractSelect');
@@ -4786,7 +4690,7 @@
     }
 
     window.renderContractsView = function() {
-      const q = String(document.getElementById('contractsLocalSearch')?.value || '').trim().toLowerCase();
+      const q = '';
       const statusFilter = document.getElementById('contractsStatusFilter')?.value || 'all';
       const sortKey = document.getElementById('contractsSort')?.value || 'newest';
       let list = allContracts.filter(c => {
@@ -4803,10 +4707,8 @@
     };
 
     window.resetContractsFilters = function() {
-      const s = document.getElementById('contractsLocalSearch');
       const f = document.getElementById('contractsStatusFilter');
       const sort = document.getElementById('contractsSort');
-      if (s) s.value = '';
       if (f) f.value = 'all';
       if (sort) sort.value = 'newest';
       renderContractsView();
@@ -4836,7 +4738,9 @@
       const statusEl = document.getElementById('contractDetailStatus');
       const body = document.getElementById('contractDetailBody');
       title.textContent = `№${c.contractNum} · ${c.fio || 'Без ФИО'}`;
-      statusEl.innerHTML = `<span class="contract-status-pill ${status.key}">${status.icon} ${status.label}</span>`;
+      statusEl.innerHTML = `<div><span class="contract-status-pill ${status.key}">${status.icon} ${status.label}</span></div><div class="accounting-signature-row"><div><span>Подпись компании YUSRA</span><div class="accounting-signature-line"></div></div><div><span>Подпись покупателя</span><div class="accounting-signature-line"></div></div><div><span>Подпись поручителя</span><div class="accounting-signature-line"></div></div></div>`;
+      const detailDates=calculatePaymentDates(c), detailInstallments=c.installments||{}, detailToday=new Date(); detailToday.setHours(0,0,0,0);
+      const detailSchedule=detailDates.length?detailDates.map(pd=>{const payment=detailInstallments[pd.index],paid=payment&&Number(payment.amount)>0,amount=paid?Number(payment.amount):Number(pd.amount||c.monthlyPay||0),txt=paid?'✓ Оплачено':(pd.date<detailToday?'Просрочено':'Ожидается');return `<tr><td>${pd.index}</td><td>${formatContractDate(pd.date)}</td><td>${amount.toLocaleString('ru-RU')} ₽</td><td class="${paid?'paid':(pd.date<detailToday?'overdue':'')}">${txt}</td></tr>`}).join(''):`<tr><td colspan="4" class="text-center text-slate-400">График платежей не задан</td></tr>`;
       body.innerHTML = `
         <div class="contract-detail-grid">
           <div class="contract-detail-card wide"><h3>👤 Клиент</h3><div class="contract-detail-value">${escapeHtml(c.fio || '—')}</div><div class="contract-detail-value mt-1">📞 ${escapeHtml(c.phone || '—')}</div><div class="contract-detail-value mt-1">Доп. телефон: ${escapeHtml(c.extraPhone || '—')}</div><div class="contract-detail-value mt-1">Дата рождения: ${escapeHtml(c.birthDate || '—')}</div><div class="contract-detail-value mt-1">Паспорт: ${escapeHtml(c.passport || '—')}</div><div class="contract-detail-value mt-1">Адрес: ${escapeHtml(c.address || '—')}</div></div>
@@ -4847,6 +4751,7 @@
           <div class="contract-detail-card"><h3>📦 Товар</h3><div class="contract-detail-value">${escapeHtml(c.product || '—')}</div><div class="contract-detail-value mt-1">Магазин: ${escapeHtml(c.store || '—')}</div><div class="contract-detail-value mt-1">«Д»: ${c.shopPaid ? '✅ Оплачено' : '—'}</div></div>
           <div class="contract-detail-card"><h3>👥 Поручитель</h3><div class="contract-detail-value">${escapeHtml(c.guarantorFio || '—')}</div><div class="contract-detail-value mt-1">📞 ${escapeHtml(c.guarantorPhone || '—')}</div><div class="contract-detail-value mt-1">Доп. телефон: ${escapeHtml(c.guarantorExtraPhone || '—')}</div><div class="contract-detail-value mt-1">Паспорт: ${escapeHtml(c.guarantorPassport || '—')}</div><div class="contract-detail-value mt-1">Дата рождения: ${escapeHtml(c.guarantorBirthDate || '—')}</div><div class="contract-detail-value mt-1">Адрес: ${escapeHtml(c.guarantorAddress || '—')}</div></div>
         </div>
+        <div class="contract-payments-wrap"><div class="contract-payments-head">График платежей</div><table class="contract-payments"><thead><tr><th>№</th><th>Дата</th><th>Сумма</th><th>Статус</th></tr></thead><tbody>${detailSchedule}</tbody></table></div>
         <div class="contract-detail-footer-actions">
           <button class="contract-action primary" onclick="closeContractDetail(); openPayModal('${escapeHtml(c.id)}')">＋ Внести оплату</button>
           <button class="contract-action edit" onclick="closeContractDetail(); openEditModal('${escapeHtml(c.id)}')">✏️ Изменить</button>
@@ -4860,38 +4765,15 @@
 
     const accModal = document.getElementById('accModal');
     
-    window.setAccNewType = function(type) {
-      const hidden = document.getElementById('accNewType');
-      if (hidden) hidden.value = type;
-      const incBtn = document.getElementById('accTypeIncomeBtn');
-      const expBtn = document.getElementById('accTypeExpenseBtn');
-      if (incBtn && expBtn) {
-        incBtn.className = type === 'income'
-          ? 'rounded-lg border-2 border-emerald-500 bg-emerald-50 text-emerald-700 px-3 py-2 text-[11px] font-black'
-          : 'rounded-lg border-2 border-slate-200 bg-white text-slate-600 px-3 py-2 text-[11px] font-black';
-        expBtn.className = type === 'expense'
-          ? 'rounded-lg border-2 border-red-500 bg-red-50 text-red-700 px-3 py-2 text-[11px] font-black'
-          : 'rounded-lg border-2 border-slate-200 bg-white text-slate-600 px-3 py-2 text-[11px] font-black';
-      }
-      const inc = document.getElementById('accIncome');
-      const exp = document.getElementById('accExpense');
-      if (inc && exp && !document.getElementById('accEditId').value) {
-        if (type === 'income') { inc.value = inc.value || 0; exp.value = 0; }
-        else { exp.value = exp.value || 0; inc.value = 0; }
-      }
-      const title = document.getElementById('accModalTitle');
-      if (title && !document.getElementById('accEditId').value) title.innerText = type === 'income' ? 'Новое поступление' : 'Новый расход';
-    };
-
-    window.openAccModal = function(type = 'income') {
+    window.openAccModal = function(mode = '') {
       document.getElementById('accForm').reset();
       document.getElementById('accEditId').value = '';
+      document.getElementById('accModalTitle').innerText = 'Новая запись учета';
       document.getElementById('accDate').valueAsDate = new Date();
-      document.getElementById('accIncome').value = 0;
-      document.getElementById('accExpense').value = 0;
-      document.getElementById('accNewType').value = type;
-      document.getElementById('accTypeChooser').classList.remove('hidden');
-      setAccNewType(type);
+      document.getElementById('accIncome').value = mode === 'income' ? '' : '0';
+      document.getElementById('accExpense').value = mode === 'expense' ? '' : '0';
+      if (mode === 'income') document.getElementById('accIncome').focus();
+      if (mode === 'expense') document.getElementById('accExpense').focus();
       accModal.classList.remove('hidden');
     };
 
@@ -4902,7 +4784,6 @@
       if (!item) return;
       document.getElementById('accEditId').value = item.id;
       document.getElementById('accModalTitle').innerText = 'Редактирование записи';
-      document.getElementById('accTypeChooser').classList.add('hidden');
       document.getElementById('accDate').value = item.date;
       document.getElementById('accIncome').value = item.income || 0;
       document.getElementById('accExpense').value = item.expense || 0;
@@ -4918,8 +4799,8 @@
       const editId = document.getElementById('accEditId').value;
       const formData = {
         date: document.getElementById('accDate').value,
-        income: editId ? (Number(document.getElementById('accIncome').value) || 0) : (document.getElementById('accNewType').value === 'income' ? (Number(document.getElementById('accIncome').value) || 0) : 0),
-        expense: editId ? (Number(document.getElementById('accExpense').value) || 0) : (document.getElementById('accNewType').value === 'expense' ? (Number(document.getElementById('accExpense').value) || 0) : 0),
+        income: Number(document.getElementById('accIncome').value) || 0,
+        expense: Number(document.getElementById('accExpense').value) || 0,
         note: document.getElementById('accNote').value || '—',
         account: (document.getElementById('accAccount').value || '—').trim(),
         createdAt: editId ? (allAccounting.find(a => a.id === editId)?.createdAt || Date.now()) : Date.now()
@@ -4947,144 +4828,46 @@
       }
     };
 
+    function getAccountingFilterDate(value){const d=new Date(value+'T00:00:00');return isNaN(d.getTime())?null:d;}
+    window.applyAccountingFilters=function(){
+      const search=String(document.getElementById('accFilterSearch')?.value||'').trim().toLowerCase(), type=document.getElementById('accFilterType')?.value||'all', period=document.getElementById('accFilterPeriod')?.value||'all', fromValue=document.getElementById('accFilterFrom')?.value||'', toValue=document.getElementById('accFilterTo')?.value||'', account=String(document.getElementById('accFilterAccount')?.value||'').trim().toLowerCase();
+      const now=new Date();now.setHours(0,0,0,0);let from=fromValue?getAccountingFilterDate(fromValue):null,to=toValue?getAccountingFilterDate(toValue):null;
+      if(period==='today') from=new Date(now),to=new Date(now); if(period==='yesterday'){from=new Date(now);from.setDate(from.getDate()-1);to=new Date(from);} if(period==='7'){from=new Date(now);from.setDate(from.getDate()-6);to=new Date(now);} if(period==='month'){from=new Date(now.getFullYear(),now.getMonth(),1);to=new Date(now);} if(period==='prevMonth'){from=new Date(now.getFullYear(),now.getMonth()-1,1);to=new Date(now.getFullYear(),now.getMonth(),0);}
+      renderAccountingTable(allAccounting.filter(a=>{const note=String(a.note||'').toLowerCase(),acc=String(a.account||'').toLowerCase();if(search&&!note.includes(search))return false;if(account&&!acc.includes(account))return false;if(type==='income'&&!(Number(a.income||0)>0))return false;if(type==='expense'&&!(Number(a.expense||0)>0))return false;if(from||to){const d=getAccountingFilterDate(a.date);if(!d||(from&&d<from)||(to&&d>to))return false;}return true;}));
+    };
+    window.resetAccountingFilters=function(){['accFilterSearch','accFilterAccount','accFilterFrom','accFilterTo'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});document.getElementById('accFilterType').value='all';document.getElementById('accFilterPeriod').value='all';applyAccountingFilters();};
+
     function renderAccountingTable(items) {
       const tbody = document.getElementById('accountingTable');
-      const mobile = document.getElementById('accountingMobileList');
       tbody.innerHTML = '';
-      if (mobile) mobile.innerHTML = '';
-
+      
       let incomeSum = 0;
       let expenseSum = 0;
-      const sorted = [...items].sort((a, b) => {
-        const da = a.date || '';
-        const db = b.date || '';
-        if (db !== da) return db.localeCompare(da);
-        return (b.createdAt || 0) - (a.createdAt || 0);
-      });
+
+      const sorted = [...items].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 
       sorted.forEach(item => {
-        const income = Number(item.income || 0);
-        const expense = Number(item.expense || 0);
-        incomeSum += income;
-        expenseSum += expense;
-        const safeId = String(item.id).replace(/'/g, "\\'");
-        const type = income > 0 && expense > 0 ? 'both' : (income > 0 ? 'income' : 'expense');
-        const typeLabel = type === 'income' ? 'Поступление' : (type === 'expense' ? 'Расход' : 'Обе операции');
-        const amountHtml = `${income > 0 ? `<span class="text-emerald-600">+${income.toLocaleString('ru-RU')} ₽</span>` : ''}${income > 0 && expense > 0 ? ' / ' : ''}${expense > 0 ? `<span class="text-red-600">−${expense.toLocaleString('ru-RU')} ₽</span>` : ''}`;
+        incomeSum += Number(item.income || 0);
+        expenseSum += Number(item.expense || 0);
 
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-slate-50 transition';
         tr.innerHTML = `
-          <td class="p-2 border-r font-medium whitespace-nowrap">${item.date || '—'}</td>
-          <td class="p-2 border-r font-bold ${income > 0 ? 'text-emerald-600 bg-emerald-50/50' : 'text-slate-300'}">${income > 0 ? '+' + income.toLocaleString('ru-RU') + ' ₽' : '—'}</td>
-          <td class="p-2 border-r font-bold ${expense > 0 ? 'text-red-600 bg-red-50/50' : 'text-slate-300'}">${expense > 0 ? '−' + expense.toLocaleString('ru-RU') + ' ₽' : '—'}</td>
-          <td class="p-2 border-r text-slate-700 font-medium">${escapeHtml(item.note || '—')}</td>
-          <td class="p-2 border-r font-bold text-blue-700">${escapeHtml(item.account || '—')}</td>
-          <td class="p-2 text-center sticky right-0 bg-white shadow-[-5px_0_10px_rgba(0,0,0,0.05)]">
-            <button onclick="openEditAccModal('${safeId}')" class="bg-blue-500 text-white px-1.5 py-0.5 rounded text-[9px]">✏️</button>
-            <button onclick="deleteAccItem('${safeId}')" class="bg-red-500 text-white px-1.5 py-0.5 rounded text-[9px]">🗑️</button>
-          </td>`;
+          <td class="p-2 border-r font-medium">${item.date}</td>
+          <td class="p-2 border-r font-bold ${item.income > 0 ? 'text-emerald-600 bg-emerald-50/50' : 'text-slate-300'}">${item.income > 0 ? item.income + ' ₽' : '—'}</td>
+          <td class="p-2 border-r font-bold ${item.expense > 0 ? 'text-red-600 bg-red-50/50' : 'text-slate-300'}">${item.expense > 0 ? item.expense + ' ₽' : '—'}</td>
+          <td class="p-2 border-r text-slate-700 font-medium">${item.note}</td>
+          <td class="p-2 border-r font-bold text-blue-700">${item.account}</td>
+          <td class="p-2 text-center space-x-1 sticky right-0 bg-white shadow-[-5px_0_10px_rgba(0,0,0,0.05)]">
+            <button onclick="openEditAccModal('${item.id}')" class="bg-blue-500 text-white px-1.5 py-0.5 rounded text-[9px]">✏️</button>
+            <button onclick="deleteAccItem('${item.id}')" class="bg-red-500 text-white px-1.5 py-0.5 rounded text-[9px]">🗑️</button>
+          </td>
+        `;
         tbody.appendChild(tr);
-
-        if (mobile) {
-          const card = document.createElement('div');
-          card.className = 'accounting-mobile-card';
-          card.innerHTML = `
-            <div class="accounting-mobile-top"><span class="accounting-mobile-date">📅 ${item.date || '—'}</span><span class="accounting-mobile-type ${type}">${typeLabel}</span></div>
-            <div class="accounting-mobile-amount">${amountHtml || '0 ₽'}</div>
-            <div class="accounting-mobile-note">${escapeHtml(item.note || 'Без отметки')}</div>
-            <div class="accounting-mobile-meta"><span>🏦 ${escapeHtml(item.account || '—')}</span></div>
-            <div class="accounting-mobile-actions"><button class="bg-blue-500 text-white" onclick="openEditAccModal('${safeId}')">✏️ Изменить</button><button class="bg-red-500 text-white" onclick="deleteAccItem('${safeId}')">🗑️ Удалить</button></div>`;
-          mobile.appendChild(card);
-        }
       });
 
-      if (sorted.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="accounting-empty">🔍 Нет записей по выбранным фильтрам</td></tr>';
-        if (mobile) mobile.innerHTML = '<div class="accounting-empty">🔍 Нет записей по выбранным фильтрам</div>';
-      }
       document.getElementById('totalIncome').innerText = incomeSum.toLocaleString('ru-RU') + ' ₽';
       document.getElementById('totalExpense').innerText = expenseSum.toLocaleString('ru-RU') + ' ₽';
     }
-
-    function accountingDateString(d) {
-      const y = d.getFullYear();
-      const m = String(d.getMonth() + 1).padStart(2, '0');
-      const day = String(d.getDate()).padStart(2, '0');
-      return `${y}-${m}-${day}`;
-    }
-
-    function populateAccountingAccountFilter() {
-      const select = document.getElementById('accountingAccountFilter');
-      if (!select) return;
-      const current = select.value || 'all';
-      const names = new Set();
-      (customAccounts || []).forEach(a => { if (a && a.name) names.add(String(a.name)); });
-      (allAccounting || []).forEach(a => { if (a && a.account && a.account !== '—') names.add(String(a.account)); });
-      select.innerHTML = '<option value="all">Все счета</option>' + [...names].sort((a,b) => a.localeCompare(b, 'ru')).map(name => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join('');
-      if ([...select.options].some(o => o.value === current)) select.value = current;
-    }
-
-    function getAccountingFilterDates() {
-      const from = document.getElementById('accountingDateFrom')?.value || '';
-      const to = document.getElementById('accountingDateTo')?.value || '';
-      return { from, to };
-    }
-
-    window.setAccountingPeriod = function(period, keepDates = false) {
-      const fromEl = document.getElementById('accountingDateFrom');
-      const toEl = document.getElementById('accountingDateTo');
-      if (!fromEl || !toEl) return;
-      if (period === 'custom' && keepDates) {
-        document.querySelectorAll('.accounting-period-btn').forEach(b => b.classList.toggle('active', b.dataset.period === 'custom'));
-        applyAccountingFilters();
-        return;
-      }
-      const now = new Date();
-      let from = '', to = '';
-      if (period === 'today') { from = to = accountingDateString(now); }
-      else if (period === 'yesterday') { const d = new Date(now); d.setDate(d.getDate()-1); from = to = accountingDateString(d); }
-      else if (period === '7days') { const d = new Date(now); d.setDate(d.getDate()-6); from = accountingDateString(d); to = accountingDateString(now); }
-      else if (period === 'month') { from = accountingDateString(new Date(now.getFullYear(), now.getMonth(), 1)); to = accountingDateString(new Date(now.getFullYear(), now.getMonth()+1, 0)); }
-      else if (period === 'prevmonth') { from = accountingDateString(new Date(now.getFullYear(), now.getMonth()-1, 1)); to = accountingDateString(new Date(now.getFullYear(), now.getMonth(), 0)); }
-      fromEl.value = from; toEl.value = to;
-      document.querySelectorAll('.accounting-period-btn').forEach(b => b.classList.toggle('active', b.dataset.period === period));
-      applyAccountingFilters();
-    };
-
-    window.applyAccountingFilters = function() {
-      populateAccountingAccountFilter();
-      const { from, to } = getAccountingFilterDates();
-      const type = document.getElementById('accountingTypeFilter')?.value || 'all';
-      const account = document.getElementById('accountingAccountFilter')?.value || 'all';
-      const note = (document.getElementById('accountingNoteFilter')?.value || '').trim().toLowerCase();
-      const global = (document.getElementById('searchInput')?.value || '').trim().toLowerCase();
-      let items = allAccounting.filter(a => {
-        if (from && (!a.date || a.date < from)) return false;
-        if (to && (!a.date || a.date > to)) return false;
-        const inc = Number(a.income || 0);
-        const exp = Number(a.expense || 0);
-        if (type === 'income' && inc <= 0) return false;
-        if (type === 'expense' && exp <= 0) return false;
-        if (account !== 'all' && String(a.account || '') !== account) return false;
-        if (note && !String(a.note || '').toLowerCase().includes(note)) return false;
-        if (global && !(`${a.note || ''} ${a.account || ''} ${a.date || ''}`).toLowerCase().includes(global)) return false;
-        return true;
-      });
-      renderAccountingTable(items);
-      const info = document.getElementById('accountingFilterInfo');
-      if (info) info.innerText = `Показано записей: ${items.length} из ${allAccounting.length}`;
-    };
-
-    window.resetAccountingFilters = function() {
-      const from = document.getElementById('accountingDateFrom'); if (from) from.value = '';
-      const to = document.getElementById('accountingDateTo'); if (to) to.value = '';
-      const type = document.getElementById('accountingTypeFilter'); if (type) type.value = 'all';
-      const account = document.getElementById('accountingAccountFilter'); if (account) account.value = 'all';
-      const note = document.getElementById('accountingNoteFilter'); if (note) note.value = '';
-      document.querySelectorAll('.accounting-period-btn').forEach(b => b.classList.toggle('active', b.dataset.period === 'all'));
-      applyAccountingFilters();
-    };
 
     const takenModal = document.getElementById('takenModal');
 
@@ -5470,10 +5253,10 @@
     window.handleSearch = function() {
       const q = document.getElementById('searchInput').value.toLowerCase();
       if (activeTab === 'contracts') {
-        const local = document.getElementById('contractsLocalSearch');
-        if (local && local.value !== q) local.value = q;
         renderContractsView();
       } else if (activeTab === 'accounting') {
+        const accSearch = document.getElementById('accFilterSearch');
+        if (accSearch && accSearch.value !== q) accSearch.value = q;
         applyAccountingFilters();
       } else if (activeTab === 'taken') {
         const filtered = allTaken.filter(t => (t.takenDesc && t.takenDesc.toLowerCase().includes(q)) || (t.putDesc && t.putDesc.toLowerCase().includes(q)));
@@ -6313,7 +6096,7 @@
     try {
       renderDashboard();
       renderTable(allContracts);
-      if (activeTab === 'accounting') applyAccountingFilters(); else renderAccountingTable(allAccounting);
+      renderAccountingTable(allAccounting);
       renderTakenSheet();
       updateHistoryButtons();
       switchTab(IS_FIELDWORKER_MODE ? 'fieldwork' : 'home');
