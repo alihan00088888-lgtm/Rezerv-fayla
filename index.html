@@ -1029,6 +1029,7 @@
     }
 
   </style>
+<script src="./excel-migration-data.js"></script>
 </head>
 <body class="bg-slate-100 text-gray-800 text-xs min-h-screen">
 
@@ -2256,8 +2257,58 @@
              emptyObj(data.fieldVisitRecords);
     }
 
+    async function runExcelMigrationIfNeeded() {
+      const version = window.EXCEL_MIGRATION_DATA && window.EXCEL_MIGRATION_DATA.version;
+      if (!version) return false;
+      if (localStorage.getItem('yusra_excel_migration_version') === version) return false;
+
+      const d = window.EXCEL_MIGRATION_DATA;
+      try {
+        setSyncStatus('syncing', 'Перенос данных Excel...');
+        const payload = {
+          contracts: Array.isArray(d.contracts) ? d.contracts : [],
+          accounting: Array.isArray(d.accounting) ? d.accounting : [],
+          taken: Array.isArray(d.taken) ? d.taken : [],
+          incomeExpenses: Array.isArray(d.incomeExpenses) ? d.incomeExpenses : [],
+          accounts: Array.isArray(d.accounts) ? d.accounts : customAccounts,
+          investors: Array.isArray(d.investors) ? d.investors : initInvestors,
+          monthlyReports: d.monthlyReports && typeof d.monthlyReports === 'object' ? d.monthlyReports : {},
+          fieldVisitRecords: d.fieldVisitRecords && typeof d.fieldVisitRecords === 'object' ? d.fieldVisitRecords : {},
+          updatedAt: Date.now()
+        };
+
+        // Excel является источником данных только один раз.
+        // Сначала успешно записываем его в Firebase, затем обновляем локальную копию.
+        await setDoc(DOC_REF, payload);
+        allContracts = payload.contracts;
+        allAccounting = payload.accounting;
+        allTaken = payload.taken;
+        allIncomeExpenses = payload.incomeExpenses;
+        customAccounts = payload.accounts;
+        initInvestors = payload.investors;
+        initMonthlyReports = payload.monthlyReports;
+        fieldVisitRecords = payload.fieldVisitRecords;
+
+        localStorage.setItem('contracts_db', JSON.stringify(allContracts));
+        localStorage.setItem('accounting_db', JSON.stringify(allAccounting));
+        localStorage.setItem('taken_db', JSON.stringify(allTaken));
+        localStorage.setItem('income_expenses_db', JSON.stringify(allIncomeExpenses));
+        localStorage.setItem('accounts_db', JSON.stringify(customAccounts));
+        localStorage.setItem('investors_db', JSON.stringify(initInvestors));
+        localStorage.setItem('monthly_reports_db', JSON.stringify(initMonthlyReports));
+        localStorage.setItem('field_visit_records_db', JSON.stringify(fieldVisitRecords));
+        localStorage.setItem('yusra_excel_migration_version', version);
+        return true;
+      } catch (e) {
+        console.error('[Excel] Ошибка одноразового переноса:', e);
+        setSyncStatus('error', 'Ошибка переноса Excel');
+        return false;
+      }
+    }
+
     async function initSync() {
       try {
+        await runExcelMigrationIfNeeded();
         setSyncStatus('syncing', 'Загрузка...');
         const snap = await getDoc(DOC_REF);
         
