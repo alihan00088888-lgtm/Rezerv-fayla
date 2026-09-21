@@ -1709,11 +1709,13 @@
 
       <div class="bg-white shadow-xl rounded-xl p-6 border-2 border-purple-300">
         <h2 class="text-xl font-bold text-purple-700 mb-4">🏛️ Настройка инвесторов</h2>
+        <div class="text-xs text-gray-500 mb-3">Начальный капитал задаётся здесь один раз и не относится к отдельному месяцу.</div>
         <div class="overflow-x-auto">
           <table class="init-table" style="max-width: 1000px;">
             <thead>
               <tr>
                 <th>Имя инвестора</th>
+                <th>Начальный капитал</th>
                 <th>% прибыли инвестору</th>
                 <th>% владельцу (авто)</th>
                 <th>Вложено всего</th>
@@ -2832,7 +2834,7 @@
           const e = rep.entries[inv.id];
           const monthlyInvested = Number(e?.invested || 0);
           // Начальный капитал — это разовое первоначальное вложение, а не ежемесячное.
-          const startingCapital = isFirstReport ? Number(rep.startingCapital?.[inv.id] || 0) : 0;
+          const startingCapital = isFirstReport ? Number(inv.initialCapital || 0) : 0;
           const value = monthlyInvested + startingCapital;
           totalInvested += value;
           if (inv.isOwner) ownerInvested += value;
@@ -2887,7 +2889,7 @@
           }
         });
         if (idx === 0 && rep.startingCapital) {
-          initInvestors.forEach(inv => totalStartingCapital += Number(rep.startingCapital[inv.id] || 0));
+          initInvestors.forEach(inv => totalStartingCapital += Number(inv.initialCapital || 0));
         }
       });
       const investImpact = totalInvested - totalDividends - totalWithdrawn + totalStartingCapital;
@@ -2987,7 +2989,7 @@
           withdrawn += Number(e.withdrawn || 0);
           invested += Number(e.invested || 0);
           if (key === firstReportKey) {
-            invested += Number(rep.startingCapital?.[inv.id] || 0);
+            invested += Number(inv.initialCapital || 0);
           }
         });
       });
@@ -5326,7 +5328,7 @@
         }
         if (idx === 0 && rep && rep.startingCapital) {
           initInvestors.forEach(inv => {
-            totalStartingCapital += Number(rep.startingCapital[inv.id] || 0);
+            totalStartingCapital += Number(inv.initialCapital || 0);
           });
         }
       });
@@ -5597,6 +5599,9 @@
         id: 'inv_' + Date.now(),
         name: 'Новый инвестор',
         percent: 50,
+        percentHistory: {},
+        initialCapital: 0,
+        initialCapitalStartKey: (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; })(),
         isOwner: false
       });
       saveInitData();
@@ -5612,27 +5617,64 @@
       pushToCloud();
     };
 
+    window.updateInvestorInitialCapital = function(idx, value) {
+      const investor = initInvestors[idx];
+      if (!investor) return;
+      investor.initialCapital = Math.max(0, Number(value) || 0);
+      saveInitData();
+      recalculateInit();
+      saveInitData();
+      renderInitPage();
+      pushToCloud();
+    };
+
     window.updateInvestorPercent = function(idx, value) {
       if (initInvestors[idx].isOwner) return;
       const investor = initInvestors[idx];
       const oldPercent = Math.min(100, Math.max(0, Number(investor.percent) || 0));
       const newPercent = Math.min(100, Math.max(0, Number(value) || 0));
+      if (newPercent === oldPercent) return;
 
-      // До изменения процента фиксируем старое условие во всех уже существующих месяцах.
-      // Поэтому изменение договора не пересчитывает историю задним числом.
-      Object.values(initMonthlyReports).forEach(rep => {
+      // Процент является условием конкретного месяца, а не одной глобальной
+      // переменной. Поэтому каждый уже существующий месяц получает снимок
+      // старого процента, а новый процент начинает действовать только с
+      // текущего незакрытого месяца (либо со следующего месяца, если текущий
+      // уже зафиксирован). История задним числом не пересчитывается.
+      if (!investor.percentHistory || typeof investor.percentHistory !== 'object') {
+        investor.percentHistory = {};
+      }
+
+      Object.entries(initMonthlyReports).forEach(([key, rep]) => {
         const entry = rep?.entries?.[investor.id];
         if (!entry) return;
-        if (entry.profitPercent === undefined || entry.profitPercent === null) entry.profitPercent = oldPercent;
+        if (entry.profitPercent === undefined || entry.profitPercent === null) {
+          entry.profitPercent = oldPercent;
+        }
+        if (!investor.percentHistory[key]) investor.percentHistory[key] = entry.profitPercent;
       });
 
       investor.percent = newPercent;
 
-      // Новый процент действует с текущего месяца. Старые месяцы остаются зафиксированы.
       const now = new Date();
-      const currentKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+      let targetYear = now.getFullYear();
+      let targetMonth = now.getMonth() + 1;
+      const currentKey = `${targetYear}-${String(targetMonth).padStart(2, '0')}`;
       const currentReport = initMonthlyReports[currentKey];
-      if (currentReport?.entries?.[investor.id]) currentReport.entries[investor.id].profitPercent = newPercent;
+
+      // Закрытый месяц нельзя менять. В этом случае новый процент начинает
+      // действовать со следующего календарного месяца.
+      if (currentReport?.stopped) {
+        targetMonth += 1;
+        if (targetMonth > 12) { targetMonth = 1; targetYear += 1; }
+      }
+
+      const targetKey = `${targetYear}-${String(targetMonth).padStart(2, '0')}`;
+      investor.percentHistory[targetKey] = newPercent;
+
+      const targetReport = initMonthlyReports[targetKey];
+      if (targetReport?.entries?.[investor.id] && !targetReport.stopped) {
+        targetReport.entries[investor.id].profitPercent = newPercent;
+      }
 
       saveInitData();
       recalculateInit();
@@ -5664,8 +5706,8 @@
       if (prompt('Введите "СБРОС" для подтверждения:') !== 'СБРОС') return;
       saveState();
       initInvestors = [
-        { id: 'owner', name: 'Владелец', percent: 100, isOwner: true },
-        { id: 'inv_' + Date.now(), name: 'Инвестор 1', percent: 50, isOwner: false }
+        { id: 'owner', name: 'Владелец', percent: 100, isOwner: true, initialCapital: 0 },
+        { id: 'inv_' + Date.now(), name: 'Инвестор 1', percent: 50, percentHistory: {}, isOwner: false, initialCapital: 0, initialCapitalStartKey: (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; })() }
       ];
       initMonthlyReports = {};
       allAccounting = allAccounting.filter(a => !a._investorId);
@@ -5708,6 +5750,9 @@
               ? `<span class="font-bold">${inv.name}</span>`
               : `<input type="text" value="${inv.name}" onchange="updateInvestorName(${idx}, this.value)" style="width:100%;">`
             }
+          </td>
+          <td>
+            <input type="number" min="0" value="${Number(inv.initialCapital || 0)}" onchange="updateInvestorInitialCapital(${idx}, this.value)" style="width:120px;">
           </td>
           <td>
             ${inv.isOwner 
@@ -5753,7 +5798,7 @@
           rep.entries[inv.id] = {
             invested: 0, dividends: 0, withdrawn: 0,
             profitActual: 0, factPercent: 0, stopValue: null,
-            addedPercent: 0, capital: 0, capitalStart: 0, profitPercent: inv.isOwner ? 100 : Number(inv.percent) || 0
+            addedPercent: 0, capital: 0, capitalStart: 0, profitPercent: inv.isOwner ? 100 : (inv.percentHistory?.[key] !== undefined ? Number(inv.percentHistory[key]) : Number(inv.percent) || 0)
           };
         }
       });
@@ -5861,6 +5906,7 @@
         if (!report.startingCapital || typeof report.startingCapital !== 'object') report.startingCapital = {};
 
         initInvestors.forEach(inv => {
+          if (!inv.isOwner && (!inv.percentHistory || typeof inv.percentHistory !== 'object')) inv.percentHistory = {};
           if (!report.entries[inv.id] || typeof report.entries[inv.id] !== 'object') {
             report.entries[inv.id] = {
               invested: 0, dividends: 0, withdrawn: 0, reinvested: 0,
@@ -5871,7 +5917,13 @@
           const entry = report.entries[inv.id];
           if (entry.reinvested === undefined) entry.reinvested = 0;
           if (entry.profitPercent === undefined || entry.profitPercent === null) {
-            entry.profitPercent = inv.isOwner ? 100 : Number(inv.percent) || 0;
+            const historicalPercent = !inv.isOwner && inv.percentHistory[key] !== undefined
+              ? Number(inv.percentHistory[key])
+              : (inv.isOwner ? 100 : Number(inv.percent) || 0);
+            entry.profitPercent = historicalPercent;
+          }
+          if (!inv.isOwner && inv.percentHistory[key] === undefined) {
+            inv.percentHistory[key] = Number(entry.profitPercent) || 0;
           }
           if (entry.addedPercent === undefined) entry.addedPercent = 0;
           entry.profitActual = 0;
@@ -5882,8 +5934,34 @@
         });
       });
 
+      // Начальный капитал хранится у самого инвестора и не является
+      // месячным показателем. Для старых данных один раз переносим прежний
+      // стартовый капитал из первого найденного месяца в карточку инвестора.
+      initInvestors.forEach(inv => {
+        if (inv.initialCapital === undefined || inv.initialCapital === null) {
+          let legacyStart = 0;
+          for (const key of keys) {
+            const v = Number(initMonthlyReports[key]?.startingCapital?.[inv.id]);
+            if (v > 0) { legacyStart = v; break; }
+          }
+          inv.initialCapital = legacyStart;
+        }
+      });
+      initInvestors.forEach(inv => {
+        if (!inv.initialCapitalStartKey) {
+          let legacyKey = null;
+          for (const key of keys) {
+            const v = Number(initMonthlyReports[key]?.startingCapital?.[inv.id]);
+            if (v > 0) { legacyKey = key; break; }
+          }
+          inv.initialCapitalStartKey = legacyKey || keys[0] || null;
+        }
+      });
+
       let previousCapitals = {};
       initInvestors.forEach(inv => { previousCapitals[inv.id] = 0; });
+      const initialApplied = {};
+      initInvestors.forEach(inv => { initialApplied[inv.id] = false; });
 
       keys.forEach((key) => {
         const report = initMonthlyReports[key];
@@ -5895,12 +5973,15 @@
 
         initInvestors.forEach(inv => {
           const entry = report.entries[inv.id];
-          const manualStart = report.startingCapital && report.startingCapital[inv.id] !== undefined
-            ? Number(report.startingCapital[inv.id]) || 0
-            : null;
-
-          if (manualStart !== null && Object.keys(previousCapitals).every(k => previousCapitals[k] === 0)) {
-            entry.capitalStart = manualStart;
+          const startKey = inv.initialCapitalStartKey || keys[0] || null;
+          if (!initialApplied[inv.id] && key === startKey) {
+            // Карточка инвестора задаёт разовый стартовый капитал. Он
+            // используется только один раз и не является месячным полем.
+            entry.capitalStart = Math.max(0, Number(inv.initialCapital) || 0);
+            initialApplied[inv.id] = true;
+          } else if (!initialApplied[inv.id] && !startKey) {
+            entry.capitalStart = Math.max(0, Number(inv.initialCapital) || 0);
+            initialApplied[inv.id] = true;
           } else {
             entry.capitalStart = previousCapitals[inv.id] || 0;
           }
@@ -5976,8 +6057,14 @@
               Number(entry.invested || 0) -
               Number(entry.withdrawn || 0)
             );
-            const addedPercent = Math.max(0, Number(entry.addedPercent) || 0);
-            const addedProfit = cfs * (addedPercent / 100);
+            // В поле «Добавить %» пользователь указывает желаемый
+            // ИТОГОВЫЙ процент. Добавляется только разница между ним и
+            // фактическим базовым процентом. Например: факт 3%, введено 5%
+            // => доплата составляет только 2%.
+            const targetPercent = Math.max(0, Number(entry.addedPercent) || 0);
+            const baseFactPercent = cfs > 0 ? (baseProfit / cfs) * 100 : 0;
+            const extraPercent = Math.max(0, targetPercent - baseFactPercent);
+            const addedProfit = cfs * (extraPercent / 100);
 
             entry.profitActual = baseProfit + addedProfit;
             totalAddedProfit += addedProfit;
@@ -6288,18 +6375,7 @@
           const factClass = Number(entry.factPercent) > 0 ? 'fact-percent-positive' : 'fact-percent-zero';
           const capitalClass = Number(entry.capital) < 0 ? 'capital-negative' : '';
           
-          const startCapRow = isFirstMonth ? `
-            <tr style="background:#faf5ff;">
-              <td colspan="10" style="text-align:left; font-size:10px; color:#6b7280; padding:3px 8px;">
-                💰 Стартовый капитал <b>${inv.name}</b>: 
-                <input type="number" value="${(report.startingCapital && report.startingCapital[inv.id]) || 0}" 
-                  onchange="updateStartingCapital(${year},${month},'${inv.id}', this.value)" 
-                  style="width:120px; margin-left:6px;" min="0">
-                <span style="margin-left:10px; color:#7c3aed;">Капитал на начало месяца: ${Number(entry.capitalStart || 0).toLocaleString('ru-RU')} ₽</span>
-              </td>
-            </tr>` : '';
-          
-          tableRows += startCapRow + `
+          tableRows += `
             <tr class="${inv.isOwner ? 'owner-row' : 'investor-row'}">
               <td class="font-bold text-left">${inv.name}${inv.isOwner ? ' (Вы)' : ''}</td>
               <td class="${capitalClass}">${Number(entry.capital || 0).toLocaleString('ru-RU')}</td>
@@ -6317,7 +6393,7 @@
               </td>
               <td class="${factClass}">${factDisplay}%</td>
               <td>
-                <input type="number" value="${entry.addedPercent || 0}" onchange="applyAddedPercent(${year},${month},'${inv.id}',this.value)" min="0" step="0.1" ${inv.isOwner ? 'disabled' : ''}>
+                <input type="number" value="${entry.addedPercent || 0}" onchange="applyAddedPercent(${year},${month},'${inv.id}',this.value)" min="0" step="0.1" title="Желаемый итоговый процент: добавляется только разница с фактическим процентом" ${inv.isOwner ? 'disabled' : ''}>
               </td>
             </tr>
           `;
