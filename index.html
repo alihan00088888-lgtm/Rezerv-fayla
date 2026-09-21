@@ -1175,6 +1175,47 @@
           <div id="dashDebtors" class="dashboard-metric-value">0</div>
           <div class="dashboard-metric-note">можно открыть из меню</div>
         </div>
+
+        <div class="dashboard-card dashboard-metric blue">
+          <div class="dashboard-metric-top"><span class="dashboard-metric-label">Доход по договорам</span><span class="dashboard-metric-icon">📄</span></div>
+          <div id="dashAContractRevenue" class="dashboard-metric-value">0 ₽</div>
+          <div class="dashboard-metric-note">полная сумма договоров</div>
+        </div>
+        <div class="dashboard-card dashboard-metric amber">
+          <div class="dashboard-metric-top"><span class="dashboard-metric-label">Себестоимость</span><span class="dashboard-metric-icon">🛒</span></div>
+          <div id="dashACost" class="dashboard-metric-value">0 ₽</div>
+          <div class="dashboard-metric-note">стоимость товаров</div>
+        </div>
+        <div class="dashboard-card dashboard-metric blue">
+          <div class="dashboard-metric-top"><span class="dashboard-metric-label">Доход инвесторов</span><span class="dashboard-metric-icon">🤝</span></div>
+          <div id="dashAInvestorIncome" class="dashboard-metric-value">0 ₽</div>
+          <div class="dashboard-metric-note">фактическая прибыль инвесторов</div>
+        </div>
+        <div class="dashboard-card dashboard-metric red">
+          <div class="dashboard-metric-top"><span class="dashboard-metric-label">Расход инвесторов</span><span class="dashboard-metric-icon">💸</span></div>
+          <div id="dashAInvestorExpense" class="dashboard-metric-value">0 ₽</div>
+          <div class="dashboard-metric-note">дивиденды + снятие</div>
+        </div>
+        <div class="dashboard-card dashboard-metric blue">
+          <div class="dashboard-metric-top"><span class="dashboard-metric-label">Вложение</span><span class="dashboard-metric-icon">➕</span></div>
+          <div id="dashAInvested" class="dashboard-metric-value">0 ₽</div>
+          <div class="dashboard-metric-note">включая стартовый капитал</div>
+        </div>
+        <div class="dashboard-card dashboard-metric red">
+          <div class="dashboard-metric-top"><span class="dashboard-metric-label">Снятие</span><span class="dashboard-metric-icon">➖</span></div>
+          <div id="dashAWithdrawn" class="dashboard-metric-value">0 ₽</div>
+          <div class="dashboard-metric-note">снятие вкладов</div>
+        </div>
+        <div class="dashboard-card dashboard-metric red">
+          <div class="dashboard-metric-top"><span class="dashboard-metric-label">Дивиденды</span><span class="dashboard-metric-icon">🎁</span></div>
+          <div id="dashADividends" class="dashboard-metric-value">0 ₽</div>
+          <div class="dashboard-metric-note">выплаты инвесторам</div>
+        </div>
+        <div class="dashboard-card dashboard-metric green">
+          <div class="dashboard-metric-top"><span class="dashboard-metric-label">Капитал</span><span class="dashboard-metric-icon">🏦</span></div>
+          <div id="dashACapital" class="dashboard-metric-value">0 ₽</div>
+          <div class="dashboard-metric-note">текущий капитал всех участников</div>
+        </div>
       </section>
 
       <section class="dashboard-two-col">
@@ -1236,25 +1277,6 @@
             <div class="dashboard-row"><span class="dashboard-row-label">Положили</span><span id="dashPut" class="dashboard-row-value green">0 ₽</span></div>
             <div class="dashboard-row"><span class="dashboard-row-label">Общий средний %</span><span id="dashOverallPercent" class="dashboard-row-value blue">0%</span></div>
           </div>
-        </div>
-      </section>
-
-      <section class="dashboard-card dashboard-section">
-        <div class="dashboard-section-head">
-          <div><div class="dashboard-section-title">📚 Основные показатели</div><div class="dashboard-section-sub">Сводка по логике листа «А»</div></div>
-          <div class="dashboard-section-sub">За выбранный период</div>
-        </div>
-        <div class="dashboard-a-grid" style="padding:12px 16px 16px;">
-          <div class="dashboard-a-card"><div class="dashboard-a-label">Доход по договорам</div><div id="dashAContractRevenue" class="dashboard-a-value blue">0 ₽</div><div class="dashboard-a-note">полная сумма договоров</div></div>
-          <div class="dashboard-a-card"><div class="dashboard-a-label">Платежи по месяцам</div><div id="dashAMonthlyPayments" class="dashboard-a-value green">0 ₽</div><div class="dashboard-a-note">предоплаты + фактические взносы</div></div>
-          <div class="dashboard-a-card"><div class="dashboard-a-label">Себестоимость</div><div id="dashACost" class="dashboard-a-value amber">0 ₽</div><div class="dashboard-a-note">стоимость товаров</div></div>
-          <div class="dashboard-a-card"><div class="dashboard-a-label">Общая прибыль</div><div id="dashATotalProfit" class="dashboard-a-value green">0 ₽</div><div class="dashboard-a-note">до общих расходов</div></div>
-          <div class="dashboard-a-card"><div class="dashboard-a-label">Доход инвесторов</div><div id="dashAInvestorIncome" class="dashboard-a-value blue">0 ₽</div><div class="dashboard-a-note">фактическая прибыль инвесторов</div></div>
-          <div class="dashboard-a-card"><div class="dashboard-a-label">Расход инвесторов</div><div id="dashAInvestorExpense" class="dashboard-a-value red">0 ₽</div><div class="dashboard-a-note">дивиденды + снятие</div></div>
-          <div class="dashboard-a-card"><div class="dashboard-a-label">Вложение</div><div id="dashAInvested" class="dashboard-a-value blue">0 ₽</div><div class="dashboard-a-note">включая стартовый капитал</div></div>
-          <div class="dashboard-a-card"><div class="dashboard-a-label">Снятие</div><div id="dashAWithdrawn" class="dashboard-a-value red">0 ₽</div><div class="dashboard-a-note">снятие вкладов</div></div>
-          <div class="dashboard-a-card"><div class="dashboard-a-label">Дивиденды</div><div id="dashADividends" class="dashboard-a-value red">0 ₽</div><div class="dashboard-a-note">выплаты инвесторам</div></div>
-          <div class="dashboard-a-card"><div class="dashboard-a-label">Капитал</div><div id="dashACapital" class="dashboard-a-value green">0 ₽</div><div class="dashboard-a-note">текущий капитал всех участников</div></div>
         </div>
       </section>
 
