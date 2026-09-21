@@ -976,6 +976,15 @@
     .dashboard-section-sub { font-size:9px; color:#94a3b8; font-weight:700; }
     .dashboard-two-col { display:grid; grid-template-columns:1.35fr 1fr; gap:14px; }
     .dashboard-three-col { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+    .dashboard-a-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:10px; }
+    .dashboard-a-card { background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:12px 13px; box-shadow:0 4px 14px rgba(15,23,42,.04); }
+    .dashboard-a-label { font-size:9px; font-weight:900; color:#64748b; text-transform:uppercase; letter-spacing:.045em; }
+    .dashboard-a-value { margin-top:6px; font-size:16px; line-height:1.1; font-weight:900; color:#0f172a; word-break:break-word; }
+    .dashboard-a-value.green { color:#059669; }
+    .dashboard-a-value.blue { color:#2563eb; }
+    .dashboard-a-value.red { color:#dc2626; }
+    .dashboard-a-value.amber { color:#d97706; }
+    .dashboard-a-note { margin-top:4px; font-size:8px; color:#94a3b8; font-weight:700; }
     .dashboard-list { padding:4px 0; }
     .dashboard-row { display:flex; justify-content:space-between; align-items:center; gap:10px; padding:10px 16px; border-bottom:1px solid #f1f5f9; }
     .dashboard-row:last-child { border-bottom:0; }
@@ -1009,6 +1018,7 @@
       .dashboard-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
       .dashboard-two-col { grid-template-columns:1fr; }
       .dashboard-three-col { grid-template-columns:1fr 1fr; }
+      .dashboard-a-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
       .dashboard-quick-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
     }
     @media (max-width: 640px) {
@@ -1019,6 +1029,9 @@
       .dashboard-metric-value { font-size:16px; }
       .dashboard-metric-icon { width:30px; height:30px; font-size:15px; }
       .dashboard-three-col { grid-template-columns:1fr; }
+      .dashboard-a-grid { grid-template-columns:1fr 1fr; gap:8px; }
+      .dashboard-a-card { padding:10px; }
+      .dashboard-a-value { font-size:14px; }
       .dashboard-installment-grid { grid-template-columns:1fr; }
       .dashboard-big-value { font-size:19px; }
       .dashboard-quick-grid { grid-template-columns:1fr 1fr; padding:12px; }
@@ -1223,6 +1236,25 @@
             <div class="dashboard-row"><span class="dashboard-row-label">Положили</span><span id="dashPut" class="dashboard-row-value green">0 ₽</span></div>
             <div class="dashboard-row"><span class="dashboard-row-label">Общий средний %</span><span id="dashOverallPercent" class="dashboard-row-value blue">0%</span></div>
           </div>
+        </div>
+      </section>
+
+      <section class="dashboard-card dashboard-section">
+        <div class="dashboard-section-head">
+          <div><div class="dashboard-section-title">📚 Основные показатели</div><div class="dashboard-section-sub">Сводка по логике листа «А»</div></div>
+          <div class="dashboard-section-sub">За выбранный период</div>
+        </div>
+        <div class="dashboard-a-grid" style="padding:12px 16px 16px;">
+          <div class="dashboard-a-card"><div class="dashboard-a-label">Доход по договорам</div><div id="dashAContractRevenue" class="dashboard-a-value blue">0 ₽</div><div class="dashboard-a-note">полная сумма договоров</div></div>
+          <div class="dashboard-a-card"><div class="dashboard-a-label">Платежи по месяцам</div><div id="dashAMonthlyPayments" class="dashboard-a-value green">0 ₽</div><div class="dashboard-a-note">предоплаты + фактические взносы</div></div>
+          <div class="dashboard-a-card"><div class="dashboard-a-label">Себестоимость</div><div id="dashACost" class="dashboard-a-value amber">0 ₽</div><div class="dashboard-a-note">стоимость товаров</div></div>
+          <div class="dashboard-a-card"><div class="dashboard-a-label">Общая прибыль</div><div id="dashATotalProfit" class="dashboard-a-value green">0 ₽</div><div class="dashboard-a-note">до общих расходов</div></div>
+          <div class="dashboard-a-card"><div class="dashboard-a-label">Доход инвесторов</div><div id="dashAInvestorIncome" class="dashboard-a-value blue">0 ₽</div><div class="dashboard-a-note">фактическая прибыль инвесторов</div></div>
+          <div class="dashboard-a-card"><div class="dashboard-a-label">Расход инвесторов</div><div id="dashAInvestorExpense" class="dashboard-a-value red">0 ₽</div><div class="dashboard-a-note">дивиденды + снятие</div></div>
+          <div class="dashboard-a-card"><div class="dashboard-a-label">Вложение</div><div id="dashAInvested" class="dashboard-a-value blue">0 ₽</div><div class="dashboard-a-note">включая стартовый капитал</div></div>
+          <div class="dashboard-a-card"><div class="dashboard-a-label">Снятие</div><div id="dashAWithdrawn" class="dashboard-a-value red">0 ₽</div><div class="dashboard-a-note">снятие вкладов</div></div>
+          <div class="dashboard-a-card"><div class="dashboard-a-label">Дивиденды</div><div id="dashADividends" class="dashboard-a-value red">0 ₽</div><div class="dashboard-a-note">выплаты инвесторам</div></div>
+          <div class="dashboard-a-card"><div class="dashboard-a-label">Капитал</div><div id="dashACapital" class="dashboard-a-value green">0 ₽</div><div class="dashboard-a-note">текущий капитал всех участников</div></div>
         </div>
       </section>
 
@@ -2692,6 +2724,8 @@
     }
 
     function getDashboardContractMetrics(contracts) {
+      let contractRevenue = 0;
+      let totalCost = 0;
       let totalProfit = 0;
       let expectedProfit = 0;
       let paidProfit = 0;
@@ -2707,18 +2741,22 @@
         const total = Number(c.totalCost) || 0;
         const cost = Number(c.costPrice) || 0;
         const down = Number(c.downPayment) || 0;
-        const contractProfit = total - cost;
+        const contractProfit = Math.max(0, total - cost);
         const metrics = calculateContractMetrics(c);
+
+        contractRevenue += total;
+        totalCost += cost;
         totalProfit += contractProfit;
-        outstanding += metrics.rest;
+        outstanding += Math.max(0, metrics.rest);
         totalMonths += Number(c.monthsCount) || 0;
         totalMarginBase += cost;
         if (metrics.isClosed) closed++; else active++;
 
         const margin = total > 0 ? contractProfit / total : 0;
-        const paidDown = Math.max(0, down);
-        payments += paidDown;
-        paidProfit += paidDown * margin;
+
+        // Предоплата относится к фактическим платежам.
+        payments += Math.max(0, down);
+        paidProfit += Math.max(0, down) * margin;
 
         Object.values(c.installments || {}).forEach(p => {
           const amount = Number(p?.amount) || 0;
@@ -2733,7 +2771,10 @@
 
       const averageMonths = contracts.length ? totalMonths / contracts.length : 0;
       const averagePercent = totalMarginBase > 0 ? (totalProfit / totalMarginBase) * 100 : 0;
-      return { totalProfit, expectedProfit, paidProfit, payments, outstanding, overdue, averageMonths, averagePercent, active, closed };
+      return {
+        contractRevenue, totalCost, totalProfit, expectedProfit, paidProfit,
+        payments, outstanding, overdue, averageMonths, averagePercent, active, closed
+      };
     }
 
     function getDashboardExpenses(range) {
@@ -2845,13 +2886,10 @@
     }
 
     function getDashboardMonthData(year, month) {
-      let profit = 0, expense = 0;
-      allContracts.forEach(c => {
-        const d = dashParseDate(c.buyDate);
-        if (d && d.getFullYear() === year && d.getMonth() + 1 === month) {
-          profit += (Number(c.totalCost) || 0) - (Number(c.costPrice) || 0);
-        }
-      });
+      // На графике показываем фактически заработанную прибыль по полученным
+      // платежам — тот же принцип, который используется в инвестициях.
+      const profit = getProfitByMonth(year, month);
+      let expense = 0;
       allIncomeExpenses.forEach(e => {
         const d = dashParseDate(e.date);
         if (d && d.getFullYear() === year && d.getMonth() + 1 === month) expense += Number(e.amount) || 0;
@@ -2894,6 +2932,36 @@
       renderDashboard();
     };
 
+    function getDashboardInvestorMetrics(range) {
+      let investorIncome = 0;
+      let investorExpense = 0;
+      let dividends = 0;
+      let withdrawn = 0;
+      let invested = 0;
+
+      Object.keys(initMonthlyReports).forEach(key => {
+        const rep = initMonthlyReports[key];
+        if (!rep || !rep.entries) return;
+        const monthDate = `${rep.year}-${String(rep.month).padStart(2,'0')}-01`;
+        if (!dashInRange(monthDate, range)) return;
+
+        initInvestors.forEach(inv => {
+          const e = rep.entries[inv.id];
+          if (!e) return;
+          if (!inv.isOwner) investorIncome += Number(e.profitActual || 0);
+          dividends += Number(e.dividends || 0);
+          withdrawn += Number(e.withdrawn || 0);
+          invested += Number(e.invested || 0);
+          if (Number(rep.startingCapital?.[inv.id] || 0) > 0) {
+            invested += Number(rep.startingCapital[inv.id] || 0);
+          }
+        });
+      });
+
+      investorExpense = dividends + withdrawn;
+      return { investorIncome, investorExpense, dividends, withdrawn, invested };
+    }
+
     function renderDashboard() {
       const range = getDashboardRange();
       const contracts = allContracts.filter(c => !range || dashInRange(c.buyDate, range));
@@ -2903,6 +2971,7 @@
       const totalExpensesWithDividends = generalExpense + dividends;
       const profitAfterExpenses = metrics.totalProfit - totalExpensesWithDividends;
       const investments = getDashboardInvestments(range);
+      const investorMetrics = getDashboardInvestorMetrics(range);
       const currentCapital = getDashboardCurrentCapital();
       const cash = getDashboardCash();
       const debtors = getDebtors();
@@ -2920,6 +2989,16 @@
       const set = (id, value) => { const el = document.getElementById(id); if (el) el.textContent = value; };
       set('dashboardPeriodCaption', dashboardRangeCaption(range));
       set('dashTotalProfit', dashFormatMoney(metrics.totalProfit));
+      set('dashAContractRevenue', dashFormatMoney(metrics.contractRevenue));
+      set('dashAMonthlyPayments', dashFormatMoney(metrics.payments));
+      set('dashACost', dashFormatMoney(metrics.totalCost));
+      set('dashATotalProfit', dashFormatMoney(metrics.totalProfit));
+      set('dashAInvestorIncome', dashFormatMoney(investorMetrics.investorIncome));
+      set('dashAInvestorExpense', dashFormatMoney(investorMetrics.investorExpense));
+      set('dashAInvested', dashFormatMoney(investorMetrics.invested));
+      set('dashAWithdrawn', dashFormatMoney(investorMetrics.withdrawn));
+      set('dashADividends', dashFormatMoney(investorMetrics.dividends));
+      set('dashACapital', dashFormatMoney(currentCapital));
       set('dashGeneralExpense', dashFormatMoney(generalExpense));
       set('dashProfitAfterExpenses', dashFormatMoney(profitAfterExpenses));
       set('dashExpectedProfit', dashFormatMoney(metrics.expectedProfit));
@@ -5669,46 +5748,67 @@
       pushToCloud();
     };
 
+    function getContractProfitRate(contract) {
+      const total = Number(contract?.totalCost) || 0;
+      const cost = Number(contract?.costPrice) || 0;
+      if (total <= 0) return 0;
+      const profit = Math.max(0, total - cost);
+      return profit / total;
+    }
+
     function getProfitByMonth(year, month) {
       let totalProfit = 0;
+
       allContracts.forEach(c => {
-        const monthsCount = Number(c.monthsCount) || 0;
-        const cost = Number(c.costPrice) || 0;
-        const monthlyPay = Number(c.monthlyPay) || 0;
-        if (monthsCount <= 0 || monthlyPay <= 0) return;
-        const profitPerPayment = monthlyPay - (cost / monthsCount);
-        
-        const installments = c.installments || {};
-        Object.values(installments).forEach(p => {
-          if (!p || !p.date) return;
-          const parts = String(p.date).split('-');
-          if (parts.length < 2) return;
-          const py = Number(parts[0]);
-          const pm = Number(parts[1]);
-          if (py === year && pm === month) {
-            totalProfit += profitPerPayment;
+        const margin = getContractProfitRate(c);
+        if (margin <= 0) return;
+
+        // Первоначальный взнос — реальный платёж и поэтому участвует
+        // в прибыли того месяца, в котором он был внесён.
+        const downPayment = Number(c.downPayment) || 0;
+        if (downPayment > 0) {
+          const dateValue = c.downPaymentDate || c.buyDate || c.createdAt;
+          const d = dashParseDate(dateValue);
+          if (d && d.getFullYear() === year && d.getMonth() + 1 === month) {
+            totalProfit += downPayment * margin;
           }
+        }
+
+        // Каждый фактически внесённый взнос даёт прибыль только на реально
+        // полученную сумму, а не на полный плановый месячный платёж.
+        Object.values(c.installments || {}).forEach(p => {
+          if (!p || !p.date) return;
+          const d = dashParseDate(p.date);
+          if (!d || d.getFullYear() !== year || d.getMonth() + 1 !== month) return;
+          const amount = Number(p.amount) || 0;
+          if (amount > 0) totalProfit += amount * margin;
         });
       });
+
       return totalProfit;
     }
 
     function recalculateInit() {
       const keys = Object.keys(initMonthlyReports).sort();
-      
+
+      // Нормализуем структуру старых записей, не удаляя пользовательские данные.
       keys.forEach((key) => {
         const report = initMonthlyReports[key];
         if (!report || typeof report !== 'object') return;
         if (!report.entries || typeof report.entries !== 'object') report.entries = {};
+        if (!report.startingCapital || typeof report.startingCapital !== 'object') report.startingCapital = {};
+
         initInvestors.forEach(inv => {
           if (!report.entries[inv.id] || typeof report.entries[inv.id] !== 'object') {
             report.entries[inv.id] = {
-              invested: 0, dividends: 0, withdrawn: 0,
+              invested: 0, dividends: 0, withdrawn: 0, reinvested: 0,
               profitActual: 0, factPercent: 0, stopValue: null,
               addedPercent: 0, capital: 0, capitalStart: 0
             };
           }
           const entry = report.entries[inv.id];
+          if (entry.reinvested === undefined) entry.reinvested = 0;
+          if (entry.addedPercent === undefined) entry.addedPercent = 0;
           entry.profitActual = 0;
           entry.factPercent = 0;
           entry.capital = 0;
@@ -5716,130 +5816,169 @@
           entry._baseProfit = 0;
         });
       });
-      
-      let previousCapitais = {};
-      let pendingProfit = {};
-      
-      initInvestors.forEach(inv => {
-        previousCapitais[inv.id] = 0;
-        pendingProfit[inv.id] = 0;
-      });
-      
+
+      let previousCapitals = {};
+      initInvestors.forEach(inv => { previousCapitals[inv.id] = 0; });
+
       keys.forEach((key) => {
         const report = initMonthlyReports[key];
         if (!report || typeof report !== 'object') return;
         if (typeof report.year !== 'number' || typeof report.month !== 'number') return;
-        
+
         const year = report.year;
         const month = report.month;
-        
+
         initInvestors.forEach(inv => {
           const entry = report.entries[inv.id];
-          const manualStart = report.startingCapital && report.startingCapital[inv.id] !== undefined 
-            ? Number(report.startingCapital[inv.id]) || 0 
+          const manualStart = report.startingCapital && report.startingCapital[inv.id] !== undefined
+            ? Number(report.startingCapital[inv.id]) || 0
             : null;
-          
-          if (manualStart !== null && Object.keys(previousCapitais).every(k => previousCapitais[k] === 0)) {
+
+          if (manualStart !== null && Object.keys(previousCapitals).every(k => previousCapitals[k] === 0)) {
             entry.capitalStart = manualStart;
           } else {
-            entry.capitalStart = (previousCapitais[inv.id] || 0) + (pendingProfit[inv.id] || 0);
+            entry.capitalStart = previousCapitals[inv.id] || 0;
           }
         });
-        
+
+        // Реальная прибыль месяца строится только из реально полученных денег
+        // по договорам: платёж × доля прибыли договора.
         const totalProfitMonth = getProfitByMonth(year, month);
-        
+
+        // Доля прибыли зависит от фактически работающего капитала каждого участника.
         let totalCapitalForProfit = 0;
         initInvestors.forEach(inv => {
           const entry = report.entries[inv.id];
-          const cfs = Math.max(0, (entry.capitalStart || 0) + Number(entry.invested || 0) - Number(entry.withdrawn || 0));
+          const cfs = Math.max(
+            0,
+            (entry.capitalStart || 0) +
+            Number(entry.invested || 0) -
+            Number(entry.withdrawn || 0)
+          );
           totalCapitalForProfit += cfs;
         });
-        
+
+        const owner = initInvestors.find(i => i.isOwner);
+        const ownerId = owner?.id;
         let ownerProfitFromInvestors = 0;
-        let ownerId = initInvestors.find(i => i.isOwner)?.id;
-        
+
         initInvestors.forEach(inv => {
           const entry = report.entries[inv.id];
-          const cfs = Math.max(0, (entry.capitalStart || 0) + Number(entry.invested || 0) - Number(entry.withdrawn || 0));
-          const share = totalCapitalForProfit > 0 ? (cfs / totalCapitalForProfit) : 0;
-          const profitBase = totalProfitMonth * share;
-          
+          const cfs = Math.max(
+            0,
+            (entry.capitalStart || 0) +
+            Number(entry.invested || 0) -
+            Number(entry.withdrawn || 0)
+          );
+          const capitalShare = totalCapitalForProfit > 0 ? cfs / totalCapitalForProfit : 0;
+          const profitAllocatedToThisCapital = totalProfitMonth * capitalShare;
+
           if (inv.isOwner) {
-            entry._baseProfit = profitBase;
+            // Прибыль от собственной доли капитала.
+            entry._baseProfit = profitAllocatedToThisCapital;
           } else {
-            const p = Number(inv.percent) || 0;
-            const invProfit = profitBase * (p / 100);
-            const ownerCut = profitBase * ((100 - p) / 100);
-            entry._baseProfit = invProfit;
-            ownerProfitFromInvestors += ownerCut;
+            // Процент из карточки инвестора — это договорная доля
+            // инвестора именно от прибыли, например 50%, 40%, 30%.
+            const investorPercent = Math.min(100, Math.max(0, Number(inv.percent) || 0));
+            const investorProfit = profitAllocatedToThisCapital * (investorPercent / 100);
+            const ownerProfit = profitAllocatedToThisCapital * ((100 - investorPercent) / 100);
+
+            entry._baseProfit = investorProfit;
+            ownerProfitFromInvestors += ownerProfit;
           }
         });
-        
+
         if (ownerId && report.entries[ownerId]) {
-          report.entries[ownerId]._baseProfit = (report.entries[ownerId]._baseProfit || 0) + ownerProfitFromInvestors;
+          report.entries[ownerId]._baseProfit =
+            (report.entries[ownerId]._baseProfit || 0) + ownerProfitFromInvestors;
         }
-        
+
+        // Сначала формируем базовую прибыль по договорной доле.
+        // «Добавить %» — это ДОПОЛНИТЕЛЬНАЯ сумма от капитала,
+        // а не замена базовой прибыли.
+        let totalAddedProfit = 0;
+
         initInvestors.forEach(inv => {
           const entry = report.entries[inv.id];
-          if (!report.stopped) {
-            entry.profitActual = entry._baseProfit || 0;
-            const cfs = Math.max(1, (entry.capitalStart || 0) + Number(entry.invested || 0) - Number(entry.withdrawn || 0));
-            entry.factPercent = (entry.profitActual / cfs) * 100;
+          const baseProfit = Number(entry._baseProfit || 0);
+
+          if (inv.isOwner) {
+            entry.profitActual = baseProfit;
           } else {
-            entry.factPercent = (entry.stopValue !== null && entry.stopValue !== undefined) 
-              ? Number(entry.stopValue) 
-              : 0;
-            entry.profitActual = entry._baseProfit || 0;
+            const cfs = Math.max(
+              0,
+              (entry.capitalStart || 0) +
+              Number(entry.invested || 0) -
+              Number(entry.withdrawn || 0)
+            );
+            const addedPercent = Math.max(0, Number(entry.addedPercent) || 0);
+            const addedProfit = cfs * (addedPercent / 100);
+
+            entry.profitActual = baseProfit + addedProfit;
+            totalAddedProfit += addedProfit;
           }
         });
-        
+
+        // Дополнительная выплата инвесторам уменьшается только из прибыли владельца.
         if (ownerId && report.entries[ownerId]) {
-          const ownerEntry = report.entries[ownerId];
-          initInvestors.forEach(inv => {
-            if (inv.isOwner) return;
-            const entry = report.entries[inv.id];
-            const added = Number(entry.addedPercent) || 0;
-            if (added === 0) return;
-            const cfs = Math.max(0, (entry.capitalStart || 0) + Number(entry.invested || 0) - Number(entry.withdrawn || 0));
-            const newProfit = cfs * (added / 100);
-            const diff = newProfit - (entry._baseProfit || 0);
-            entry.profitActual = newProfit;
-            entry.factPercent = added;
-            ownerEntry.profitActual = (ownerEntry.profitActual || 0) - diff;
-          });
+          report.entries[ownerId].profitActual =
+            Number(report.entries[ownerId].profitActual || 0) - totalAddedProfit;
         }
-        
+
         initInvestors.forEach(inv => {
           const entry = report.entries[inv.id];
-          const cs = entry.capitalStart || 0;
+          const cfs = Math.max(
+            0,
+            (entry.capitalStart || 0) +
+            Number(entry.invested || 0) -
+            Number(entry.withdrawn || 0)
+          );
+
+          // Реальный процент прибыли от работающего капитала.
+          entry.factPercent = cfs > 0 ? (Number(entry.profitActual || 0) / cfs) * 100 : 0;
+
+          // Если месяц зафиксирован, сохраняем зафиксированный процент.
+          if (report.stopped && entry.stopValue !== null && entry.stopValue !== undefined) {
+            entry.factPercent = Number(entry.stopValue) || 0;
+          }
+        });
+
+        // Капитал не увеличивается автоматически всей полученной прибылью.
+        // Только явно указанная реинвестиция возвращается в капитал.
+        initInvestors.forEach(inv => {
+          const entry = report.entries[inv.id];
+          const cs = Number(entry.capitalStart || 0);
           const invested = Number(entry.invested || 0);
           const dividends = Number(entry.dividends || 0);
           const withdrawn = Number(entry.withdrawn || 0);
-          entry.capital = cs + invested - dividends - withdrawn;
+          const reinvested = Math.max(0, Number(entry.reinvested) || 0);
+
+          entry.capital = cs + invested + reinvested - dividends - withdrawn;
         });
-        
-        previousCapitais = {};
-        pendingProfit = {};
+
+        previousCapitals = {};
         initInvestors.forEach(inv => {
-          previousCapitais[inv.id] = report.entries[inv.id].capital || 0;
-          pendingProfit[inv.id] = report.entries[inv.id].profitActual || 0;
+          previousCapitals[inv.id] = Number(report.entries[inv.id].capital || 0);
         });
-        
-        let totalCapitalEnd = 0, totalProfitEnd = 0;
+
+        let totalCapitalEnd = 0;
+        let totalProfitEnd = 0;
         initInvestors.forEach(inv => {
-          totalCapitalEnd += report.entries[inv.id].capital || 0;
-          totalProfitEnd += report.entries[inv.id].profitActual || 0;
+          totalCapitalEnd += Number(report.entries[inv.id].capital || 0);
+          totalProfitEnd += Number(report.entries[inv.id].profitActual || 0);
         });
-        report.overallProfitPercent = totalCapitalEnd > 0 ? (totalProfitEnd / totalCapitalEnd) * 100 : 0;
+        report.overallProfitPercent = totalCapitalEnd > 0
+          ? (totalProfitEnd / totalCapitalEnd) * 100
+          : 0;
       });
-      
+
       saveInitData();
     }
 
     window.updateMonthlyEntry = function(year, month, investorId, field, value) {
       const report = getMonthlyReport(year, month);
       if (!report.entries[investorId]) {
-        report.entries[investorId] = { invested: 0, dividends: 0, withdrawn: 0, profitActual: 0, factPercent: 0, stopValue: null, addedPercent: 0, capital: 0, capitalStart: 0 };
+        report.entries[investorId] = { invested: 0, dividends: 0, withdrawn: 0, profitActual: 0, factPercent: 0, stopValue: null, addedPercent: 0, reinvested: 0, capital: 0, capitalStart: 0 };
       }
       const numVal = Number(value) || 0;
       report.entries[investorId][field] = numVal;
@@ -5856,6 +5995,18 @@
       const report = getMonthlyReport(year, month);
       if (!report.startingCapital) report.startingCapital = {};
       report.startingCapital[investorId] = Number(value) || 0;
+      recalculateInit();
+      saveInitData();
+      renderInitPage();
+      pushToCloud();
+    };
+
+    window.updateReinvested = function(year, month, investorId, value) {
+      const report = getMonthlyReport(year, month);
+      if (!report.entries[investorId]) return;
+      const requested = Math.max(0, Number(value) || 0);
+      const available = Math.max(0, Number(report.entries[investorId].profitActual || 0));
+      report.entries[investorId].reinvested = Math.min(requested, available);
       recalculateInit();
       saveInitData();
       renderInitPage();
@@ -5978,6 +6129,7 @@
         txt += `${inv.name}${inv.isOwner ? ' (Вы)' : ''}:\n`;
         txt += `  Капитал: ${Number(e.capital || 0).toLocaleString('ru-RU')} ₽\n`;
         txt += `  Вложил: ${Number(e.invested || 0).toLocaleString('ru-RU')} ₽\n`;
+        txt += `  Реинвестировал: ${Number(e.reinvested || 0).toLocaleString('ru-RU')} ₽\n`;
         txt += `  Дивиденды: ${Number(e.dividends || 0).toLocaleString('ru-RU')} ₽\n`;
         txt += `  Снял: ${Number(e.withdrawn || 0).toLocaleString('ru-RU')} ₽\n`;
         txt += `  Прибыль: ${Number(e.profitActual || 0).toLocaleString('ru-RU')} ₽\n`;
@@ -6085,6 +6237,7 @@
               <td class="font-bold text-left">${inv.name}${inv.isOwner ? ' (Вы)' : ''}</td>
               <td class="${capitalClass}">${Number(entry.capital || 0).toLocaleString('ru-RU')}</td>
               <td><input type="number" value="${entry.invested || 0}" onchange="updateMonthlyEntry(${year},${month},'${inv.id}','invested',this.value)" min="0"></td>
+              <td><input type="number" value="${entry.reinvested || 0}" onchange="updateReinvested(${year},${month},'${inv.id}',this.value)" min="0"></td>
               <td><input type="number" value="${entry.dividends || 0}" onchange="updateMonthlyEntry(${year},${month},'${inv.id}','dividends',this.value)" min="0"></td>
               <td><input type="number" value="${entry.withdrawn || 0}" onchange="updateMonthlyEntry(${year},${month},'${inv.id}','withdrawn',this.value)" min="0"></td>
               <td class="font-bold text-blue-700">${shareOfCapital.toFixed(2)}%</td>
@@ -6107,7 +6260,7 @@
           <tr class="total-row">
             <td class="font-bold">ИТОГО</td>
             <td class="font-bold">${totalCap.toLocaleString('ru-RU')}</td>
-            <td colspan="3"></td>
+            <td colspan="4"></td>
             <td class="font-bold">100%</td>
             <td class="font-bold text-green-700">${totalProfit.toLocaleString('ru-RU')}</td>
             <td colspan="3"></td>
@@ -6134,13 +6287,14 @@
                   <th>Имена</th>
                   <th>Капитал</th>
                   <th>Вложил</th>
+                  <th>Реинвестировал</th>
                   <th>Дивиденды</th>
                   <th>Снял с вклада</th>
                   <th>Доля в капитале</th>
                   <th>Прибыль факт</th>
                   <th>Стоп</th>
                   <th>Факт %</th>
-                  <th>Добавить %</th>
+                  <th>Доп. % от капитала</th>
                 </tr>
               </thead>
               <tbody>
