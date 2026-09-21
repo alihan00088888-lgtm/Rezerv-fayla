@@ -5943,17 +5943,19 @@
           }
         });
 
-        // Капитал не увеличивается автоматически всей полученной прибылью.
-        // Только явно указанная реинвестиция возвращается в капитал.
+        // В вашей исходной логике вся фактически начисленная прибыль
+        // автоматически переходит в капитал следующего месяца.
+        // Поле «Реинвестировал» сохраняем как отдельное информационное поле,
+        // но оно НЕ управляет переходом прибыли в капитал.
         initInvestors.forEach(inv => {
           const entry = report.entries[inv.id];
           const cs = Number(entry.capitalStart || 0);
           const invested = Number(entry.invested || 0);
+          const profitActual = Number(entry.profitActual || 0);
           const dividends = Number(entry.dividends || 0);
           const withdrawn = Number(entry.withdrawn || 0);
-          const reinvested = Math.max(0, Number(entry.reinvested) || 0);
 
-          entry.capital = cs + invested + reinvested - dividends - withdrawn;
+          entry.capital = cs + invested + profitActual - dividends - withdrawn;
         });
 
         previousCapitals = {};
