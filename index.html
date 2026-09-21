@@ -2798,16 +2798,19 @@
 
     function getDashboardInvestments(range) {
       let investorInvested = 0, ownerInvested = 0, totalInvested = 0;
-      Object.keys(initMonthlyReports).forEach(key => {
+      const keys = Object.keys(initMonthlyReports).sort();
+      const firstKey = keys[0];
+      keys.forEach(key => {
         const rep = initMonthlyReports[key];
         if (!rep || !rep.entries) return;
         const monthDate = `${rep.year}-${String(rep.month).padStart(2,'0')}-01`;
         if (!dashInRange(monthDate, range)) return;
+        const isFirstReport = key === firstKey;
         initInvestors.forEach(inv => {
           const e = rep.entries[inv.id];
           const monthlyInvested = Number(e?.invested || 0);
-          // Начальный капитал является частью реально вложенного капитала.
-          const startingCapital = Number(rep.startingCapital?.[inv.id] || 0);
+          // Начальный капитал — это разовое первоначальное вложение, а не ежемесячное.
+          const startingCapital = isFirstReport ? Number(rep.startingCapital?.[inv.id] || 0) : 0;
           const value = monthlyInvested + startingCapital;
           totalInvested += value;
           if (inv.isOwner) ownerInvested += value;
@@ -2817,10 +2820,18 @@
       return { investorInvested, ownerInvested, totalInvested };
     }
 
-    function getDashboardCurrentCapital() {
+    function getDashboardCurrentCapital(range) {
       const keys = Object.keys(initMonthlyReports).sort();
       if (!keys.length) return 0;
-      const latest = initMonthlyReports[keys[keys.length - 1]];
+      let candidateKey = null;
+      keys.forEach(key => {
+        const rep = initMonthlyReports[key];
+        if (!rep) return;
+        const monthDate = `${rep.year}-${String(rep.month).padStart(2,'0')}-01`;
+        if (!range || !range.to || dashParseDate(monthDate) <= dashParseDate(range.to)) candidateKey = key;
+      });
+      if (!candidateKey) return 0;
+      const latest = initMonthlyReports[candidateKey];
       let total = 0;
       initInvestors.forEach(inv => total += Number(latest?.entries?.[inv.id]?.capital || 0));
       return total;
@@ -2833,10 +2844,9 @@
         sumPut += Number(item.putAmount || 0);
       });
       allContracts.forEach(c => {
-        if (c.shopPaid) {
-          totalDownPayments += Number(c.downPayment || 0);
-          totalCostPrice += Number(c.costPrice || 0);
-        }
+        // Платёж клиента поступает в кассу независимо от того, рассчитались ли мы с магазином.
+        totalDownPayments += Number(c.downPayment || 0);
+        if (c.shopPaid) totalCostPrice += Number(c.costPrice || 0);
         Object.values(c.installments || {}).forEach(p => totalInstallments += Number(p?.amount || 0));
       });
       allIncomeExpenses.forEach(e => totalIncomeExpenses += Number(e.amount || 0));
@@ -2939,7 +2949,9 @@
       let withdrawn = 0;
       let invested = 0;
 
-      Object.keys(initMonthlyReports).forEach(key => {
+      const reportKeys = Object.keys(initMonthlyReports).sort();
+      const firstReportKey = reportKeys[0];
+      reportKeys.forEach(key => {
         const rep = initMonthlyReports[key];
         if (!rep || !rep.entries) return;
         const monthDate = `${rep.year}-${String(rep.month).padStart(2,'0')}-01`;
@@ -2952,8 +2964,8 @@
           dividends += Number(e.dividends || 0);
           withdrawn += Number(e.withdrawn || 0);
           invested += Number(e.invested || 0);
-          if (Number(rep.startingCapital?.[inv.id] || 0) > 0) {
-            invested += Number(rep.startingCapital[inv.id] || 0);
+          if (key === firstReportKey) {
+            invested += Number(rep.startingCapital?.[inv.id] || 0);
           }
         });
       });
@@ -2972,7 +2984,7 @@
       const profitAfterExpenses = metrics.totalProfit - totalExpensesWithDividends;
       const investments = getDashboardInvestments(range);
       const investorMetrics = getDashboardInvestorMetrics(range);
-      const currentCapital = getDashboardCurrentCapital();
+      const currentCapital = getDashboardCurrentCapital(range);
       const cash = getDashboardCash();
       const debtors = getDebtors();
       const installRange = getDashboardInstallmentScope(range);
@@ -3053,9 +3065,11 @@
       const payDay = payDateObj.getDate();
       const monthsCount = Number(contract.monthsCount) || 0;
       
-      let startDate = new Date(contract.buyDate || payDateStr);
+      // Дата «График платежа» является опорной датой графика.
+      // Дата покупки не должна сдвигать день ежемесячного платежа.
+      let startDate = new Date(payDateStr);
       if (isNaN(startDate.getTime())) {
-        startDate = new Date(payDateStr);
+        return [];
       }
       startDate.setHours(0, 0, 0, 0);
       
@@ -3118,9 +3132,10 @@
         const paymentDates = calculatePaymentDates(contract);
         for (const pd of paymentDates) {
           const payment = installments[pd.index];
-          const isPaid = !!payment && Number(payment.amount) > 0;
-          if (!isPaid && pd.date < today) {
-            overdueSum += monthlyPay;
+          const paidAmount = Math.max(0, Number(payment?.amount) || 0);
+          const dueAmount = Math.max(0, monthlyPay - paidAmount);
+          if (dueAmount > 0 && pd.date < today) {
+            overdueSum += dueAmount;
           }
         }
       }
@@ -3700,22 +3715,25 @@
       
       for (const pd of paymentDates) {
         const payment = installments[pd.index];
-        const isPaid = !!payment && Number(payment.amount) > 0;
-        const paidAmount = isPaid ? Number(payment.amount) : 0;
+        const paidAmount = Math.max(0, Number(payment?.amount) || 0);
+        const dueAmount = Math.max(0, monthlyPay - paidAmount);
+        const isPaid = dueAmount <= 0 && monthlyPay > 0;
         
         let status = 'future';
         if (isPaid) {
           status = 'paid';
-        } else if (pd.date < today) {
+        } else if (pd.date < today && dueAmount > 0) {
           status = 'overdue';
-          overdueSum += monthlyPay;
+          overdueSum += dueAmount;
         }
         
         result.push({
           month: pd.index,
           date: pd.dateStr,
           status: status,
-          amount: isPaid ? paidAmount : monthlyPay,
+          amount: dueAmount > 0 ? dueAmount : monthlyPay,
+          paidAmount,
+          dueAmount,
           isPaid: isPaid,
           payDateObj: pd.date
         });
@@ -3742,10 +3760,11 @@
         
         for (const pd of paymentDates) {
           const payment = installments[pd.index];
-          const isPaid = !!payment && Number(payment.amount) > 0;
-          if (!isPaid && pd.date.getTime() === target.getTime()) {
+          const paidAmount = Math.max(0, Number(payment?.amount) || 0);
+          const dueAmount = Math.max(0, Number(pd.amount || 0) - paidAmount);
+          if (dueAmount > 0 && pd.date.getTime() === target.getTime()) {
             hasUnpaidMonth = true;
-            unpaidMonthAmount = pd.amount;
+            unpaidMonthAmount = dueAmount;
             break;
           }
         }
@@ -3765,10 +3784,19 @@
       return result;
     }
 
+    function normalizeWhatsAppPhone(phone) {
+      let d = String(phone || '').replace(/\D/g, '');
+      if (!d) return '';
+      if (d.startsWith('00')) d = d.slice(2);
+      if (d.startsWith('8') && d.length === 11) d = '7' + d.slice(1);
+      if (d.startsWith('7') && d.length === 10) d = '7' + d;
+      return d;
+    }
+
     function buildClientWhatsAppMessage(client, dateStr) {
       const monthInfo = client.monthInfo || getMonthStatus(client);
       const todayPayment = Number(client.unpaidMonthAmount || client.monthlyPay || 0);
-      const overdueSum = monthInfo.months.reduce((sum, m) => sum + (m.status === 'overdue' && !m.isPaid ? Number(m.amount || 0) : 0), 0);
+      const overdueSum = monthInfo.months.reduce((sum, m) => sum + (m.status === 'overdue' && !m.isPaid ? Number(m.dueAmount || m.amount || 0) : 0), 0);
       const rest = Number(client.rest || 0);
       const name = String(client.fio || '').trim();
       let message = `السلام عليكم ورحمة الله\nМир вам\n\n`;
@@ -3819,11 +3847,11 @@
 
           if (m.status === 'paid' || m.isPaid) {
             statusClass = 'month-paid';
-            statusText = `✓ ${Number(m.amount || 0).toLocaleString('ru-RU')} ₽`;
+            statusText = `✓ ${Number(m.paidAmount || m.amount || 0).toLocaleString('ru-RU')} ₽`;
           } else if (m.status === 'overdue') {
             statusClass = 'month-overdue';
-            statusText = `❌ ${Number(m.amount || 0).toLocaleString('ru-RU')} ₽`;
-            overdueSum += Number(m.amount || 0);
+            statusText = `❌ ${Number(m.dueAmount || m.amount || 0).toLocaleString('ru-RU')} ₽`;
+            overdueSum += Number(m.dueAmount || m.amount || 0);
           } else if (scheduleMode === 'threeDays' && monthDate === targetDate) {
             statusClass = 'month-three-days';
             statusText = `⏰ ${Number(m.amount || 0).toLocaleString('ru-RU')} ₽`;
@@ -3837,9 +3865,9 @@
 
         const clientOverdue = overdueSum || monthInfo.overdueSum || 0;
         const rest = client.rest || calculateContractMetrics(client).rest;
-        const phoneDigits = String(client.phone || '').replace(/[^0-9]/g, '');
+        const phoneDigits = normalizeWhatsAppPhone(client.phone);
         const waHref = phoneDigits
-          ? `https://wa.me/7${phoneDigits}?text=${encodeURIComponent(scheduleMode === 'debtors' ? buildDebtorWhatsAppMessage(client) : buildClientWhatsAppMessage(client, dateStr))}`
+          ? `https://wa.me/${phoneDigits}?text=${encodeURIComponent(scheduleMode === 'debtors' ? buildDebtorWhatsAppMessage(client) : buildClientWhatsAppMessage(client, dateStr))}`
           : '#';
         const waAttrs = phoneDigits
           ? 'target="_blank" rel="noopener noreferrer"'
@@ -3880,7 +3908,7 @@
     ];
 
     function fieldworkClientKey(client) {
-      return [String(client.fio || '').trim().toLocaleLowerCase('ru-RU'), String(client.phone || '').replace(/\D/g,''), String(client.extraPhone || '').replace(/\D/g,'')].join('|');
+      return [String(client.fio || '').trim().toLocaleLowerCase('ru-RU'), String(client.birthDate || '').trim()].join('|');
     }
 
     function getFieldworkRecord(client) {
@@ -4084,9 +4112,10 @@
       allContracts.forEach(contract => {
         const fio = String(contract.fio || '').trim();
         if (!fio) return;
-        const key = fio.toLocaleLowerCase('ru-RU');
+        const birthDate = String(contract.birthDate || '').trim();
+        const key = `${fio.toLocaleLowerCase('ru-RU')}|${birthDate}`;
         if (!map.has(key)) {
-          map.set(key, { fio, phone: contract.phone || '', extraPhone: contract.extraPhone || '', contracts: [] });
+          map.set(key, { fio, birthDate, phone: contract.phone || '', extraPhone: contract.extraPhone || '', contracts: [] });
         }
         const client = map.get(key);
         if (!client.phone && contract.phone) client.phone = contract.phone;
@@ -4321,7 +4350,7 @@
     function buildThreeDaysWhatsAppMessage(client, dateStr) {
       const monthInfo = client.monthInfo || getMonthStatus(client);
       const payment = Number(client.unpaidMonthAmount || client.monthlyPay || 0);
-      const overdueSum = monthInfo.months.reduce((sum, m) => sum + (m.status === 'overdue' && !m.isPaid ? Number(m.amount || 0) : 0), 0);
+      const overdueSum = monthInfo.months.reduce((sum, m) => sum + (m.status === 'overdue' && !m.isPaid ? Number(m.dueAmount || m.amount || 0) : 0), 0);
       const rest = Number(client.rest || 0);
       const name = String(client.fio || '').trim();
       let message = `السلام عليكم ورحمة الله\nМир вам\n\n`;
@@ -4352,7 +4381,7 @@
       const clients = getDebtors();
       const totalOverdue = clients.reduce((sum, client) => {
         const info = client.monthInfo || getMonthStatus(client);
-        return sum + info.months.reduce((inner, m) => inner + (m.status === 'overdue' && !m.isPaid ? Number(m.amount || 0) : 0), 0);
+        return sum + info.months.reduce((inner, m) => inner + (m.status === 'overdue' && !m.isPaid ? Number(m.dueAmount || m.amount || 0) : 0), 0);
       }, 0);
       const summary = document.getElementById('debtorsSummary');
       if (summary) summary.textContent = `${clients.length} клиентов · ${totalOverdue.toLocaleString('ru-RU')} ₽ просрочено`;
@@ -4518,11 +4547,6 @@
       const installments = editId ? (allContracts.find(c => c.id === editId)?.installments || {}) : {};
       let totalPaid = 0;
       Object.values(installments).forEach(p => totalPaid += Number(p.amount));
-      const rest = totalCost - downPayment - totalPaid;
-      if (rest <= 0) {
-        formData.shopPaid = true;
-      }
-
       if (editId) {
         const index = allContracts.findIndex(c => c.id === editId);
         if (index !== -1) {
@@ -4567,11 +4591,8 @@
         date: inputDateVal 
       };
       
-      const metrics = calculateContractMetrics(contract);
-      if (metrics.isClosed) {
-        contract.shopPaid = true;
-      }
-      
+      // Оплата клиентом договора не означает автоматическую оплату магазину.
+      // «Оплачено Д» меняется только вручную по факту расчёта с магазином.
       saveToStorage();
       closePayModal();
       document.getElementById('payForm').reset();
@@ -4586,7 +4607,7 @@
         if (confirm(`Удалить ${idx}-й взнос на сумму ${contract.installments[idx].amount} ₽?`)) {
           saveState();
           delete contract.installments[idx];
-          contract.shopPaid = false;
+          // Удаление клиентского платежа не меняет факт оплаты магазину.
           saveToStorage();
           closePayModal();
           document.getElementById('payForm').reset();
@@ -5250,10 +5271,8 @@
       let totalCostPrice = 0;
 
       allContracts.forEach(c => {
-        if (c.shopPaid) {
-          totalDownPayments += Number(c.downPayment || 0);
-          totalCostPrice += Number(c.costPrice || 0);
-        }
+        totalDownPayments += Number(c.downPayment || 0);
+        if (c.shopPaid) totalCostPrice += Number(c.costPrice || 0);
         const insts = c.installments || {};
         Object.values(insts).forEach(p => {
           totalInstallments += Number(p.amount || 0);
@@ -5497,7 +5516,8 @@
         incomeExpenses: allIncomeExpenses,
         accounts: customAccounts,
         investors: initInvestors,
-        monthlyReports: initMonthlyReports
+        monthlyReports: initMonthlyReports,
+        fieldVisitRecords: fieldVisitRecords
       };
       const blob = new Blob([JSON.stringify(exportObject, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
@@ -5527,6 +5547,7 @@
               customAccounts = data.accounts || customAccounts;
               if (data.investors) initInvestors = data.investors;
               if (data.monthlyReports) initMonthlyReports = data.monthlyReports;
+              if (data.fieldVisitRecords && typeof data.fieldVisitRecords === 'object') fieldVisitRecords = data.fieldVisitRecords;
             }
             saveToStorage();
           }
@@ -5571,7 +5592,26 @@
 
     window.updateInvestorPercent = function(idx, value) {
       if (initInvestors[idx].isOwner) return;
-      initInvestors[idx].percent = Math.min(100, Math.max(0, Number(value) || 0));
+      const investor = initInvestors[idx];
+      const oldPercent = Math.min(100, Math.max(0, Number(investor.percent) || 0));
+      const newPercent = Math.min(100, Math.max(0, Number(value) || 0));
+
+      // До изменения процента фиксируем старое условие во всех уже существующих месяцах.
+      // Поэтому изменение договора не пересчитывает историю задним числом.
+      Object.values(initMonthlyReports).forEach(rep => {
+        const entry = rep?.entries?.[investor.id];
+        if (!entry) return;
+        if (entry.profitPercent === undefined || entry.profitPercent === null) entry.profitPercent = oldPercent;
+      });
+
+      investor.percent = newPercent;
+
+      // Новый процент действует с текущего месяца. Старые месяцы остаются зафиксированы.
+      const now = new Date();
+      const currentKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+      const currentReport = initMonthlyReports[currentKey];
+      if (currentReport?.entries?.[investor.id]) currentReport.entries[investor.id].profitPercent = newPercent;
+
       saveInitData();
       recalculateInit();
       saveInitData();
@@ -5691,7 +5731,7 @@
           rep.entries[inv.id] = {
             invested: 0, dividends: 0, withdrawn: 0,
             profitActual: 0, factPercent: 0, stopValue: null,
-            addedPercent: 0, capital: 0, capitalStart: 0
+            addedPercent: 0, capital: 0, capitalStart: 0, profitPercent: inv.isOwner ? 100 : Number(inv.percent) || 0
           };
         }
       });
@@ -5803,11 +5843,14 @@
             report.entries[inv.id] = {
               invested: 0, dividends: 0, withdrawn: 0, reinvested: 0,
               profitActual: 0, factPercent: 0, stopValue: null,
-              addedPercent: 0, capital: 0, capitalStart: 0
+              addedPercent: 0, capital: 0, capitalStart: 0, profitPercent: null
             };
           }
           const entry = report.entries[inv.id];
           if (entry.reinvested === undefined) entry.reinvested = 0;
+          if (entry.profitPercent === undefined || entry.profitPercent === null) {
+            entry.profitPercent = inv.isOwner ? 100 : Number(inv.percent) || 0;
+          }
           if (entry.addedPercent === undefined) entry.addedPercent = 0;
           entry.profitActual = 0;
           entry.factPercent = 0;
@@ -5879,7 +5922,7 @@
           } else {
             // Процент из карточки инвестора — это договорная доля
             // инвестора именно от прибыли, например 50%, 40%, 30%.
-            const investorPercent = Math.min(100, Math.max(0, Number(inv.percent) || 0));
+            const investorPercent = Math.min(100, Math.max(0, Number(entry.profitPercent ?? inv.percent) || 0));
             const investorProfit = profitAllocatedToThisCapital * (investorPercent / 100);
             const ownerProfit = profitAllocatedToThisCapital * ((100 - investorPercent) / 100);
 
@@ -6214,7 +6257,7 @@
           const shareOfCapital = totalCap > 0 ? (Number(entry.capital || 0) / totalCap) * 100 : 0;
           const shareOfProfit = inv.isOwner
             ? (totalProfit > 0 ? (Number(entry.profitActual || 0) / totalProfit) * 100 : 0)
-            : (Number(inv.percent) || 0);
+            : (Number(entry.profitPercent ?? inv.percent) || 0);
           
           const factDisplay = report.stopped
             ? (entry.stopValue !== null && entry.stopValue !== undefined ? Number(entry.stopValue).toFixed(2) : Number(entry.factPercent || 0).toFixed(2))
