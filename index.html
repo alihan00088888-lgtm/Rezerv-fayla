@@ -1609,23 +1609,30 @@
     </div>
 
     <!-- ================= Лист 7: Партнёры ================= -->
-    <div id="partnersTabContent" class="hidden space-y-4">
-      <div class="bg-white shadow-xl rounded-xl p-6 border">
-        <div class="flex justify-between items-center mb-4">
-          <h2 class="text-xl font-bold text-purple-600">🤝 Партнёры / Магазины</h2>
-          <div class="flex items-center gap-4">
-            <div class="flex items-center gap-2">
-              <label class="text-xs font-bold">С:</label>
-              <input type="date" id="partnerDateFrom" class="p-1 border rounded text-xs" onchange="renderPartners()">
-            </div>
-            <div class="flex items-center gap-2">
-              <label class="text-xs font-bold">По:</label>
-              <input type="date" id="partnerDateTo" class="p-1 border rounded text-xs" onchange="renderPartners()">
-            </div>
-            <button onclick="clearPartnerDates()" class="bg-gray-500 hover:bg-gray-600 text-white px-2 py-1 rounded text-xs">Сбросить</button>
+    <div id="partnersTabContent" class="hidden space-y-3">
+      <div class="bg-white shadow-xl rounded-xl p-3 md:p-4 border">
+        <div class="flex flex-wrap justify-between items-center gap-2 mb-3">
+          <h2 class="text-lg font-bold text-purple-600">🤝 Партнёры</h2>
+          <div class="flex flex-wrap items-center gap-1.5">
+            <button onclick="setPartnersView('official')" id="partnersViewOfficial" class="bg-purple-600 text-white px-2.5 py-1.5 rounded text-xs font-bold">Мои партнёры</button>
+            <button onclick="setPartnersView('other')" id="partnersViewOther" class="bg-gray-100 text-gray-700 px-2.5 py-1.5 rounded text-xs font-bold">Другие</button>
+            <button onclick="togglePartnerAdd()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1.5 rounded text-xs font-bold">＋ Добавить</button>
           </div>
         </div>
-        <div id="partnersList" class="divide-y"></div>
+        <div id="partnerAddPanel" class="hidden mb-3 p-2.5 rounded-lg bg-purple-50 border border-purple-200">
+          <div class="grid grid-cols-1 md:grid-cols-[1fr_1fr_auto] gap-2">
+            <input id="partnerNameInput" class="p-2 border rounded text-sm" placeholder="Название партнёра / магазина">
+            <input id="partnerPhoneInput" class="p-2 border rounded text-sm" placeholder="Телефон / WhatsApp">
+            <button onclick="addPartner()" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded text-xs font-bold">Сохранить</button>
+          </div>
+        </div>
+        <div class="flex flex-wrap items-center gap-2 mb-3">
+          <input type="date" id="partnerDateFrom" class="p-1.5 border rounded text-xs" onchange="renderPartners()">
+          <span class="text-xs font-bold text-gray-400">—</span>
+          <input type="date" id="partnerDateTo" class="p-1.5 border rounded text-xs" onchange="renderPartners()">
+          <button onclick="clearPartnerDates()" class="bg-gray-500 hover:bg-gray-600 text-white px-2 py-1.5 rounded text-xs">Сбросить</button>
+        </div>
+        <div id="partnersList"></div>
       </div>
     </div>
 
@@ -1933,7 +1940,8 @@
           <div class="bg-gray-50 p-4 rounded-lg border">
             <h3 class="font-black text-[10px] uppercase text-gray-400 mb-3 tracking-widest">3. Описание товара</h3>
             <input type="text" id="product" placeholder="Наименование товара" class="p-2 border rounded w-full mb-2">
-            <input type="text" id="store" placeholder="Магазин / Партнёр" class="p-2 border rounded w-full">
+            <input type="text" id="store" list="partnerNamesList" placeholder="Магазин / Партнёр" class="p-2 border rounded w-full">
+            <datalist id="partnerNamesList"></datalist>
           </div>
           <div class="bg-gray-50 p-4 rounded-lg border">
             <h3 class="font-black text-[10px] uppercase text-gray-400 mb-3 tracking-widest">4. Поручитель</h3>
@@ -2132,6 +2140,8 @@
     let allTaken = JSON.parse(localStorage.getItem('taken_db') || '[]');
     let allIncomeExpenses = JSON.parse(localStorage.getItem('income_expenses_db') || '[]');
     let fieldVisitRecords = JSON.parse(localStorage.getItem('field_visit_records_db') || '{}');
+    let allPartners = JSON.parse(localStorage.getItem('partners_db') || '[]');
+    if (!Array.isArray(allPartners)) allPartners = [];
     if (!fieldVisitRecords || typeof fieldVisitRecords !== 'object' || Array.isArray(fieldVisitRecords)) fieldVisitRecords = {};
     const IS_FIELDWORKER_MODE = new URLSearchParams(window.location.search).get('role') === 'fieldworker';
     if (IS_FIELDWORKER_MODE) document.body.classList.add('fieldworker-mode');
@@ -2242,6 +2252,7 @@
             investors: initInvestors,
             monthlyReports: initMonthlyReports,
             fieldVisitRecords: fieldVisitRecords,
+            partners: allPartners,
             updatedAt: Date.now()
           });
           setSyncStatus('synced', 'Синхронизировано');
@@ -2262,6 +2273,7 @@
       if (data.investors) initInvestors = data.investors;
       if (data.monthlyReports) initMonthlyReports = data.monthlyReports;
       if (data.fieldVisitRecords && typeof data.fieldVisitRecords === 'object') fieldVisitRecords = data.fieldVisitRecords;
+      if (Array.isArray(data.partners)) allPartners = data.partners;
 
       localStorage.setItem('contracts_db', JSON.stringify(allContracts));
       localStorage.setItem('accounting_db', JSON.stringify(allAccounting));
@@ -2271,7 +2283,7 @@
       localStorage.setItem('investors_db', JSON.stringify(initInvestors));
       localStorage.setItem('monthly_reports_db', JSON.stringify(initMonthlyReports));
       localStorage.setItem('field_visit_records_db', JSON.stringify(fieldVisitRecords));
-
+      localStorage.setItem('partners_db', JSON.stringify(allPartners));
       try {
         renderTable(allContracts);
         populateAccountingAccountFilter();
@@ -2309,7 +2321,8 @@
              emptyArr(data.investors) && 
              emptyObj(data.monthlyReports) && 
              emptyArr(data.accounts) &&
-             emptyObj(data.fieldVisitRecords);
+             emptyObj(data.fieldVisitRecords) &&
+             emptyArr(data.partners);
     }
 
     async function initSync() {
@@ -2329,6 +2342,7 @@
             investors: initInvestors,
             monthlyReports: initMonthlyReports,
             fieldVisitRecords: fieldVisitRecords,
+            partners: allPartners,
             updatedAt: Date.now()
           });
         }
@@ -2552,7 +2566,8 @@
         accounts: JSON.parse(JSON.stringify(customAccounts)),
         investors: JSON.parse(JSON.stringify(initInvestors)),
         monthlyReports: JSON.parse(JSON.stringify(initMonthlyReports)),
-        fieldVisitRecords: JSON.parse(JSON.stringify(fieldVisitRecords))
+        fieldVisitRecords: JSON.parse(JSON.stringify(fieldVisitRecords)),
+        partners: JSON.parse(JSON.stringify(allPartners))
       };
       undoStack.push(JSON.stringify(stateSnapshot));
       if (undoStack.length > 50) undoStack.shift();
@@ -2570,7 +2585,8 @@
         accounts: JSON.parse(JSON.stringify(customAccounts)),
         investors: JSON.parse(JSON.stringify(initInvestors)),
         monthlyReports: JSON.parse(JSON.stringify(initMonthlyReports)),
-        fieldVisitRecords: JSON.parse(JSON.stringify(fieldVisitRecords))
+        fieldVisitRecords: JSON.parse(JSON.stringify(fieldVisitRecords)),
+        partners: JSON.parse(JSON.stringify(allPartners))
       };
       redoStack.push(JSON.stringify(currentState));
       
@@ -2583,6 +2599,7 @@
       initInvestors = previousState.investors || initInvestors;
       initMonthlyReports = previousState.monthlyReports || initMonthlyReports;
       fieldVisitRecords = previousState.fieldVisitRecords || fieldVisitRecords;
+      allPartners = previousState.partners || allPartners;
       finishAction();
     };
 
@@ -2596,7 +2613,8 @@
         accounts: JSON.parse(JSON.stringify(customAccounts)),
         investors: JSON.parse(JSON.stringify(initInvestors)),
         monthlyReports: JSON.parse(JSON.stringify(initMonthlyReports)),
-        fieldVisitRecords: JSON.parse(JSON.stringify(fieldVisitRecords))
+        fieldVisitRecords: JSON.parse(JSON.stringify(fieldVisitRecords)),
+        partners: JSON.parse(JSON.stringify(allPartners))
       };
       undoStack.push(JSON.stringify(currentState));
       
@@ -2609,6 +2627,7 @@
       initInvestors = nextState.investors || initInvestors;
       initMonthlyReports = nextState.monthlyReports || initMonthlyReports;
       fieldVisitRecords = nextState.fieldVisitRecords || fieldVisitRecords;
+      allPartners = nextState.partners || allPartners;
       finishAction();
     };
 
@@ -2621,6 +2640,7 @@
       localStorage.setItem('investors_db', JSON.stringify(initInvestors));
       localStorage.setItem('monthly_reports_db', JSON.stringify(initMonthlyReports));
       localStorage.setItem('field_visit_records_db', JSON.stringify(fieldVisitRecords));
+      localStorage.setItem('partners_db', JSON.stringify(allPartners));
       renderTable(allContracts);
       if (activeTab === 'accounting') { populateAccountingAccountFilter(); applyAccountingFilters(); }
       else renderAccountingTable(allAccounting);
@@ -2662,6 +2682,7 @@
       localStorage.setItem('investors_db', JSON.stringify(initInvestors));
       localStorage.setItem('monthly_reports_db', JSON.stringify(initMonthlyReports));
       localStorage.setItem('field_visit_records_db', JSON.stringify(fieldVisitRecords));
+      localStorage.setItem('partners_db', JSON.stringify(allPartners));
       renderTable(allContracts);
       if (activeTab === 'accounting') { populateAccountingAccountFilter(); applyAccountingFilters(); }
       else renderAccountingTable(allAccounting);
@@ -3570,155 +3591,194 @@
       closeIncomeExpModal();
     });
 
-    window.renderPartners = function() {
-      const container = document.getElementById('partnersList');
-      
-      const dateFrom = document.getElementById('partnerDateFrom').value;
-      const dateTo = document.getElementById('partnerDateTo').value;
-      
-      const partnersMap = new Map();
-      
-      allContracts.forEach(contract => {
-        const store = contract.store || '';
-        if (!store.trim()) return;
-        
-        if (dateFrom || dateTo) {
-          const buyDate = contract.buyDate || '';
-          if (buyDate) {
-            if (dateFrom && buyDate < dateFrom) return;
-            if (dateTo && buyDate > dateTo) return;
-          }
-        }
-        
-        if (!partnersMap.has(store)) {
-          partnersMap.set(store, {
-            name: store,
-            debtContracts: 0,
-            debtSum: 0,
-            totalContracts: 0,
-            totalSum: 0,
-            contracts: []
-          });
-        }
-        
-        const partner = partnersMap.get(store);
-        partner.totalContracts++;
-        partner.totalSum += Number(contract.totalCost || 0);
-        partner.contracts.push(contract);
-        
-        if (!contract.shopPaid) {
-          partner.debtContracts++;
-          partner.debtSum += Number(contract.totalCost || 0);
-        }
+    let partnersView = 'official';
+
+    function partnerEscape(value) {
+      return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    function getPartnerFilteredContracts(storeName) {
+      const dateFrom = document.getElementById('partnerDateFrom')?.value || '';
+      const dateTo = document.getElementById('partnerDateTo')?.value || '';
+      return allContracts.filter(c => {
+        if (String(c.store || '').trim().toLocaleLowerCase('ru-RU') !== String(storeName || '').trim().toLocaleLowerCase('ru-RU')) return false;
+        const buyDate = c.buyDate || '';
+        if (dateFrom && buyDate && buyDate < dateFrom) return false;
+        if (dateTo && buyDate && buyDate > dateTo) return false;
+        return true;
       });
-      
-      const partners = Array.from(partnersMap.values()).sort((a, b) => a.name.localeCompare(b.name));
-      
-      if (partners.length === 0) {
-        container.innerHTML = '<div class="text-center text-gray-500 py-8 text-sm">🤝 Нет партнеров/магазинов</div>';
+    }
+
+    function getPartnerPayable(contract) {
+      const cost = Math.max(0, Number(contract?.costPrice) || 0);
+      const down = Math.max(0, Number(contract?.downPayment) || 0);
+      return Math.max(0, cost - down);
+    }
+
+    function getPartnerNameMatch(name) {
+      const needle = String(name || '').trim().toLocaleLowerCase('ru-RU');
+      return allPartners.find(p => String(p?.name || '').trim().toLocaleLowerCase('ru-RU') === needle) || null;
+    }
+
+    function getPartnerOtherNames() {
+      const official = new Set(allPartners.map(p => String(p?.name || '').trim().toLocaleLowerCase('ru-RU')).filter(Boolean));
+      const names = new Map();
+      allContracts.forEach(c => {
+        const name = String(c?.store || '').trim();
+        if (!name) return;
+        const key = name.toLocaleLowerCase('ru-RU');
+        if (!official.has(key) && !names.has(key)) names.set(key, name);
+      });
+      return Array.from(names.values()).sort((a,b) => a.localeCompare(b, 'ru'));
+    }
+
+    function updatePartnerNamesDatalist() {
+      const list = document.getElementById('partnerNamesList');
+      if (!list) return;
+      list.innerHTML = allPartners.map(p => `<option value="${partnerEscape(p.name)}"></option>`).join('');
+    }
+
+    window.setPartnersView = function(view) {
+      partnersView = view === 'other' ? 'other' : 'official';
+      renderPartners();
+    };
+
+    window.togglePartnerAdd = function() {
+      const panel = document.getElementById('partnerAddPanel');
+      if (!panel) return;
+      panel.classList.toggle('hidden');
+      if (!panel.classList.contains('hidden')) document.getElementById('partnerNameInput')?.focus();
+    };
+
+    window.addPartner = function() {
+      const nameEl = document.getElementById('partnerNameInput');
+      const phoneEl = document.getElementById('partnerPhoneInput');
+      const name = String(nameEl?.value || '').trim();
+      const phone = String(phoneEl?.value || '').trim();
+      if (!name) { alert('Введите название партнёра.'); return; }
+      const existing = getPartnerNameMatch(name);
+      saveState();
+      if (existing) {
+        existing.phone = phone || existing.phone || '';
+      } else {
+        allPartners.push({ id: 'partner_' + Date.now(), name, phone, createdAt: Date.now() });
+      }
+      if (nameEl) nameEl.value = '';
+      if (phoneEl) phoneEl.value = '';
+      document.getElementById('partnerAddPanel')?.classList.add('hidden');
+      partnersView = 'official';
+      saveToStorage();
+    };
+
+    window.deletePartner = function(id) {
+      const partner = allPartners.find(p => p.id === id);
+      if (!partner) return;
+      if (!confirm(`Удалить партнёра «${partner.name}» из списка партнёров? Договоры не будут удалены.`)) return;
+      saveState();
+      allPartners = allPartners.filter(p => p.id !== id);
+      saveToStorage();
+    };
+
+    function buildPartnerMessage(partnerName, onlyDebts) {
+      const contracts = getPartnerFilteredContracts(partnerName);
+      const filtered = onlyDebts ? contracts.filter(c => !c.shopPaid) : contracts;
+      const dateFrom = document.getElementById('partnerDateFrom')?.value || '';
+      const dateTo = document.getElementById('partnerDateTo')?.value || '';
+      let total = 0;
+      let message = `${onlyDebts ? '💳 Долги' : '📋 Все договоры'} — ${partnerName}\n`;
+      if (dateFrom || dateTo) message += `Период: ${dateFrom || 'с начала'} — ${dateTo || 'по сегодня'}\n`;
+      message += '━━━━━━━━━━━━━━━━━━\n';
+      if (!filtered.length) return message + 'Нет договоров за выбранный период.';
+      filtered.forEach((c, i) => {
+        const payable = getPartnerPayable(c);
+        total += payable;
+        const paidMark = c.shopPaid ? 'Д — оплачено' : 'без Д — долг';
+        message += `${i + 1}. №${c.contractNum ?? '—'} | Себестоимость: ${Number(c.costPrice || 0).toLocaleString('ru-RU')} ₽ | Первый взнос: ${Number(c.downPayment || 0).toLocaleString('ru-RU')} ₽ | К оплате: ${payable.toLocaleString('ru-RU')} ₽ | ${paidMark}\n`;
+      });
+      message += `━━━━━━━━━━━━━━━━━━\nИтого: ${total.toLocaleString('ru-RU')} ₽`;
+      return message;
+    }
+
+    window.copyPartnerMessage = function(partnerName, onlyDebts, btn) {
+      const message = buildPartnerMessage(partnerName, onlyDebts);
+      copyToClip(message, btn);
+    };
+
+    window.sendPartnerWhatsApp = function(partnerName, onlyDebts) {
+      const partner = getPartnerNameMatch(partnerName);
+      if (!partner || !partner.phone) {
+        alert('У этого партнёра не указан номер WhatsApp. Добавьте или измените номер партнёра.');
         return;
       }
-      
-      let html = `
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-          <div class="bg-purple-50 p-4 rounded-lg border border-purple-200">
-            <div class="text-xs text-purple-600 font-bold">Всего партнеров</div>
-            <div class="text-2xl font-bold text-purple-700">${partners.length}</div>
-          </div>
-          <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
-            <div class="text-xs text-blue-600 font-bold">Всего договоров</div>
-            <div class="text-2xl font-bold text-blue-700">${partners.reduce((sum, p) => sum + p.totalContracts, 0)}</div>
-          </div>
-          <div class="bg-red-50 p-4 rounded-lg border border-red-200">
-            <div class="text-xs text-red-600 font-bold">Договоров в долг (без "Д")</div>
-            <div class="text-2xl font-bold text-red-700">${partners.reduce((sum, p) => sum + p.debtContracts, 0)}</div>
-          </div>
-        </div>
-        <div class="partners-table overflow-x-auto">
-          <table class="w-full border-collapse">
-            <thead>
-              <tr class="bg-purple-700 text-white font-bold text-xs">
-                <th class="p-3">Партнёр / Магазин</th>
-                <th class="p-3">Договоров в долг</th>
-                <th class="p-3">Сумма долга</th>
-                <th class="p-3">Всего договоров</th>
-                <th class="p-3">Общая сумма</th>
-                <th class="p-3">Детали</th>
-              </tr>
-            </thead>
-            <tbody>
-      `;
-      
-      partners.forEach(partner => {
-        html += `
-          <tr class="hover:bg-purple-50">
-            <td class="p-3 font-bold text-purple-700">${partner.name}</td>
-            <td class="p-3 text-center font-bold ${partner.debtContracts > 0 ? 'text-red-600' : 'text-green-600'}">${partner.debtContracts}</td>
-            <td class="p-3 text-center font-bold ${partner.debtSum > 0 ? 'text-red-600' : 'text-green-600'}">${partner.debtSum.toLocaleString('ru-RU')} ₽</td>
-            <td class="p-3 text-center font-bold">${partner.totalContracts}</td>
-            <td class="p-3 text-center font-bold">${partner.totalSum.toLocaleString('ru-RU')} ₽</td>
-            <td class="p-3 text-center">
-              <button onclick="showPartnerDetails('${partner.name}')" class="bg-purple-500 hover:bg-purple-600 text-white px-2 py-1 rounded text-xs">📋 Детали</button>
-            </td>
-          </tr>
-        `;
-      });
-      
-      html += `</tbody></table></div>`;
-      html += `<div class="partners-mobile-cards grid grid-cols-1 gap-3">`;
-      partners.forEach(partner => {
-        html += `<div class="bg-white border border-purple-200 rounded-xl p-4 shadow-sm">
-          <div class="font-black text-purple-700 text-sm mb-3">${partner.name}</div>
-          <div class="grid grid-cols-2 gap-2 text-xs">
-            <div class="bg-red-50 rounded-lg p-2"><div class="text-[9px] text-red-600 font-bold">В долг</div><b>${partner.debtContracts}</b></div>
-            <div class="bg-red-50 rounded-lg p-2"><div class="text-[9px] text-red-600 font-bold">Сумма долга</div><b>${partner.debtSum.toLocaleString('ru-RU')} ₽</b></div>
-            <div class="bg-purple-50 rounded-lg p-2"><div class="text-[9px] text-purple-600 font-bold">Договоров</div><b>${partner.totalContracts}</b></div>
-            <div class="bg-blue-50 rounded-lg p-2"><div class="text-[9px] text-blue-600 font-bold">Общая сумма</div><b>${partner.totalSum.toLocaleString('ru-RU')} ₽</b></div>
-          </div>
-          <button onclick="showPartnerDetails(${JSON.stringify(partner.name)})" class="w-full mt-3 bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-lg text-xs font-bold">📋 Детали</button>
-        </div>`;
-      });
-      html += `</div>`;
-      container.innerHTML = html;
+      const phone = normalizeWhatsAppPhone(partner.phone);
+      if (!phone) { alert('Не удалось распознать номер WhatsApp.'); return; }
+      const message = buildPartnerMessage(partnerName, onlyDebts);
+      window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
     };
 
     window.showPartnerDetails = function(partnerName) {
-      const dateFrom = document.getElementById('partnerDateFrom').value;
-      const dateTo = document.getElementById('partnerDateTo').value;
-      
-      const contracts = allContracts.filter(c => {
-        if (c.store !== partnerName) return false;
-        if (dateFrom && c.buyDate && c.buyDate < dateFrom) return false;
-        if (dateTo && c.buyDate && c.buyDate > dateTo) return false;
-        return true;
-      });
-      
-      if (contracts.length === 0) {
-        alert(`Нет договоров с партнером "${partnerName}" за выбранный период`);
+      const existing = document.getElementById('partnerDetailsPanel');
+      if (existing) existing.remove();
+      const partner = getPartnerNameMatch(partnerName);
+      const contracts = getPartnerFilteredContracts(partnerName);
+      if (!contracts.length) { alert(`Нет договоров с партнером «${partnerName}» за выбранный период.`); return; }
+      const debts = contracts.filter(c => !c.shopPaid);
+      const debtTotal = debts.reduce((s,c) => s + getPartnerPayable(c), 0);
+      const allTotal = contracts.reduce((s,c) => s + getPartnerPayable(c), 0);
+      const panel = document.createElement('div');
+      panel.id = 'partnerDetailsPanel';
+      panel.className = 'mt-3 p-3 rounded-xl border border-purple-200 bg-purple-50';
+      panel.innerHTML = `
+        <div class="flex flex-wrap justify-between items-center gap-2 mb-2">
+          <div><b class="text-purple-700">${partnerEscape(partnerName)}</b><span class="text-xs text-gray-500 ml-2">${contracts.length} договоров</span></div>
+          <button onclick="document.getElementById('partnerDetailsPanel')?.remove()" class="text-gray-500 hover:text-gray-800 text-xs">✕ Закрыть</button>
+        </div>
+        <div class="flex flex-wrap gap-1.5 mb-3">
+          <button onclick="sendPartnerWhatsApp(${JSON.stringify(partnerName)}, true)" class="whatsapp-btn !text-xs !px-2.5 !py-1.5">💬 Долги в WhatsApp</button>
+          <button onclick="copyPartnerMessage(${JSON.stringify(partnerName)}, true, this)" class="bg-gray-700 hover:bg-gray-800 text-white px-2.5 py-1.5 rounded text-xs font-bold">📋 Скопировать долги</button>
+          <button onclick="sendPartnerWhatsApp(${JSON.stringify(partnerName)}, false)" class="whatsapp-btn !text-xs !px-2.5 !py-1.5">💬 Все договоры в WhatsApp</button>
+          <button onclick="copyPartnerMessage(${JSON.stringify(partnerName)}, false, this)" class="bg-gray-700 hover:bg-gray-800 text-white px-2.5 py-1.5 rounded text-xs font-bold">📋 Скопировать все</button>
+        </div>
+        <div class="text-xs text-gray-600">Долг: <b class="text-red-600">${debtTotal.toLocaleString('ru-RU')} ₽</b> · Все договоры по себестоимости: <b>${allTotal.toLocaleString('ru-RU')} ₽</b>${partner?.phone ? ` · WhatsApp: ${partnerEscape(partner.phone)}` : ''}</div>
+      `;
+      document.getElementById('partnersList').appendChild(panel);
+    };
+
+    window.renderPartners = function() {
+      const container = document.getElementById('partnersList');
+      if (!container) return;
+      updatePartnerNamesDatalist();
+      const officialBtn = document.getElementById('partnersViewOfficial');
+      const otherBtn = document.getElementById('partnersViewOther');
+      if (officialBtn && otherBtn) {
+        officialBtn.className = partnersView === 'official' ? 'bg-purple-600 text-white px-2.5 py-1.5 rounded text-xs font-bold' : 'bg-gray-100 text-gray-700 px-2.5 py-1.5 rounded text-xs font-bold';
+        otherBtn.className = partnersView === 'other' ? 'bg-purple-600 text-white px-2.5 py-1.5 rounded text-xs font-bold' : 'bg-gray-100 text-gray-700 px-2.5 py-1.5 rounded text-xs font-bold';
+      }
+      const names = partnersView === 'official' ? allPartners.map(p => String(p.name || '').trim()).filter(Boolean) : getPartnerOtherNames();
+      const items = names.map(name => {
+        const contracts = getPartnerFilteredContracts(name);
+        const debts = contracts.filter(c => !c.shopPaid);
+        const debtSum = debts.reduce((s,c) => s + getPartnerPayable(c), 0);
+        const partner = getPartnerNameMatch(name);
+        return { name, contracts, debts, debtSum, partner };
+      }).sort((a,b) => a.name.localeCompare(b.name, 'ru'));
+
+      if (!items.length) {
+        container.innerHTML = `<div class="text-center text-gray-500 py-6 text-sm">${partnersView === 'official' ? '🤝 Нет добавленных партнёров. Нажмите «＋ Добавить».' : 'Других магазинов/названий пока нет.'}</div>`;
         return;
       }
-      
-      let message = `📋 Детали по партнеру: ${partnerName}\n`;
-      message += `━━━━━━━━━━━━━━━━━━━━━━━━\n`;
-      message += `📅 Период: ${dateFrom || 'с начала'} - ${dateTo || 'по сегодня'}\n`;
-      message += `📊 Всего договоров: ${contracts.length}\n`;
-      message += `━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-      
-      contracts.forEach((c, i) => {
-        const status = c.shopPaid ? '✅ Оплачен' : '❌ В долгу';
-        const rest = c.totalCost - (c.downPayment || 0) - Object.values(c.installments || {}).reduce((sum, p) => sum + Number(p.amount || 0), 0);
-        message += `${i+1}. ${c.fio} - ${c.totalCost} ₽ (${status})\n`;
-        message += `   📅 ${c.buyDate} | Остаток: ${rest} ₽\n`;
-        message += `   📞 ${c.phone}\n\n`;
+      let html = '<div class="space-y-1.5">';
+      items.forEach(item => {
+        const actions = partnersView === 'official' ? `<span class="text-[10px] text-gray-500">${item.partner?.phone ? partnerEscape(item.partner.phone) : 'телефон не указан'}</span>
+          <button onclick="showPartnerDetails(${JSON.stringify(item.name)})" class="bg-purple-600 hover:bg-purple-700 text-white px-2 py-1 rounded text-[11px] font-bold">📋 Детали</button>
+          <button onclick="deletePartner(${JSON.stringify(item.partner?.id || '')})" class="bg-gray-100 hover:bg-red-100 text-gray-600 hover:text-red-600 px-2 py-1 rounded text-[11px]">🗑</button>` : `<button onclick="showPartnerDetails(${JSON.stringify(item.name)})" class="bg-gray-700 hover:bg-gray-800 text-white px-2 py-1 rounded text-[11px] font-bold">📋 Детали</button>`;
+        html += `<div class="flex flex-wrap items-center justify-between gap-2 px-2.5 py-2 rounded-lg border bg-white hover:bg-purple-50">
+          <div class="min-w-0"><b class="text-sm text-purple-700">${partnerEscape(item.name)}</b><div class="text-[10px] text-gray-500">Договоров: ${item.contracts.length} · <span class="${item.debtSum ? 'text-red-600 font-bold' : 'text-green-600 font-bold'}">Долг: ${item.debtSum.toLocaleString('ru-RU')} ₽</span></div></div>
+          <div class="flex items-center gap-1.5">${actions}</div>
+        </div>`;
       });
-      
-      const detailsWindow = window.open('', '_blank', 'width=600,height=400');
-      detailsWindow.document.write(`
-        <html><head><title>Детали: ${partnerName}</title>
-        <style>body { font-family: Arial; padding: 20px; white-space: pre-wrap; }</style>
-        </head><body>${message.replace(/\n/g, '<br>')}</body></html>
-      `);
-      detailsWindow.document.close();
+      html += '</div>';
+      container.innerHTML = html;
     };
 
     window.clearPartnerDates = function() {
@@ -3989,6 +4049,7 @@
 
     async function persistFieldworkRecords(now) {
       localStorage.setItem('field_visit_records_db', JSON.stringify(fieldVisitRecords));
+      localStorage.setItem('partners_db', JSON.stringify(allPartners));
       if (IS_FIELDWORKER_MODE) {
         try {
           if (isCloudLoaded) await updateDoc(DOC_REF, { fieldVisitRecords: fieldVisitRecords, updatedAt: now });
@@ -5541,7 +5602,8 @@
         accounts: customAccounts,
         investors: initInvestors,
         monthlyReports: initMonthlyReports,
-        fieldVisitRecords: fieldVisitRecords
+        fieldVisitRecords: fieldVisitRecords,
+        partners: allPartners
       };
       const blob = new Blob([JSON.stringify(exportObject, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
@@ -5572,6 +5634,7 @@
               if (data.investors) initInvestors = data.investors;
               if (data.monthlyReports) initMonthlyReports = data.monthlyReports;
               if (data.fieldVisitRecords && typeof data.fieldVisitRecords === 'object') fieldVisitRecords = data.fieldVisitRecords;
+              if (Array.isArray(data.partners)) allPartners = data.partners;
             }
             saveToStorage();
           }
