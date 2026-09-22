@@ -6092,6 +6092,7 @@
             0,
             (entry.capitalStart || 0) +
             Number(entry.invested || 0) -
+            Number(entry.dividends || 0) -
             Number(entry.withdrawn || 0)
           );
           totalCapitalForProfit += cfs;
@@ -6107,6 +6108,7 @@
             0,
             (entry.capitalStart || 0) +
             Number(entry.invested || 0) -
+            Number(entry.dividends || 0) -
             Number(entry.withdrawn || 0)
           );
           const capitalShare = totalCapitalForProfit > 0 ? cfs / totalCapitalForProfit : 0;
@@ -6176,6 +6178,7 @@
             0,
             (entry.capitalStart || 0) +
             Number(entry.invested || 0) -
+            Number(entry.dividends || 0) -
             Number(entry.withdrawn || 0)
           );
 
