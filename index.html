@@ -2882,7 +2882,7 @@
       });
       allContracts.forEach(c => {
         // Платёж клиента поступает в кассу независимо от того, рассчитались ли мы с магазином.
-        totalDownPayments += Number(c.downPayment || 0);
+        if (c.shopPaid) totalDownPayments += Number(c.downPayment || 0);
         if (c.shopPaid) totalCostPrice += Number(c.costPrice || 0);
         Object.values(c.installments || {}).forEach(p => totalInstallments += Number(p?.amount || 0));
       });
@@ -3029,7 +3029,7 @@
       // Себестоимость — деньги, которые фактически ушли магазину за товар.
       // Флаг «Оплачено Д» означает, что расчёт с магазином завершён.
       const installmentCost = installmentContracts.reduce((sum,c) => {
-        return sum + (Number(c.costPrice) || 0);
+        return sum + (c.shopPaid ? (Number(c.costPrice) || 0) : 0);
       }, 0);
       // Итоговая сумма рассрочки — полная сумма, указанная в договоре.
       const installmentTotal = installmentContracts.reduce((sum,c) => sum + (Number(c.totalCost)||0), 0);
@@ -5386,7 +5386,7 @@
       let totalCostPrice = 0;
 
       allContracts.forEach(c => {
-        totalDownPayments += Number(c.downPayment || 0);
+        if (c.shopPaid) totalDownPayments += Number(c.downPayment || 0);
         if (c.shopPaid) totalCostPrice += Number(c.costPrice || 0);
         const insts = c.installments || {};
         Object.values(insts).forEach(p => {
