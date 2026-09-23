@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+  <!-- YUSRA: Excel expenses + owner dividend cash logic fix 2026-09-23 -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Система Учета и Договоров</title>
@@ -2882,13 +2883,14 @@
       });
       allContracts.forEach(c => {
         // Платёж клиента поступает в кассу независимо от того, рассчитались ли мы с магазином.
-        if (c.shopPaid) totalDownPayments += Number(c.downPayment || 0);
-        if (c.shopPaid) totalCostPrice += Number(c.costPrice || 0);
+        // Предоплата учитывается в кассе только после отметки «Д».
+        if (isStorePaid(c)) totalDownPayments += Number(c.downPayment || 0);
+        if (isStorePaid(c)) totalCostPrice += Number(c.costPrice || 0);
         Object.values(c.installments || {}).forEach(p => totalInstallments += Number(p?.amount || 0));
       });
       allIncomeExpenses.forEach(e => totalIncomeExpenses += Number(e.amount || 0));
 
-      let totalInvested = 0, totalDividends = 0, totalWithdrawn = 0, totalStartingCapital = 0;
+      let totalInvested = 0, totalExternalDividends = 0, totalWithdrawn = 0, totalStartingCapital = 0;
       const keys = Object.keys(initMonthlyReports).sort();
       keys.forEach((key, idx) => {
         const rep = initMonthlyReports[key];
@@ -2897,7 +2899,9 @@
           const e = rep.entries[inv.id];
           if (e) {
             totalInvested += Number(e.invested || 0);
-            totalDividends += Number(e.dividends || 0);
+            // Дивиденды владельца — это распределение уже учтённых расходов.
+            // Они не должны повторно уменьшать кассу.
+            if (!inv.isOwner) totalExternalDividends += Number(e.dividends || 0);
             totalWithdrawn += Number(e.withdrawn || 0);
           }
         });
@@ -2905,7 +2909,7 @@
           initInvestors.forEach(inv => totalStartingCapital += Number(inv.initialCapital || 0));
         }
       });
-      const investImpact = totalInvested - totalDividends - totalWithdrawn + totalStartingCapital;
+      const investImpact = totalInvested - totalExternalDividends - totalWithdrawn + totalStartingCapital;
       return totalDownPayments + totalInstallments - totalCostPrice - sumTaken + sumPut - totalIncomeExpenses + investImpact;
     }
 
@@ -3486,21 +3490,24 @@
       });
 
       let totalExpense = 0;
-      const rightRows = allIncomeExpenses.map(e => {
-        const amount = Number(e.amount) || 0;
-        totalExpense += amount;
-        return `
-          <tr class="right-section">
-            <td>${amount.toLocaleString('ru-RU')}</td>
-            <td>${e.date || '—'}</td>
-            <td>${e.note || '—'}</td>
-            <td>
-              <button onclick="openEditIncomeExpModal('${e.id}')" class="text-blue-700 font-bold px-1">✏️</button>
-              <button onclick="deleteIncomeExpItem('${e.id}')" class="text-red-700 font-bold px-1">🗑️</button>
-            </td>
-          </tr>
-        `;
-      });
+      const rightRows = [...allIncomeExpenses]
+        .sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')))
+        .map(e => {
+          const amount = Number(e.amount) || 0;
+          totalExpense += amount;
+          const note = e.note || (e.account ? `Счёт: ${e.account}` : '—');
+          return `
+            <tr class="right-section">
+              <td>${amount.toLocaleString('ru-RU')}</td>
+              <td>${e.date || '—'}</td>
+              <td>${escapeHtml(note)}</td>
+              <td>
+                <button onclick="openEditIncomeExpModal('${e.id}')" class="text-blue-700 font-bold px-1">✏️</button>
+                <button onclick="deleteIncomeExpItem('${e.id}')" class="text-red-700 font-bold px-1">🗑️</button>
+              </td>
+            </tr>
+          `;
+        });
 
       const maxLen = Math.max(rowsLeft.length, rightRows.length);
       let html = '';
@@ -5386,8 +5393,9 @@
       let totalCostPrice = 0;
 
       allContracts.forEach(c => {
-        if (c.shopPaid) totalDownPayments += Number(c.downPayment || 0);
-        if (c.shopPaid) totalCostPrice += Number(c.costPrice || 0);
+        // Предоплата учитывается в кассе только после отметки «Д».
+        if (isStorePaid(c)) totalDownPayments += Number(c.downPayment || 0);
+        if (isStorePaid(c)) totalCostPrice += Number(c.costPrice || 0);
         const insts = c.installments || {};
         Object.values(insts).forEach(p => {
           totalInstallments += Number(p.amount || 0);
@@ -5590,7 +5598,11 @@
       } else if (activeTab === 'clients') {
         renderClients(q);
       } else if (activeTab === 'income') {
-        const filtered = allIncomeExpenses.filter(e => (e.note && e.note.toLowerCase().includes(q)));
+        const filtered = allIncomeExpenses.filter(e =>
+          (e.note && e.note.toLowerCase().includes(q)) ||
+          (e.account && String(e.account).toLowerCase().includes(q)) ||
+          (e.date && String(e.date).includes(q))
+        );
         if (filtered.length === 0 && q.length > 0) {
           document.getElementById('incomeTableBody').innerHTML = '<tr><td colspan="12" class="text-center text-gray-500 py-4">Нет совпадений по расходам</td></tr>';
         } else {
