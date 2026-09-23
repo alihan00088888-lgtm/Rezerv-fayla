@@ -5408,7 +5408,7 @@
       });
 
       let totalInvested = 0;
-      let totalDividends = 0;
+      let totalExternalDividends = 0;
       let totalWithdrawn = 0;
       let totalStartingCapital = 0;
       
@@ -5420,7 +5420,10 @@
             const e = rep.entries[inv.id];
             if (e) {
               totalInvested += Number(e.invested || 0);
-              totalDividends += Number(e.dividends || 0);
+              // Дивиденды владельца уже отражены в расходах и не должны
+              // повторно вычитаться из кассы. Для внешних инвесторов
+              // дивиденды остаются отдельным движением из кассы.
+              if (!inv.isOwner) totalExternalDividends += Number(e.dividends || 0);
               totalWithdrawn += Number(e.withdrawn || 0);
             }
           });
@@ -5431,7 +5434,7 @@
           });
         }
       });
-      const investImpact = totalInvested - totalDividends - totalWithdrawn + totalStartingCapital;
+      const investImpact = totalInvested - totalExternalDividends - totalWithdrawn + totalStartingCapital;
 
       let totalKassa = totalDownPayments + totalInstallments - totalCostPrice - sumTaken + sumPut - totalIncomeExpenses + investImpact;
       document.getElementById('kassaTotal').innerText = totalKassa.toLocaleString('ru-RU') + ' ₽';
