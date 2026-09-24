@@ -109,6 +109,8 @@
       align-items: center;
       line-height: 1.15;
     }
+    .schedule-client-list .client-contract-number { font-size:11px; font-weight:900; color:#0f172a; white-space:nowrap; }
+    .schedule-client-list .client-item { border-bottom:1px solid #e2e8f0; background:#fff; border-radius:0; }
     .schedule-client-list .client-info { gap: 6px 10px; }
     .schedule-client-list .client-name { font-size: 12px; }
     .schedule-client-list .client-phone,
@@ -795,7 +797,7 @@
     .contracts-stats { display:flex; gap:6px; flex-wrap:wrap; }
     .contract-mini-stat { display:flex; align-items:center; gap:5px; padding:6px 9px; border-radius:9px; background:#f8fafc; border:1px solid #e2e8f0; font-size:10px; font-weight:800; color:#475569; }
     .contract-mini-stat b { color:#0f172a; }
-    .contracts-controls { display:grid; grid-template-columns:minmax(220px,1fr) 170px 170px auto; gap:8px; margin-top:12px; }
+    .contracts-controls { display:grid; grid-template-columns:minmax(180px,1fr) minmax(150px,180px) 170px 170px auto; gap:8px; margin-top:12px; }
     .contracts-search { min-height:40px; display:flex; align-items:center; gap:8px; padding:0 11px; border:1px solid #dbe3ee; border-radius:11px; background:#f8fafc; color:#64748b; }
     .contracts-search input { border:0; outline:0; background:transparent; width:100%; font-size:11px; font-weight:600; color:#0f172a; }
     .contracts-select,.contracts-reset { min-height:40px; border:1px solid #dbe3ee; border-radius:11px; background:#fff; padding:0 10px; font-size:10px; font-weight:800; color:#334155; outline:none; }
@@ -1285,7 +1287,8 @@
           <div class="contracts-stats" id="contractsStats"></div>
         </div>
         <div class="contracts-controls">
-          <div class="contracts-search">🔎 <input id="contractsNumberSearch" type="search" inputmode="numeric" placeholder="№ договора" oninput="renderContractsView()"></div>
+          <div class="contracts-search">🔎 <input id="contractsNumberSearch" type="search" placeholder="№ договора / ФИО" oninput="renderContractsView()"></div>
+          <div class="contracts-search">💳 <input id="contractsMonthlySearch" type="number" inputmode="numeric" min="0" placeholder="Мес. платёж" oninput="renderContractsView()"></div>
           <select id="contractsStatusFilter" class="contracts-select" onchange="renderContractsView()">
             <option value="all">Все договоры</option>
             <option value="active">Активные</option>
@@ -1486,8 +1489,8 @@
 
     <!-- ================= Лист 4: Сегодня ================= -->
     <div id="todayTabContent" class="hidden space-y-4">
-      <div class="bg-white shadow-xl rounded-xl p-6 border">
-        <div class="flex justify-between items-center mb-4 gap-3 flex-wrap">
+      <div class="bg-white shadow-xl rounded-xl p-4 border">
+        <div class="flex justify-between items-center mb-3 gap-3 flex-wrap">
           <div>
             <h2 class="text-xl font-bold text-green-600">📅 Клиенты на сегодня</h2>
             <div id="todaySummary" class="text-xs text-slate-500 font-semibold mt-1"></div>
@@ -1499,8 +1502,8 @@
 
     <!-- ================= Лист 5: 3 дня ================= -->
     <div id="threeDaysTabContent" class="hidden space-y-4">
-      <div class="bg-white shadow-xl rounded-xl p-6 border">
-        <div class="flex justify-between items-center mb-4 gap-3 flex-wrap">
+      <div class="bg-white shadow-xl rounded-xl p-4 border">
+        <div class="flex justify-between items-center mb-3 gap-3 flex-wrap">
           <div>
             <h2 class="text-xl font-bold text-blue-600">⏰ Клиенты через 3 дня</h2>
             <div id="threeDaysSummary" class="text-xs text-slate-500 font-semibold mt-1"></div>
@@ -3937,6 +3940,8 @@
 
         monthInfo.months.forEach(m => {
           const monthDate = String(m.date || '').slice(0, 10);
+          if ((scheduleMode === 'today' || scheduleMode === 'threeDays') && (monthDate !== targetDate || m.isPaid || Number(m.dueAmount || 0) <= 0)) return;
+          if (scheduleMode === 'debtors' && (m.status !== 'overdue' || m.isPaid || Number(m.dueAmount || m.amount || 0) <= 0)) return;
           let statusClass = 'month-future';
           let statusText = `📅 ${Number(m.amount || 0).toLocaleString('ru-RU')} ₽`;
 
@@ -3971,6 +3976,7 @@
         html += `
           <div class="client-item">
             <div class="client-info">
+              <span class="client-contract-number">№${client.contractNum || '—'}</span>
               <span class="client-name">${client.fio}</span>
               <span class="client-phone">📞 ${client.phone || 'Телефон не указан'}</span>
               <span class="client-detail">💰 Мес. платеж: ${Number(client.monthlyPay || 0).toLocaleString('ru-RU')} ₽</span>
@@ -4942,10 +4948,20 @@
 
     window.renderContractsView = function() {
       const q = String(document.getElementById('contractsNumberSearch')?.value || '').trim().toLowerCase();
+      const monthlyQ = String(document.getElementById('contractsMonthlySearch')?.value || '').trim();
       const statusFilter = document.getElementById('contractsStatusFilter')?.value || 'all';
       const sortKey = document.getElementById('contractsSort')?.value || 'newest';
       let list = allContracts.filter(c => {
-        if (q && !String(c.contractNum || '').toLowerCase().includes(q)) return false;
+        if (q) {
+          const contractNum = String(c.contractNum || '').trim().toLowerCase();
+          const fio = String(c.fio || '').trim().toLowerCase();
+          if (/^\d+$/.test(q)) {
+            if (contractNum !== q) return false;
+          } else if (!fio.includes(q)) {
+            return false;
+          }
+        }
+        if (monthlyQ && Number(c.monthlyPay || 0) !== Number(monthlyQ)) return false;
         if (statusFilter !== 'all' && getContractStatusInfo(c).key !== statusFilter) return false;
         return true;
       });
@@ -4959,9 +4975,11 @@
 
     window.resetContractsFilters = function() {
       const s = document.getElementById('contractsNumberSearch');
+      const m = document.getElementById('contractsMonthlySearch');
       const f = document.getElementById('contractsStatusFilter');
       const sort = document.getElementById('contractsSort');
       if (s) s.value = '';
+      if (m) m.value = '';
       if (f) f.value = 'all';
       if (sort) sort.value = 'newest';
       renderContractsView();
