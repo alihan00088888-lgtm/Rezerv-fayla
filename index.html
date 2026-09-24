@@ -109,8 +109,6 @@
       align-items: center;
       line-height: 1.15;
     }
-    .schedule-client-list .client-contract-number { font-size:11px; font-weight:900; color:#0f172a; white-space:nowrap; }
-    .schedule-client-list .client-item { border-bottom:1px solid #e2e8f0; background:#fff; border-radius:0; }
     .schedule-client-list .client-info { gap: 6px 10px; }
     .schedule-client-list .client-name { font-size: 12px; }
     .schedule-client-list .client-phone,
@@ -797,7 +795,7 @@
     .contracts-stats { display:flex; gap:6px; flex-wrap:wrap; }
     .contract-mini-stat { display:flex; align-items:center; gap:5px; padding:6px 9px; border-radius:9px; background:#f8fafc; border:1px solid #e2e8f0; font-size:10px; font-weight:800; color:#475569; }
     .contract-mini-stat b { color:#0f172a; }
-    .contracts-controls { display:grid; grid-template-columns:minmax(180px,1fr) minmax(150px,180px) 170px 170px auto; gap:8px; margin-top:12px; }
+    .contracts-controls { display:grid; grid-template-columns:minmax(220px,1fr) 170px 170px auto; gap:8px; margin-top:12px; }
     .contracts-search { min-height:40px; display:flex; align-items:center; gap:8px; padding:0 11px; border:1px solid #dbe3ee; border-radius:11px; background:#f8fafc; color:#64748b; }
     .contracts-search input { border:0; outline:0; background:transparent; width:100%; font-size:11px; font-weight:600; color:#0f172a; }
     .contracts-select,.contracts-reset { min-height:40px; border:1px solid #dbe3ee; border-radius:11px; background:#fff; padding:0 10px; font-size:10px; font-weight:800; color:#334155; outline:none; }
@@ -1148,11 +1146,6 @@
           <div id="dashGeneralExpense" class="dashboard-metric-value">0 ₽</div>
           <div class="dashboard-metric-note">дивиденды здесь не учитываются</div>
         </div>
-<div class="dashboard-card dashboard-metric red">
-          <div class="dashboard-metric-top"><span class="dashboard-metric-label">Снятие</span><span class="dashboard-metric-icon">➖</span></div>
-          <div id="dashAWithdrawn" class="dashboard-metric-value">0 ₽</div>
-          <div class="dashboard-metric-note">снятие вкладов</div>
-        </div>
         <div class="dashboard-card dashboard-metric green">
           <div class="dashboard-metric-top"><span class="dashboard-metric-label">Доход с расходами</span><span class="dashboard-metric-icon">💰</span></div>
           <div id="dashProfitAfterExpenses" class="dashboard-metric-value">0 ₽</div>
@@ -1184,14 +1177,46 @@
           <div class="dashboard-metric-note">можно открыть из меню</div>
         </div>
 
-        
-        
-        
-        
-        
-        
-        
-        
+        <div class="dashboard-card dashboard-metric blue">
+          <div class="dashboard-metric-top"><span class="dashboard-metric-label">Доход по договорам</span><span class="dashboard-metric-icon">📄</span></div>
+          <div id="dashAContractRevenue" class="dashboard-metric-value">0 ₽</div>
+          <div class="dashboard-metric-note">полная сумма договоров</div>
+        </div>
+        <div class="dashboard-card dashboard-metric amber">
+          <div class="dashboard-metric-top"><span class="dashboard-metric-label">Себестоимость</span><span class="dashboard-metric-icon">🛒</span></div>
+          <div id="dashACost" class="dashboard-metric-value">0 ₽</div>
+          <div class="dashboard-metric-note">стоимость товаров</div>
+        </div>
+        <div class="dashboard-card dashboard-metric blue">
+          <div class="dashboard-metric-top"><span class="dashboard-metric-label">Доход инвесторов</span><span class="dashboard-metric-icon">🤝</span></div>
+          <div id="dashAInvestorIncome" class="dashboard-metric-value">0 ₽</div>
+          <div class="dashboard-metric-note">фактическая прибыль инвесторов</div>
+        </div>
+        <div class="dashboard-card dashboard-metric red">
+          <div class="dashboard-metric-top"><span class="dashboard-metric-label">Расход инвесторов</span><span class="dashboard-metric-icon">💸</span></div>
+          <div id="dashAInvestorExpense" class="dashboard-metric-value">0 ₽</div>
+          <div class="dashboard-metric-note">дивиденды + снятие</div>
+        </div>
+        <div class="dashboard-card dashboard-metric blue">
+          <div class="dashboard-metric-top"><span class="dashboard-metric-label">Вложение</span><span class="dashboard-metric-icon">➕</span></div>
+          <div id="dashAInvested" class="dashboard-metric-value">0 ₽</div>
+          <div class="dashboard-metric-note">включая стартовый капитал</div>
+        </div>
+        <div class="dashboard-card dashboard-metric red">
+          <div class="dashboard-metric-top"><span class="dashboard-metric-label">Снятие</span><span class="dashboard-metric-icon">➖</span></div>
+          <div id="dashAWithdrawn" class="dashboard-metric-value">0 ₽</div>
+          <div class="dashboard-metric-note">снятие вкладов</div>
+        </div>
+        <div class="dashboard-card dashboard-metric red">
+          <div class="dashboard-metric-top"><span class="dashboard-metric-label">Дивиденды</span><span class="dashboard-metric-icon">🎁</span></div>
+          <div id="dashADividends" class="dashboard-metric-value">0 ₽</div>
+          <div class="dashboard-metric-note">выплаты инвесторам</div>
+        </div>
+        <div class="dashboard-card dashboard-metric green">
+          <div class="dashboard-metric-top"><span class="dashboard-metric-label">Капитал</span><span class="dashboard-metric-icon">🏦</span></div>
+          <div id="dashACapital" class="dashboard-metric-value">0 ₽</div>
+          <div class="dashboard-metric-note">текущий капитал всех участников</div>
+        </div>
       </section>
 
       <section class="dashboard-two-col">
@@ -1287,8 +1312,7 @@
           <div class="contracts-stats" id="contractsStats"></div>
         </div>
         <div class="contracts-controls">
-          <div class="contracts-search">🔎 <input id="contractsNumberSearch" type="search" placeholder="№ договора / ФИО" oninput="renderContractsView()"></div>
-          <div class="contracts-search">💳 <input id="contractsMonthlySearch" type="number" inputmode="numeric" min="0" placeholder="Мес. платёж" oninput="renderContractsView()"></div>
+          <div class="contracts-search">🔎 <input id="contractsNumberSearch" type="search" inputmode="numeric" placeholder="№ договора" oninput="renderContractsView()"></div>
           <select id="contractsStatusFilter" class="contracts-select" onchange="renderContractsView()">
             <option value="all">Все договоры</option>
             <option value="active">Активные</option>
@@ -1489,8 +1513,8 @@
 
     <!-- ================= Лист 4: Сегодня ================= -->
     <div id="todayTabContent" class="hidden space-y-4">
-      <div class="bg-white shadow-xl rounded-xl p-4 border">
-        <div class="flex justify-between items-center mb-3 gap-3 flex-wrap">
+      <div class="bg-white shadow-xl rounded-xl p-6 border">
+        <div class="flex justify-between items-center mb-4 gap-3 flex-wrap">
           <div>
             <h2 class="text-xl font-bold text-green-600">📅 Клиенты на сегодня</h2>
             <div id="todaySummary" class="text-xs text-slate-500 font-semibold mt-1"></div>
@@ -1502,8 +1526,8 @@
 
     <!-- ================= Лист 5: 3 дня ================= -->
     <div id="threeDaysTabContent" class="hidden space-y-4">
-      <div class="bg-white shadow-xl rounded-xl p-4 border">
-        <div class="flex justify-between items-center mb-3 gap-3 flex-wrap">
+      <div class="bg-white shadow-xl rounded-xl p-6 border">
+        <div class="flex justify-between items-center mb-4 gap-3 flex-wrap">
           <div>
             <h2 class="text-xl font-bold text-blue-600">⏰ Клиенты через 3 дня</h2>
             <div id="threeDaysSummary" class="text-xs text-slate-500 font-semibold mt-1"></div>
@@ -3009,7 +3033,7 @@
       // Себестоимость — деньги, которые фактически ушли магазину за товар.
       // Флаг «Оплачено Д» означает, что расчёт с магазином завершён.
       const installmentCost = installmentContracts.reduce((sum,c) => {
-        return sum + (Number(c.costPrice) || 0);
+        return sum + (c.shopPaid ? (Number(c.costPrice) || 0) : 0);
       }, 0);
       // Итоговая сумма рассрочки — полная сумма, указанная в договоре.
       const installmentTotal = installmentContracts.reduce((sum,c) => sum + (Number(c.totalCost)||0), 0);
@@ -3801,6 +3825,24 @@
       renderPartners();
     };
 
+    // Сумма оплат распределяется последовательно по месяцам.
+    // Поэтому переплата/аванс прошлого месяца покрывает следующий платеж.
+    function getMonthlyPaidAllocation(contract) {
+      const dates = calculatePaymentDates(contract);
+      const monthlyPay = Number(contract.monthlyPay) || 0;
+      const installments = contract.installments || {};
+      const payments = Object.keys(installments)
+        .map(k => Math.max(0, Number(installments[k]?.amount) || 0))
+        .filter(v => v > 0);
+      let pool = payments.reduce((sum, v) => sum + v, 0);
+      return dates.map(pd => {
+        const paidAmount = monthlyPay > 0 ? Math.min(monthlyPay, pool) : 0;
+        pool = Math.max(0, pool - paidAmount);
+        const dueAmount = Math.max(0, monthlyPay - paidAmount);
+        return { ...pd, paidAmount, dueAmount, isPaid: monthlyPay > 0 && dueAmount <= 0 };
+      });
+    }
+
     function getMonthStatus(contract) {
       const paymentDates = calculatePaymentDates(contract);
       const installments = contract.installments || {};
@@ -3811,11 +3853,11 @@
       const result = [];
       let overdueSum = 0;
       
-      for (const pd of paymentDates) {
-        const payment = installments[pd.index];
-        const paidAmount = Math.max(0, Number(payment?.amount) || 0);
-        const dueAmount = Math.max(0, monthlyPay - paidAmount);
-        const isPaid = dueAmount <= 0 && monthlyPay > 0;
+      const allocated = getMonthlyPaidAllocation(contract);
+      for (const pd of allocated) {
+        const paidAmount = pd.paidAmount;
+        const dueAmount = pd.dueAmount;
+        const isPaid = pd.isPaid;
         
         let status = 'future';
         if (isPaid) {
@@ -3850,16 +3892,13 @@
         const metrics = calculateContractMetrics(contract);
         if (metrics.isClosed) return;
         
-        const paymentDates = calculatePaymentDates(contract);
-        const installments = contract.installments || {};
+        const allocated = getMonthlyPaidAllocation(contract);
         
         let hasUnpaidMonth = false;
         let unpaidMonthAmount = 0;
         
-        for (const pd of paymentDates) {
-          const payment = installments[pd.index];
-          const paidAmount = Math.max(0, Number(payment?.amount) || 0);
-          const dueAmount = Math.max(0, Number(pd.amount || 0) - paidAmount);
+        for (const pd of allocated) {
+          const dueAmount = pd.dueAmount;
           if (dueAmount > 0 && pd.date.getTime() === target.getTime()) {
             hasUnpaidMonth = true;
             unpaidMonthAmount = dueAmount;
@@ -3940,8 +3979,6 @@
 
         monthInfo.months.forEach(m => {
           const monthDate = String(m.date || '').slice(0, 10);
-          if ((scheduleMode === 'today' || scheduleMode === 'threeDays') && (monthDate !== targetDate || m.isPaid || Number(m.dueAmount || 0) <= 0)) return;
-          if (scheduleMode === 'debtors' && (m.status !== 'overdue' || m.isPaid || Number(m.dueAmount || m.amount || 0) <= 0)) return;
           let statusClass = 'month-future';
           let statusText = `📅 ${Number(m.amount || 0).toLocaleString('ru-RU')} ₽`;
 
@@ -3976,7 +4013,6 @@
         html += `
           <div class="client-item">
             <div class="client-info">
-              <span class="client-contract-number">№${client.contractNum || '—'}</span>
               <span class="client-name">${client.fio}</span>
               <span class="client-phone">📞 ${client.phone || 'Телефон не указан'}</span>
               <span class="client-detail">💰 Мес. платеж: ${Number(client.monthlyPay || 0).toLocaleString('ru-RU')} ₽</span>
@@ -4792,13 +4828,11 @@
       const metrics = calculateContractMetrics(contract);
       if (metrics.isClosed) return { key:'closed', label:'Закрыт', icon:'⚫', next:null };
       const today = new Date(); today.setHours(0,0,0,0);
-      const dates = calculatePaymentDates(contract);
-      const installments = contract.installments || {};
+      const dates = getMonthlyPaidAllocation(contract);
       let next = null;
       let overdueCount = 0;
       for (const pd of dates) {
-        const paid = installments[pd.index] && Number(installments[pd.index].amount) > 0;
-        if (!paid) {
+        if (!pd.isPaid) {
           if (pd.date < today) overdueCount++;
           if (!next || pd.date < next.date) next = pd;
         }
@@ -4948,20 +4982,10 @@
 
     window.renderContractsView = function() {
       const q = String(document.getElementById('contractsNumberSearch')?.value || '').trim().toLowerCase();
-      const monthlyQ = String(document.getElementById('contractsMonthlySearch')?.value || '').trim();
       const statusFilter = document.getElementById('contractsStatusFilter')?.value || 'all';
       const sortKey = document.getElementById('contractsSort')?.value || 'newest';
       let list = allContracts.filter(c => {
-        if (q) {
-          const contractNum = String(c.contractNum || '').trim().toLowerCase();
-          const fio = String(c.fio || '').trim().toLowerCase();
-          if (/^\d+$/.test(q)) {
-            if (contractNum !== q) return false;
-          } else if (!fio.includes(q)) {
-            return false;
-          }
-        }
-        if (monthlyQ && Number(c.monthlyPay || 0) !== Number(monthlyQ)) return false;
+        if (q && !String(c.contractNum || '').toLowerCase().includes(q)) return false;
         if (statusFilter !== 'all' && getContractStatusInfo(c).key !== statusFilter) return false;
         return true;
       });
@@ -4975,11 +4999,9 @@
 
     window.resetContractsFilters = function() {
       const s = document.getElementById('contractsNumberSearch');
-      const m = document.getElementById('contractsMonthlySearch');
       const f = document.getElementById('contractsStatusFilter');
       const sort = document.getElementById('contractsSort');
       if (s) s.value = '';
-      if (m) m.value = '';
       if (f) f.value = 'all';
       if (sort) sort.value = 'newest';
       renderContractsView();
