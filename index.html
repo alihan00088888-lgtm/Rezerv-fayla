@@ -4967,13 +4967,16 @@
       }).filter(Boolean);
       const birthIdx = lines.findIndex(l => /дата\s*рожд|date\s*of\s*birth|birth/i.test(l));
       if (birthIdx >= 0) {
-        const nearby = lines.slice(birthIdx, birthIdx + 3).join(' ');
+        const nearby = lines.slice(birthIdx, birthIdx + 4).join(' ');
         const m = nearby.match(/\b(\d{1,2})[.\-/](\d{1,2})[.\-/](\d{4})\b/);
         if (m) result.birthDate = `${m[3]}-${String(m[2]).padStart(2,'0')}-${String(m[1]).padStart(2,'0')}`;
       }
-      if (!result.birthDate && dates.length) result.birthDate = dates[0];
+      if (!result.birthDate && dates.length) {
+        // В российском паспорте первая дата обычно относится к дате рождения.
+        result.birthDate = dates[0];
+      }
 
-      // Серия + номер российского паспорта: 4 цифры + 6 цифр.
+      // Серия + номер: допускаем типичные ошибки OCR и разные варианты пробелов.
       const passPatterns = [
         /\b(\d{4})\s*[- ]?\s*(\d{6})\b/,
         /\b(\d{2})\s*(\d{2})\s*(\d{6})\b/
@@ -4986,17 +4989,14 @@
         }
       }
 
-      // ФИО. На реальном паспорте OCR часто возвращает подпись и значение
-      // отдельными строками, поэтому ищем значение также в следующих 1–3 строках.
+      // Текстовый запасной способ. Основной способ ниже использует координаты OCR,
+      // потому что порядок строк у Tesseract на фото паспорта часто нарушается.
       const surname = findPassportField(lines, /(?:фамилия|surname)\b/i);
       const firstName = findPassportField(lines, /(?:имя|given\s*name)\b/i);
       const patronymic = findPassportField(lines, /(?:отчество|patronymic)\b/i);
       const fioParts = [surname, firstName, patronymic].filter(Boolean);
-      if (fioParts.length >= 2) {
-        result.fio = fioParts.join(' ');
-      } else {
-        // Запасной вариант: OCR может потерять подписи, но оставить 2–3 строки
-        // с именами. Берём наиболее похожую на ФИО строку, не содержащую служебных слов.
+      if (fioParts.length >= 2) result.fio = fioParts.join(' ');
+      else {
         const candidates = lines
           .map(l => cleanPassportOcrValue(l))
           .filter(l => looksLikeCyrillicName(l))
@@ -5006,8 +5006,139 @@
           if (best) result.fio = best;
         }
       }
-
       return result;
+    }
+
+    // Проверка слова на то, что это именно ФИО, а не подпись/служебный текст.
+    function isPassportNameWord(value) {
+      const v = cleanPassportOcrValue(value).replace(/[^А-ЯЁа-яёA-Za-z-]/g, '');
+      if (v.length < 2 || v.length > 35) return false;
+      if (/^(фамилия|имя|отчество|surname|given|name|patronymic)$/i.test(v)) return false;
+      return /^[А-ЯЁа-яёA-Za-z][А-ЯЁа-яёA-Za-z-]*$/.test(v);
+    }
+
+    function passportNameScore(value, preferUpper = false) {
+      const v = cleanPassportOcrValue(value);
+      if (!isPassportNameWord(v)) return -999;
+      let score = 10;
+      if (/^[А-ЯЁ][А-ЯЁа-яё-]+$/.test(v)) score += 5;
+      if (/^[А-ЯЁA-Z\- ]+$/.test(v)) score += 2;
+      if (preferUpper && /^[А-ЯЁA-Z\-]+$/.test(v)) score += 2;
+      if (/[0-9]/.test(v)) score -= 20;
+      return score;
+    }
+
+    function normalizePassportLabelForMatch(value) {
+      return cleanPassportOcrValue(value)
+        .toLowerCase()
+        .replace(/ё/g, 'е')
+        .replace(/[0о]/g, 'o')
+        .replace(/[1l|]/g, 'i')
+        .replace(/[сc]/g, 'c')
+        .replace(/[аa]/g, 'a')
+        .replace(/[мm]/g, 'm')
+        .replace(/[иi]/g, 'i')
+        .replace(/[яy]/g, 'y')
+        .replace(/[^a-zа-яё]/g, '');
+    }
+
+    function levenshtein(a, b) {
+      a = String(a || ''); b = String(b || '');
+      const dp = Array.from({length: b.length + 1}, (_, i) => i);
+      for (let i = 1; i <= a.length; i++) {
+        let prev = dp[0]; dp[0] = i;
+        for (let j = 1; j <= b.length; j++) {
+          const cur = dp[j];
+          dp[j] = Math.min(
+            dp[j] + 1,
+            dp[j - 1] + 1,
+            prev + (a[i - 1] === b[j - 1] ? 0 : 1)
+          );
+          prev = cur;
+        }
+      }
+      return dp[b.length];
+    }
+
+    function passportLabelType(value) {
+      const v = normalizePassportLabelForMatch(value);
+      if (!v) return '';
+      const aliases = {
+        surname: ['фамилия','familiya','surname'],
+        firstname: ['имя','imya','firstname','givenname'],
+        patronymic: ['отчество','otchestvo','patronymic']
+      };
+      for (const [type, arr] of Object.entries(aliases)) {
+        for (const a of arr) {
+          const aa = normalizePassportLabelForMatch(a);
+          if (v === aa || v.includes(aa) || aa.includes(v)) return type;
+          const maxErr = aa.length >= 8 ? 3 : 1;
+          if (levenshtein(v, aa) <= maxErr) return type;
+        }
+      }
+      return '';
+    }
+
+    // Главный разбор ФИО по координатам. Здесь мы НЕ берём просто «первую строку
+    // после Фамилия». Мы сначала находим именно слово-подпись, затем выбираем
+    // ближайшее подходящее слово справа на той же строке, а если его нет —
+    // ближайшее подходящее слово под подписью. Поэтому «Фамилия», «Имя» и
+    // «Отчество» не могут случайно получить значение друг друга.
+    function parsePassportStructured(words) {
+      const valid = (words || []).filter(w => w && w.text && w.bbox && Number(w.confidence ?? w.conf ?? 0) >= 25);
+      if (!valid.length) return {};
+
+      const labels = [];
+      valid.forEach((w, idx) => {
+        const type = passportLabelType(w.text);
+        if (type) labels.push({ ...w, idx, type, cx: (w.bbox.x0 + w.bbox.x1) / 2, cy: (w.bbox.y0 + w.bbox.y1) / 2 });
+      });
+      if (!labels.length) return {};
+
+      const used = new Set();
+      const picked = {};
+      const sortedLabels = labels.sort((a,b) => a.cy - b.cy || a.cx - b.cx);
+
+      function candidateScore(label, word, position) {
+        if (used.has(word.idx)) return -999;
+        if (!isPassportNameWord(word.text)) return -999;
+        const wc = (word.bbox.x0 + word.bbox.x1) / 2;
+        const wy = (word.bbox.y0 + word.bbox.y1) / 2;
+        const dx = wc - label.cx;
+        const dy = wy - label.cy;
+        const sameLine = Math.abs(dy) <= Math.max(14, (label.bbox.y1 - label.bbox.y0) * 1.8);
+        const below = dy > 0 && dy < 110;
+        const right = dx > -5;
+        if (!sameLine && !below) return -999;
+        if (position === 'same' && (!sameLine || !right)) return -999;
+        if (position === 'below' && (!below || Math.abs(dx) > 220)) return -999;
+        let score = passportNameScore(word.text, true);
+        if (sameLine && right) score += 70 - Math.min(60, Math.abs(dy) * 2) - Math.min(50, Math.max(0, 80 - dx) * 0.35);
+        if (below) score += 45 - Math.abs(dx) * 0.12 - dy * 0.25;
+        score += Math.min(15, Number(word.confidence ?? word.conf ?? 0) / 10);
+        return score;
+      }
+
+      for (const label of sortedLabels) {
+        let best = null;
+        for (const w of valid) {
+          const s = candidateScore(label, w, 'same');
+          if (s > (best?.score ?? -999)) best = { word: w, score: s };
+        }
+        if (!best || best.score < 15) {
+          for (const w of valid) {
+            const s = candidateScore(label, w, 'below');
+            if (s > (best?.score ?? -999)) best = { word: w, score: s };
+          }
+        }
+        if (best && best.score >= 15) {
+          picked[label.type] = cleanPassportOcrValue(best.word.text);
+          used.add(best.word.idx);
+        }
+      }
+
+      const parts = [picked.surname, picked.firstname, picked.patronymic].filter(Boolean);
+      return parts.length ? { fio: parts.join(' '), surname: picked.surname || '', firstName: picked.firstname || '', patronymic: picked.patronymic || '' } : {};
     }
 
     async function preparePassportOcrImage(dataUrl, mode = 'normal') {
@@ -5064,16 +5195,30 @@
           { psm: '6', imageMode: 'contrast' }
         ];
         let combined = '';
+        let structuredWords = [];
         for (let i = 0; i < currentPassportPhotos.length; i++) {
           for (const mode of modes) {
             const img = await preparePassportOcrImage(currentPassportPhotos[i], mode.imageMode);
             await worker.setParameters({ tessedit_pageseg_mode: mode.psm });
             const res = await worker.recognize(img);
             combined += '\n' + (res.data?.text || '');
+            if (Array.isArray(res.data?.words)) {
+              // Для каждого фото отдельная система координат; здесь этого достаточно,
+              // потому что значения выбираются только внутри одного результата OCR.
+              structuredWords.push(...res.data.words.map(w => ({ ...w, _photo: i, _mode: mode.psm })));
+            }
           }
         }
 
-        const data = parsePassportOcr(combined);
+        // Сначала используем координатный разбор ФИО. Если OCR дал плохие координаты
+        // или не распознал подписи, остаётся старый текстовый fallback.
+        let data = {};
+        const structured = parsePassportStructured(structuredWords);
+        if (structured.fio) data.fio = structured.fio;
+        const textData = parsePassportOcr(combined);
+        if (!data.fio && textData.fio) data.fio = textData.fio;
+        if (textData.birthDate) data.birthDate = textData.birthDate;
+        if (textData.passport) data.passport = textData.passport;
         let filled = 0;
         if (data.fio) { document.getElementById('fio').value = data.fio; filled++; }
         if (data.birthDate) { document.getElementById('birthDate').value = data.birthDate; filled++; }
