@@ -133,6 +133,76 @@
     .schedule-client-list .client-rest { font-size: 10px; }
     .schedule-client-list .client-item a { font-size: 10px; }
     .schedule-client-list .month-future { background:#e5e7eb; color:#64748b; }
+
+    /* Единый компактный стиль для «Сегодня», «Через 3 дня» и «Неплательщики» —
+       визуально в одной системе с таблицей «Договоры». */
+    .schedule-contract-list {
+      background:#fff;
+      border:1px solid #e2e8f0;
+      border-radius:16px;
+      overflow:hidden;
+      box-shadow:0 6px 20px rgba(15,23,42,.05);
+    }
+    .schedule-contract-row {
+      display:grid;
+      grid-template-columns:92px minmax(170px,1.45fr) minmax(125px,1fr) minmax(150px,1.1fr) minmax(125px,1fr) minmax(105px,.8fr) 92px;
+      align-items:stretch;
+      min-height:56px;
+      border-bottom:1px solid #eef2f7;
+      transition:background .15s;
+    }
+    .schedule-contract-row:last-child { border-bottom:0; }
+    .schedule-contract-row:hover { background:#f8fafc; }
+    .schedule-contract-segment {
+      min-width:0;
+      padding:8px 10px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      border-right:1px solid #eef2f7;
+      font-size:10px;
+    }
+    .schedule-contract-segment:last-child { border-right:0; }
+    .schedule-contract-label {
+      color:#94a3b8;
+      font-size:8px;
+      font-weight:800;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+      margin-bottom:2px;
+    }
+    .schedule-contract-value { color:#0f172a; font-weight:800; line-height:1.2; overflow:hidden; text-overflow:ellipsis; }
+    .schedule-contract-number { color:#0f172a; font-size:11px; font-weight:900; }
+    .schedule-contract-name { color:#0f172a; font-size:11px; font-weight:900; }
+    .schedule-contract-muted { color:#64748b; font-size:9px; margin-top:2px; overflow:hidden; text-overflow:ellipsis; }
+    .schedule-contract-danger { color:#dc2626; font-weight:900; }
+    .schedule-contract-warn { color:#ea580c; font-weight:900; }
+    .schedule-contract-action {
+      display:inline-flex; align-items:center; justify-content:center; gap:4px;
+      min-height:30px; padding:5px 7px; border-radius:7px;
+      font-size:9px; font-weight:900; border:1px solid #dcfce7;
+      background:#f0fdf4; color:#15803d; text-decoration:none;
+    }
+    .schedule-contract-action:hover { background:#dcfce7; }
+    .schedule-contract-header {
+      display:grid;
+      grid-template-columns:92px minmax(170px,1.45fr) minmax(125px,1fr) minmax(150px,1.1fr) minmax(125px,1fr) minmax(105px,.8fr) 92px;
+      background:#0f172a; color:#fff;
+    }
+    .schedule-contract-header > div { padding:8px 10px; border-right:1px solid #334155; font-size:8px; font-weight:900; text-transform:uppercase; letter-spacing:.04em; }
+    .schedule-contract-header > div:last-child { border-right:0; }
+    @media (max-width:900px) {
+      .schedule-contract-list { overflow-x:auto; }
+      .schedule-contract-header, .schedule-contract-row { min-width:860px; }
+    }
+    @media (max-width:640px) {
+      .schedule-contract-list { border-radius:12px; }
+      .schedule-contract-header { display:none; }
+      .schedule-contract-row { display:grid; grid-template-columns:82px minmax(145px,1fr) 110px 105px; min-width:0; }
+      .schedule-contract-segment:nth-child(3), .schedule-contract-segment:nth-child(4) { display:none; }
+      .schedule-contract-segment { padding:8px 9px; }
+      .schedule-contract-segment:nth-child(5) { border-right:1px solid #eef2f7; }
+    }
     .schedule-client-list .month-today { background:#3b82f6; color:#fff; }
     .schedule-client-list .month-three-days { background:#facc15; color:#713f12; }
 
@@ -1545,7 +1615,6 @@
             <h2 class="text-xl font-bold text-red-600">🚫 Неплательщики (просрочка)</h2>
             <div id="debtorsSummary" class="text-xs text-slate-500 font-semibold mt-1"></div>
           </div>
-        </div>
         </div>
         <div id="debtorsClientsList" class="client-list"></div>
       </div>
@@ -3965,72 +4034,101 @@
 
     function renderClientList(containerId, clients, title, dateStr, scheduleMode = 'today') {
       const container = document.getElementById(containerId);
+      if (!container) return;
       if (clients.length === 0) {
-        container.innerHTML = `<div class="text-center text-gray-500 py-8 text-sm">📭 ${title}</div>`;
+        container.innerHTML = `<div class="schedule-contract-list"><div class="text-center text-gray-500 py-8 text-sm">📭 ${title}</div></div>`;
         return;
       }
 
       const targetDate = dateStr ? String(dateStr).slice(0, 10) : '';
-      let html = '<div class="divide-y">';
+      const isDebtors = scheduleMode === 'debtors';
+      const dateLabel = scheduleMode === 'today' ? 'Сегодня' : scheduleMode === 'threeDays' ? 'Через 3 дня' : 'Просрочка';
+      let html = `
+        <div class="schedule-contract-list">
+          <div class="schedule-contract-header">
+            <div>Договор</div>
+            <div>Клиент</div>
+            <div>Телефон</div>
+            <div>${isDebtors ? 'Просрочка' : 'Платёж'}</div>
+            <div>${isDebtors ? 'Остаток' : 'Дата платежа'}</div>
+            <div>Статус</div>
+            <div>Связь</div>
+          </div>`;
+
       clients.forEach((client) => {
         const monthInfo = client.monthInfo || getMonthStatus(client);
-        let monthsHtml = '';
-        let overdueSum = 0;
+        let overdueSum = Number(client.overdueSum || 0);
+        let targetPayment = Number(client.unpaidMonthAmount || client.monthlyPay || 0);
+        let targetDateText = dateStr || '';
 
         monthInfo.months.forEach(m => {
+          if (m.status === 'overdue' && !m.isPaid) overdueSum += Number(m.dueAmount || m.amount || 0);
           const monthDate = String(m.date || '').slice(0, 10);
-          let statusClass = 'month-future';
-          let statusText = `📅 ${Number(m.amount || 0).toLocaleString('ru-RU')} ₽`;
-
-          if (m.status === 'paid' || m.isPaid) {
-            statusClass = 'month-paid';
-            statusText = `✓ ${Number(m.paidAmount || m.amount || 0).toLocaleString('ru-RU')} ₽`;
-          } else if (m.status === 'overdue') {
-            statusClass = 'month-overdue';
-            statusText = `❌ ${Number(m.dueAmount || m.amount || 0).toLocaleString('ru-RU')} ₽`;
-            overdueSum += Number(m.dueAmount || m.amount || 0);
-          } else if (scheduleMode === 'threeDays' && monthDate === targetDate) {
-            statusClass = 'month-three-days';
-            statusText = `⏰ ${Number(m.amount || 0).toLocaleString('ru-RU')} ₽`;
-          } else if (scheduleMode === 'today' && monthDate === targetDate) {
-            statusClass = 'month-today';
-            statusText = `${Number(m.amount || 0).toLocaleString('ru-RU')} ₽`;
+          if (monthDate === targetDate && !m.isPaid) {
+            targetPayment = Number(m.dueAmount || m.amount || targetPayment);
+            targetDateText = m.date || targetDateText;
           }
-
-          monthsHtml += `<span class="month-status ${statusClass}" title="${m.date}">${m.month}-й: ${statusText}</span>`;
         });
 
-        const clientOverdue = overdueSum || monthInfo.overdueSum || 0;
-        const rest = client.rest || calculateContractMetrics(client).rest;
+        // getDebtors() уже считает общую просрочку; не удваиваем её при рендере.
+        if (isDebtors) overdueSum = Number(client.overdueSum || monthInfo.overdueSum || overdueSum || 0);
+        const rest = Number(client.rest || calculateContractMetrics(client).rest || 0);
         const phoneDigits = normalizeWhatsAppPhone(client.phone);
-        const waHref = phoneDigits
-          ? `https://wa.me/${phoneDigits}?text=${encodeURIComponent(scheduleMode === 'debtors' ? buildDebtorWhatsAppMessage(client) : buildClientWhatsAppMessage(client, dateStr))}`
-          : '#';
+        const message = isDebtors ? buildDebtorWhatsAppMessage(client) : buildClientWhatsAppMessage(client, dateStr);
+        const waHref = phoneDigits ? `https://wa.me/${phoneDigits}?text=${encodeURIComponent(message)}` : '#';
         const waAttrs = phoneDigits
           ? 'target="_blank" rel="noopener noreferrer"'
           : 'onclick="alert(\'Телефон не указан.\'); return false;"';
 
+        let statusText = dateLabel;
+        let statusClass = '';
+        if (isDebtors) {
+          statusText = '🔴 Просрочено';
+          statusClass = 'schedule-contract-danger';
+        } else if (scheduleMode === 'today') {
+          statusText = '🔵 Сегодня';
+        } else {
+          statusText = '🟡 Через 3 дня';
+        }
+
         html += `
-          <div class="client-item">
-            <div class="client-info">
-              <span class="client-name">${client.fio}</span>
-              <span class="client-phone">📞 ${client.phone || 'Телефон не указан'}</span>
-              <span class="client-detail">💰 Мес. платеж: ${Number(client.monthlyPay || 0).toLocaleString('ru-RU')} ₽</span>
-              ${dateStr ? `<span class="client-detail">📅 ${scheduleMode === 'threeDays' ? 'Через 3 дня: ' : ''}${dateStr}</span>` : ''}
+          <div class="schedule-contract-row">
+            <div class="schedule-contract-segment">
+              <span class="schedule-contract-label">№ договора</span>
+              <span class="schedule-contract-number">№${escapeHtml(client.contractNum || '—')}</span>
+              <span class="schedule-contract-muted">${escapeHtml(client.buyDate || '—')}</span>
             </div>
-            <div class="flex flex-wrap items-center gap-2">
-              <span class="client-overdue">Просрочка: ${Number(clientOverdue || 0).toLocaleString('ru-RU')} ₽</span>
-              <span class="client-rest">Остаток: ${Number(rest || 0).toLocaleString('ru-RU')} ₽</span>
-              <a href="${waHref}" ${waAttrs} class="text-green-600 hover:text-green-800 font-bold text-sm" title="Открыть WhatsApp с готовым сообщением">💬 WhatsApp</a>
+            <div class="schedule-contract-segment">
+              <span class="schedule-contract-label">Клиент</span>
+              <span class="schedule-contract-name">${escapeHtml(client.fio || 'Без ФИО')}</span>
+              <span class="schedule-contract-muted">${escapeHtml(client.product || '—')}</span>
             </div>
-            <div class="w-full mt-1 flex flex-wrap gap-1">${monthsHtml}</div>
-          </div>
-        `;
+            <div class="schedule-contract-segment">
+              <span class="schedule-contract-label">Телефон</span>
+              <span class="schedule-contract-value">📞 ${escapeHtml(client.phone || 'Не указан')}</span>
+            </div>
+            <div class="schedule-contract-segment">
+              <span class="schedule-contract-label">${isDebtors ? 'Сумма просрочки' : 'Сумма платежа'}</span>
+              <span class="schedule-contract-value ${isDebtors ? 'schedule-contract-danger' : ''}">${Number(isDebtors ? overdueSum : targetPayment).toLocaleString('ru-RU')} ₽</span>
+            </div>
+            <div class="schedule-contract-segment">
+              <span class="schedule-contract-label">${isDebtors ? 'Остаток' : 'Дата'}</span>
+              <span class="schedule-contract-value">${isDebtors ? `${rest.toLocaleString('ru-RU')} ₽` : escapeHtml(targetDateText || '—')}</span>
+              ${!isDebtors && Number(overdueSum) > 0 ? `<span class="schedule-contract-muted schedule-contract-danger">Просрочка: ${Number(overdueSum).toLocaleString('ru-RU')} ₽</span>` : ''}
+            </div>
+            <div class="schedule-contract-segment">
+              <span class="schedule-contract-label">Статус</span>
+              <span class="schedule-contract-value ${statusClass}">${statusText}</span>
+              ${isDebtors ? `<span class="schedule-contract-muted">Мес. платёж: ${Number(client.monthlyPay || 0).toLocaleString('ru-RU')} ₽</span>` : ''}
+            </div>
+            <div class="schedule-contract-segment">
+              <a href="${waHref}" ${waAttrs} class="schedule-contract-action" title="Открыть WhatsApp">💬 WhatsApp</a>
+            </div>
+          </div>`;
       });
       html += '</div>';
       container.innerHTML = html;
     }
-
     // ================================================================
     // ВЫЕЗД
     // ================================================================
@@ -4527,21 +4625,31 @@
 
     function getDebtors() {
       const result = [];
+      const MIN_OVERDUE_FOR_DEBTOR = 1000; // Та же граница, что и в Excel (Договоры!T2).
       
       allContracts.forEach(contract => {
         const metrics = calculateContractMetrics(contract);
         if (metrics.isClosed) return;
         
         const monthInfo = getMonthStatus(contract);
-        const hasOverdue = monthInfo.months.some(m => m.status === 'overdue' && !m.isPaid);
-        
-        if (hasOverdue) {
+        const overdueSum = monthInfo.months.reduce((sum, m) => {
+          if (m.status === 'overdue' && !m.isPaid) {
+            return sum + Number(m.dueAmount || m.amount || 0);
+          }
+          return sum;
+        }, 0);
+
+        // В Excel договор получает статус «НД» только если общая просрочка
+        // по нему >= 1000 ₽. Не меняем расчёт платежей — меняем только отбор
+        // в список «Неплательщики».
+        if (overdueSum >= MIN_OVERDUE_FOR_DEBTOR) {
           result.push({
             ...contract,
             rest: metrics.rest,
             phone: contract.phone || '',
             fio: contract.fio || '',
-            monthInfo: monthInfo
+            monthInfo: monthInfo,
+            overdueSum: overdueSum
           });
         }
       });
