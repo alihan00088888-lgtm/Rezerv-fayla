@@ -1066,13 +1066,15 @@
     .dashboard-row-value.blue { color:#2563eb; }
     .dashboard-row-value.amber { color:#d97706; }
     .dashboard-installment { padding:18px; }
-    .dashboard-installment-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }
+    .dashboard-installment-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
     .dashboard-big-box { border:1px solid #e2e8f0; border-radius:14px; padding:14px; background:#f8fafc; }
     .dashboard-big-label { font-size:9px; font-weight:900; color:#64748b; text-transform:uppercase; letter-spacing:.05em; }
     .dashboard-big-value { margin-top:5px; font-size:22px; font-weight:900; color:#0f172a; }
     .dashboard-big-value.blue { color:#2563eb; }
     .dashboard-big-value.green { color:#059669; }
     .dashboard-profit-strip { margin-top:10px; padding:10px 12px; border-radius:10px; background:#ecfdf5; color:#047857; display:flex; justify-content:space-between; gap:8px; font-size:10px; font-weight:900; }
+    .dashboard-installment-moved { margin-top:10px; }
+
     .dashboard-chart-wrap { padding:12px 16px 16px; }
     .dashboard-chart { height:190px; display:flex; align-items:flex-end; gap:7px; border-bottom:1px solid #e2e8f0; padding:8px 4px 0; overflow-x:auto; }
     .dashboard-chart-month { min-width:46px; height:100%; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; gap:4px; }
@@ -1085,8 +1087,7 @@
     .dashboard-quick-btn { border:1px solid #e2e8f0; background:#fff; border-radius:12px; padding:11px 10px; cursor:pointer; font-size:10px; font-weight:900; color:#334155; transition:all .15s; }
     .dashboard-quick-btn:hover { background:#f8fafc; border-color:#bfdbfe; transform:translateY(-1px); }
     .dashboard-footnote { font-size:9px; color:#94a3b8; padding:0 16px 14px; line-height:1.45; }
-    @media (max-width:900px) { .dashboard-installment-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
-@media (max-width: 1000px) {
+    @media (max-width: 1000px) {
       .dashboard-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
       .dashboard-two-col { grid-template-columns:1fr; }
       .dashboard-three-col { grid-template-columns:1fr 1fr; }
@@ -1207,7 +1208,11 @@
       </section>
 
       <section class="dashboard-grid">
-        
+        <div class="dashboard-card dashboard-metric blue">
+          <div class="dashboard-metric-top"><span class="dashboard-metric-label">Общий доход</span><span class="dashboard-metric-icon">📈</span></div>
+          <div id="dashTotalProfit" class="dashboard-metric-value">0 ₽</div>
+          <div class="dashboard-metric-note">без вычета расходов</div>
+        </div>
         <div class="dashboard-card dashboard-metric red">
           <div class="dashboard-metric-top"><span class="dashboard-metric-label">Общие расходы</span><span class="dashboard-metric-icon">📉</span></div>
           <div id="dashGeneralExpense" class="dashboard-metric-value">0 ₽</div>
@@ -1228,7 +1233,11 @@
           <div id="dashPaidProfit" class="dashboard-metric-value">0 ₽</div>
           <div class="dashboard-metric-note">прибыль по фактически внесённым деньгам</div>
         </div>
-        
+        <div class="dashboard-card dashboard-metric blue">
+          <div class="dashboard-metric-top"><span class="dashboard-metric-label">Общие платежи</span><span class="dashboard-metric-icon">💳</span></div>
+          <div id="dashPayments" class="dashboard-metric-value">0 ₽</div>
+          <div class="dashboard-metric-note">предоплаты + внесённые платежи</div>
+        </div>
         <div class="dashboard-card dashboard-metric red">
           <div class="dashboard-metric-top"><span class="dashboard-metric-label">Просрочка</span><span class="dashboard-metric-icon">⚠️</span></div>
           <div id="dashOverdue" class="dashboard-metric-value">0 ₽</div>
@@ -1239,7 +1248,8 @@
           <div id="dashDebtors" class="dashboard-metric-value">0</div>
           <div class="dashboard-metric-note">можно открыть из меню</div>
         </div>
-      </section>
+
+        </section>
 
       <section class="dashboard-two-col">
         <div class="dashboard-card dashboard-section">
@@ -1248,14 +1258,6 @@
           </div>
           <div class="dashboard-installment">
             <div class="dashboard-installment-grid">
-              <div class="dashboard-big-box">
-                <div class="dashboard-big-label">Общий доход</div>
-                <div id="dashTotalProfit" class="dashboard-big-value">0 ₽</div>
-              </div>
-              <div class="dashboard-big-box">
-                <div class="dashboard-big-label">Общие платежи</div>
-                <div id="dashPayments" class="dashboard-big-value blue">0 ₽</div>
-              </div>
               <div class="dashboard-big-box">
                 <div class="dashboard-big-label">Себестоимость рассрочки</div>
                 <div id="dashInstallmentCost" class="dashboard-big-value">0 ₽</div>
@@ -1266,6 +1268,16 @@
               </div>
             </div>
             <div class="dashboard-profit-strip"><span>Доход от рассрочки</span><span id="dashInstallmentProfit">0 ₽</span></div>
+            <div class="dashboard-installment-grid dashboard-installment-moved">
+              <div class="dashboard-big-box">
+                <div class="dashboard-big-label">Общий доход</div>
+                <div id="dashTotalProfitMoved" class="dashboard-big-value">0 ₽</div>
+              </div>
+              <div class="dashboard-big-box">
+                <div class="dashboard-big-label">Общие платежи</div>
+                <div id="dashPaymentsMoved" class="dashboard-big-value blue">0 ₽</div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1349,6 +1361,7 @@
             <option value="today">Сегодня платёж</option>
             <option value="soon">Скоро платёж</option>
             <option value="overdue">Просроченные</option>
+            <option value="unpaidStore">Не оплачено магазину (без Д)</option>
             <option value="closed">Закрытые</option>
           </select>
           <select id="contractsSort" class="contracts-select" onchange="renderContractsView()">
@@ -3071,8 +3084,16 @@
       const set = (id, value) => { const el = document.getElementById(id); if (el) el.textContent = value; };
       set('dashboardPeriodCaption', dashboardRangeCaption(range));
       set('dashTotalProfit', dashFormatMoney(metrics.totalProfit));
+      set('dashAContractRevenue', dashFormatMoney(metrics.contractRevenue));
       set('dashAMonthlyPayments', dashFormatMoney(metrics.payments));
+      set('dashACost', dashFormatMoney(metrics.totalCost));
       set('dashATotalProfit', dashFormatMoney(metrics.totalProfit));
+      set('dashAInvestorIncome', dashFormatMoney(investorMetrics.investorIncome));
+      set('dashAInvestorExpense', dashFormatMoney(investorMetrics.investorExpense));
+      set('dashAInvested', dashFormatMoney(investorMetrics.invested));
+      set('dashAWithdrawn', dashFormatMoney(investorMetrics.withdrawn));
+      set('dashADividends', dashFormatMoney(investorMetrics.dividends));
+      set('dashACapital', dashFormatMoney(currentCapital));
       set('dashGeneralExpense', dashFormatMoney(generalExpense));
       set('dashProfitAfterExpenses', dashFormatMoney(profitAfterExpenses));
       set('dashExpectedProfit', dashFormatMoney(metrics.expectedProfit));
@@ -3089,6 +3110,8 @@
       set('dashInstallmentCost', dashFormatMoney(installmentCost));
       set('dashInstallmentTotal', dashFormatMoney(installmentTotal));
       set('dashInstallmentProfit', dashFormatMoney(installmentProfit));
+      set('dashTotalProfitMoved', dashFormatMoney(metrics.totalProfit));
+      set('dashPaymentsMoved', dashFormatMoney(metrics.payments));
       set('dashExpenseDetail', dashFormatMoney(generalExpense));
       set('dashDividends', dashFormatMoney(dividends));
       set('dashExpensesWithDividends', dashFormatMoney(totalExpensesWithDividends));
@@ -5046,7 +5069,11 @@
       const sortKey = document.getElementById('contractsSort')?.value || 'newest';
       let list = allContracts.filter(c => {
         if (q && !String(c.contractNum || '').toLowerCase().includes(q)) return false;
-        if (statusFilter !== 'all' && getContractStatusInfo(c).key !== statusFilter) return false;
+        if (statusFilter === 'unpaidStore') {
+          if (isStorePaid(c)) return false;
+        } else if (statusFilter !== 'all' && getContractStatusInfo(c).key !== statusFilter) {
+          return false;
+        }
         return true;
       });
       list.sort((a,b) => {
