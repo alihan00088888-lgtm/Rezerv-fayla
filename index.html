@@ -1078,8 +1078,9 @@
     .dashboard-chart-wrap { padding:12px 16px 16px; }
     .dashboard-chart { height:190px; display:flex; align-items:flex-end; gap:7px; border-bottom:1px solid #e2e8f0; padding:8px 4px 0; overflow-x:auto; }
     .dashboard-chart-month { min-width:46px; height:100%; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; gap:4px; }
-    .dashboard-chart-bars { width:100%; height:145px; display:flex; align-items:flex-end; justify-content:center; gap:3px; }
-    .dashboard-chart-bar { width:10px; min-height:2px; border-radius:4px 4px 0 0; background:#2563eb; }
+    .dashboard-chart-bars { width:100%; height:145px; display:flex; align-items:flex-end; justify-content:center; gap:3px; cursor:pointer; }
+    .dashboard-chart-bar { width:10px; min-height:2px; border-radius:4px 4px 0 0; background:#2563eb; cursor:pointer; transition:opacity .15s, transform .15s; }
+    .dashboard-chart-bar:hover { opacity:.78; transform:scaleY(1.03); transform-origin:bottom; }
     .dashboard-chart-bar.expense { background:#ef4444; }
     .dashboard-chart-bar.real-income { background:#22c55e; }
     .dashboard-chart-label { font-size:8px; color:#94a3b8; font-weight:800; white-space:nowrap; }
@@ -1209,11 +1210,6 @@
       </section>
 
       <section class="dashboard-grid">
-        <div class="dashboard-card dashboard-metric blue">
-          <div class="dashboard-metric-top"><span class="dashboard-metric-label">Общий доход</span><span class="dashboard-metric-icon">📈</span></div>
-          <div id="dashTotalProfit" class="dashboard-metric-value">0 ₽</div>
-          <div class="dashboard-metric-note">без вычета расходов</div>
-        </div>
         <div class="dashboard-card dashboard-metric red">
           <div class="dashboard-metric-top"><span class="dashboard-metric-label">Общие расходы</span><span class="dashboard-metric-icon">📉</span></div>
           <div id="dashGeneralExpense" class="dashboard-metric-value">0 ₽</div>
@@ -1233,11 +1229,6 @@
           <div class="dashboard-metric-top"><span class="dashboard-metric-label">Оплаченный доход</span><span class="dashboard-metric-icon">✅</span></div>
           <div id="dashPaidProfit" class="dashboard-metric-value">0 ₽</div>
           <div class="dashboard-metric-note">прибыль по фактически внесённым деньгам</div>
-        </div>
-        <div class="dashboard-card dashboard-metric blue">
-          <div class="dashboard-metric-top"><span class="dashboard-metric-label">Общие платежи</span><span class="dashboard-metric-icon">💳</span></div>
-          <div id="dashPayments" class="dashboard-metric-value">0 ₽</div>
-          <div class="dashboard-metric-note">предоплаты + внесённые платежи</div>
         </div>
         <div class="dashboard-card dashboard-metric red">
           <div class="dashboard-metric-top"><span class="dashboard-metric-label">Просрочка</span><span class="dashboard-metric-icon">⚠️</span></div>
@@ -1893,6 +1884,33 @@
         <div class="flex justify-end gap-2 pt-2">
           <button type="button" onclick="closeInvestmentCopyModal()" class="px-4 py-2 text-slate-500 font-bold">Отмена</button>
           <button type="button" onclick="performInvestmentCopy()" class="px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-bold">📋 Копировать</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ПОДРОБНОСТИ ДИНАМИКИ ЗА МЕСЯЦ -->
+  <div id="dashboardMonthDetailModal" class="fixed inset-0 bg-black/60 hidden flex items-center justify-center p-4 z-[80]" onclick="if(event.target===this) closeDashboardMonthDetail()">
+    <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
+      <div class="flex items-start justify-between gap-4 p-5 border-b border-slate-200">
+        <div>
+          <div class="text-[9px] uppercase font-black tracking-widest text-slate-400">Динамика за месяц</div>
+          <h2 id="dashboardMonthDetailTitle" class="text-xl font-black text-slate-900 mt-1"></h2>
+        </div>
+        <button type="button" onclick="closeDashboardMonthDetail()" class="text-2xl leading-none text-slate-400 hover:text-slate-700">×</button>
+      </div>
+      <div class="p-5 space-y-3">
+        <div class="flex items-center justify-between gap-4 p-4 rounded-xl bg-blue-50 border border-blue-100">
+          <span class="font-bold text-slate-600">Доход</span>
+          <strong id="dashboardMonthDetailProfit" class="text-blue-600 text-lg"></strong>
+        </div>
+        <div class="flex items-center justify-between gap-4 p-4 rounded-xl bg-red-50 border border-red-100">
+          <span class="font-bold text-slate-600">Расход</span>
+          <strong id="dashboardMonthDetailExpense" class="text-red-600 text-lg"></strong>
+        </div>
+        <div class="flex items-center justify-between gap-4 p-4 rounded-xl bg-green-50 border border-green-100">
+          <span class="font-bold text-slate-600">Мой реальный доход</span>
+          <strong id="dashboardMonthDetailRealIncome" class="text-green-600 text-lg"></strong>
         </div>
       </div>
     </div>
@@ -2987,19 +3005,15 @@
       const entry = report?.entries?.[owner.id];
       if (!entry) return 0;
 
-      // Это именно прибыль владельца, которая относится к его капиталу.
-      // Затем из неё вычитаются общие расходы месяца, дивиденды владельца
-      // и снятие средств владельцем за этот же месяц.
-      let expense = 0;
-      allIncomeExpenses.forEach(e => {
-        const d = dashParseDate(e.date);
-        if (d && d.getFullYear() === year && d.getMonth() + 1 === month) expense += Number(e.amount) || 0;
-      });
-
+      // Зелёная динамика показывает именно мой доход за месяц — прибыль,
+      // относящуюся к моему капиталу. Расходы отображаются отдельным
+      // красным столбцом, поэтому здесь их повторно не вычитаем.
+      // Дивиденды и снятия владельца уменьшают оставшийся капитал и поэтому
+      // также вычитаются из показателя моего дохода.
       const ownerProfit = Number(entry.profitActual) || 0;
       const ownerDividends = Number(entry.dividends) || 0;
       const ownerWithdrawn = Number(entry.withdrawn) || 0;
-      return ownerProfit - expense - ownerDividends - ownerWithdrawn;
+      return ownerProfit - ownerDividends - ownerWithdrawn;
     }
 
     function getDashboardMonthData(year, month) {
@@ -3020,23 +3034,53 @@
       if (!container) return;
       const months = getDashboardChartMonths(range);
       const data = months.map(m => ({ ...m, ...getDashboardMonthData(m.year, m.month) }));
-      const maxValue = Math.max(1, ...data.flatMap(x => [x.profit, x.expense, Math.max(0, x.realIncome)]));
+      // Высота всех трёх столбцов считается от одной шкалы. Поэтому зелёный
+      // столбец действительно показывает реальный размер дохода относительно
+      // красного расхода: при равных суммах они одинаковой высоты.
+      const maxValue = Math.max(1, ...data.flatMap(x => [Math.max(0, x.profit), Math.max(0, x.expense), Math.max(0, x.realIncome)]));
       const monthNames = ['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'];
       container.innerHTML = `<div class="dashboard-chart">${data.map(item => {
-        const hProfit = Math.max(2, Math.round((item.profit / maxValue) * 130));
-        const hExpense = Math.max(2, Math.round((item.expense / maxValue) * 130));
+        const hProfit = Math.max(2, Math.round((Math.max(0, item.profit) / maxValue) * 130));
+        const hExpense = Math.max(2, Math.round((Math.max(0, item.expense) / maxValue) * 130));
         const hRealIncome = Math.max(2, Math.round((Math.max(0, item.realIncome) / maxValue) * 130));
+        const monthTitle = `${monthNames[item.month-1]} ${item.year}`;
+        const detailCall = `openDashboardMonthDetail(${item.year},${item.month})`;
         return `<div class="dashboard-chart-month">
-          <div class="dashboard-chart-bars" title="${monthNames[item.month-1]} ${item.year}: доход ${dashFormatMoney(item.profit)}, расход ${dashFormatMoney(item.expense)}, мой реальный доход ${dashFormatMoney(item.realIncome)}">
-            <div class="dashboard-chart-bar" style="height:${hProfit}px"></div>
-            <div class="dashboard-chart-bar expense" style="height:${hExpense}px"></div>
-            <div class="dashboard-chart-bar real-income" style="height:${hRealIncome}px"></div>
+          <div class="dashboard-chart-bars" title="${monthTitle}: доход ${dashFormatMoney(item.profit)}, расход ${dashFormatMoney(item.expense)}, мой реальный доход ${dashFormatMoney(item.realIncome)}" onclick="${detailCall}">
+            <div class="dashboard-chart-bar" style="height:${hProfit}px" onclick="event.stopPropagation();${detailCall}"></div>
+            <div class="dashboard-chart-bar expense" style="height:${hExpense}px" onclick="event.stopPropagation();${detailCall}"></div>
+            <div class="dashboard-chart-bar real-income" style="height:${hRealIncome}px" onclick="event.stopPropagation();${detailCall}"></div>
           </div>
           <div class="dashboard-chart-value">${item.profit > 999999 ? Math.round(item.profit/1000000)+'м' : item.profit > 999 ? Math.round(item.profit/1000)+'к' : Math.round(item.profit)}</div>
           <div class="dashboard-chart-label">${monthNames[item.month-1]}</div>
         </div>`;
       }).join('')}</div>`;
     }
+
+    window.openDashboardMonthDetail = function(year, month) {
+      const data = getDashboardMonthData(year, month);
+      const names = ['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'];
+      const modal = document.getElementById('dashboardMonthDetailModal');
+      if (!modal) return;
+      const title = document.getElementById('dashboardMonthDetailTitle');
+      const profit = document.getElementById('dashboardMonthDetailProfit');
+      const expense = document.getElementById('dashboardMonthDetailExpense');
+      const realIncome = document.getElementById('dashboardMonthDetailRealIncome');
+      if (title) title.textContent = `${names[month - 1]} ${year}`;
+      if (profit) profit.textContent = dashFormatMoney(data.profit);
+      if (expense) expense.textContent = dashFormatMoney(data.expense);
+      if (realIncome) realIncome.textContent = dashFormatMoney(data.realIncome);
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    };
+
+    window.closeDashboardMonthDetail = function() {
+      const modal = document.getElementById('dashboardMonthDetailModal');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    };
 
     window.changeDashboardPeriod = function(mode) {
       dashboardPeriodMode = mode || 'all';
