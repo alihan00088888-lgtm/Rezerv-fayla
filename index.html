@@ -5331,33 +5331,181 @@
       return result;
     }
 
-    async function preparePassportOcrImage(dataUrl, mode = 'normal') {
+    async function preparePassportOcrImage(dataUrl, mode = 'normal', crop = null) {
       return new Promise((resolve, reject) => {
         const img = new Image();
         img.onload = () => {
-          const scale = Math.min(2, Math.max(1, 1800 / Math.max(img.naturalWidth, img.naturalHeight)));
+          const iw = img.naturalWidth || img.width;
+          const ih = img.naturalHeight || img.height;
+          const src = crop ? {
+            x: Math.max(0, Math.round(iw * crop.x)),
+            y: Math.max(0, Math.round(ih * crop.y)),
+            w: Math.max(1, Math.min(iw, Math.round(iw * crop.w))),
+            h: Math.max(1, Math.min(ih, Math.round(ih * crop.h)))
+          } : {x:0,y:0,w:iw,h:ih};
+          const maxInputSide = 2400;
+          const scale = Math.min(2.4, Math.max(1, maxInputSide / Math.max(src.w, src.h)));
           const canvas = document.createElement('canvas');
-          canvas.width = Math.round(img.naturalWidth * scale);
-          canvas.height = Math.round(img.naturalHeight * scale);
-          const ctx = canvas.getContext('2d', { willReadFrequently: true });
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          canvas.width = Math.max(1, Math.round(src.w * scale));
+          canvas.height = Math.max(1, Math.round(src.h * scale));
+          const ctx = canvas.getContext('2d', { willReadFrequently: true, alpha:false });
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
+          ctx.fillStyle = '#fff';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(img, src.x, src.y, src.w, src.h, 0, 0, canvas.width, canvas.height);
+
           if (mode !== 'normal') {
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             const d = imageData.data;
+            const contrast = mode === 'strong' ? 1.75 : (mode === 'gray' ? 1.0 : 1.38);
+            const brightness = mode === 'strong' ? 3 : 0;
             for (let i = 0; i < d.length; i += 4) {
-              const gray = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
-              // Умеренное усиление контраста, без жёсткого порога — лучше для печатных паспортных полей.
-              const contrast = mode === 'contrast' ? 1.55 : 1.25;
-              const value = Math.max(0, Math.min(255, (gray - 128) * contrast + 128));
-              d[i] = d[i + 1] = d[i + 2] = value;
+              let gray = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+              gray = Math.max(0, Math.min(255, (gray - 128) * contrast + 128 + brightness));
+              d[i] = d[i + 1] = d[i + 2] = gray;
             }
             ctx.putImageData(imageData, 0, 0);
           }
-          resolve(canvas.toDataURL('image/jpeg', 0.88));
+          resolve(canvas.toDataURL('image/jpeg', 0.92));
         };
         img.onerror = reject;
         img.src = dataUrl;
       });
+    }
+
+    // Машиночитаемая зона (МЧЗ) российского внутреннего паспорта — самый
+    // надёжный источник для даты рождения и серии/номера. Она имеет 2 строки
+    // по 44 символа и фиксированные позиции. Используем её как независимую
+    // проверку, а не как замену визуального OCR.
+    function normalizeMrzLine(text) {
+      let s = String(text || '')
+        .toUpperCase()
+        .replace(/«|»|“|”|\|/g, '<')
+        .replace(/\s+/g, '')
+        .replace(/[^A-Z0-9<]/g, '');
+      // Типичные ошибки OCR именно для MRZ. Исправляем только там, где
+      // символ должен быть цифрой, чтобы не портить фамилии/имена.
+      return s;
+    }
+
+    function mrzDigitValue(ch) {
+      const map = {O:'0', Q:'0', D:'0', I:'1', L:'1', Z:'2', S:'5', G:'6', T:'7', B:'8', P:'9'};
+      return /\d/.test(ch) ? ch : (map[ch] || '');
+    }
+
+    function normalizeMrzNumericPart(s) {
+      return String(s || '').split('').map(mrzDigitValue).join('');
+    }
+
+    function mrzCharValue(ch) {
+      if (ch === '<') return 0;
+      if (/\d/.test(ch)) return Number(ch);
+      if (/^[A-Z]$/.test(ch)) return ch.charCodeAt(0) - 55;
+      return 0;
+    }
+
+    function mrzCheck(data, checkChar) {
+      const check = Number(checkChar);
+      if (!Number.isInteger(check)) return false;
+      const weights = [7,3,1];
+      let sum = 0;
+      for (let i=0;i<data.length;i++) sum += mrzCharValue(data[i]) * weights[i % 3];
+      return sum % 10 === check;
+    }
+
+    function transliterateMrzToCyrillic(text) {
+      // Соответствие для модернизированного КЛЕР, применяемого в МЧЗ
+      // российского паспорта. Сначала обрабатываем многозначные символы.
+      const map = {
+        A:'А', V:'Б', G:'В', D:'Г', E:'Е', '2':'Ё', J:'Ж', Z:'З', Q:'И', K:'Й',
+        L:'К', M:'Л', N:'М', O:'Н', P:'О', R:'П', S:'Р', T:'С', U:'Т', F:'У', H:'Ф',
+        C:'Х', '3':'Ц', '4':'Ч', W:'Ш', X:'Щ', Y:'Ы', '9':'Ь', '6':'Э', '7':'Ю', '8':'Я'
+      };
+      return String(text || '').split('').map(ch => map[ch] || ch).join('');
+    }
+
+    function mrzNameParts(firstLine) {
+      const s = String(firstLine || '').replace(/</g, '<');
+      // Для внутреннего паспорта после PN/RUS идёт ФИО. Основной разделитель
+      // фамилии и имени — <<; дополнительные части имени разделяются <.
+      const body = s.length >= 44 ? s.slice(5, 44) : s.replace(/^PNRUS/, '');
+      const parts = body.split('<<');
+      if (parts.length < 2) return null;
+      const surname = parts[0].replace(/</g,' ').trim();
+      const given = parts[1].replace(/<+/g,' ').trim();
+      if (!surname || !given) return null;
+      const all = [surname, ...given.split(/\s+/).filter(Boolean)];
+      const cyr = all.map(transliterateMrzToCyrillic);
+      if (cyr.length < 2) return null;
+      return {
+        surname: cyr[0],
+        firstName: cyr[1] || '',
+        patronymic: cyr.slice(2).join(' '),
+        fio: cyr.join(' ')
+      };
+    }
+
+    function extractMrzCandidates(text) {
+      const rawLines = String(text || '').split(/\r?\n/).map(normalizeMrzLine).filter(Boolean);
+      const candidates = [];
+      for (let i=0;i<rawLines.length;i++) {
+        let a = rawLines[i];
+        if (a.length < 30) continue;
+        // MRZ иногда распознаётся с одним пропущенным символом. Берём наиболее
+        // длинный фрагмент вокруг PN/RUS, затем проверяем структуру.
+        if (!/^PNRUS/.test(a) && !/^P.?RUS/.test(a)) continue;
+        for (let j=i+1;j<rawLines.length;j++) {
+          let b = rawLines[j];
+          if (b.length < 30) continue;
+          const a44 = a.padEnd(44,'<').slice(0,44);
+          const b44 = b.padEnd(44,'<').slice(0,44);
+          const numeric1 = normalizeMrzNumericPart(b44.slice(0,9));
+          const birth6 = normalizeMrzNumericPart(b44.slice(13,19));
+          if (!/^\d{9}$/.test(numeric1) || !/^\d{6}$/.test(birth6)) continue;
+          if (!/^RUS$/.test(b44.slice(10,13))) continue;
+          const yy = Number(birth6.slice(0,2));
+          const mm = Number(birth6.slice(2,4));
+          const dd = Number(birth6.slice(4,6));
+          if (mm < 1 || mm > 12 || dd < 1 || dd > 31) continue;
+
+          const docCheck = mrzCheck(numeric1, mrzDigitValue(b44[9]));
+          const birthCheck = mrzCheck(birth6, mrzDigitValue(b44[19]));
+          const extraRaw = b44.slice(28,42);
+          const extra = extraRaw.split('').map(mrzDigitValue).join('');
+          const extraCheck = /^\d{14}$/.test(extra) ? mrzCheck(extra, mrzDigitValue(b44[42])) : false;
+          const finalData = `${numeric1}${b44[9]}${b44.slice(13,20)}${b44.slice(21,28)}${b44.slice(28,43)}`;
+          const finalCheck = mrzCheck(finalData, mrzDigitValue(b44[43]));
+
+          const nowYY = new Date().getFullYear() % 100;
+          const birthYear = yy <= nowYY ? 2000 + yy : 1900 + yy;
+          const iso = `${birthYear.toString().padStart(4,'0')}-${birth6.slice(2,4)}-${birth6.slice(4,6)}`;
+          // Для внутренних паспортов в позиции 29 (индекс 28) находится
+          // последняя цифра серии. Первые три цифры — позиции 1-3.
+          const first3 = numeric1.slice(0,3);
+          const lastSeriesDigit = extra.charAt(0);
+          const number = numeric1.slice(3);
+          const passport = /^\d{3}\d$/.test(first3 + lastSeriesDigit) && /^\d{6}$/.test(number)
+            ? `${first3}${lastSeriesDigit} ${number}` : '';
+          const name = mrzNameParts(a44);
+          let score = 0;
+          score += 35;
+          if (docCheck) score += 35;
+          if (birthCheck) score += 35;
+          if (extraCheck) score += 20;
+          if (finalCheck) score += 35;
+          if (name?.fio) score += 25;
+          candidates.push({a:a44,b:b44,birthDate:iso,passport,name,score,checks:{docCheck,birthCheck,extraCheck,finalCheck}});
+        }
+      }
+      candidates.sort((x,y)=>y.score-x.score);
+      return candidates;
+    }
+
+    function chooseBestMrz(results) {
+      if (!results.length) return null;
+      const valid = results.filter(r => r.checks.docCheck || r.checks.birthCheck || r.checks.finalCheck);
+      return (valid.length ? valid : results)[0];
     }
 
     window.scanPassportData = async function() {
@@ -5369,101 +5517,132 @@
         alert('Модуль распознавания ещё не загрузился. Проверьте интернет-соединение и попробуйте снова.');
         return;
       }
-      setPassportStatus('Распознаю ФИО, дату рождения и паспортные данные…');
+      setPassportStatus('Подготавливаю фото и ищу структуру паспорта…');
       let worker = null;
+      let mrzWorker = null;
       try {
         worker = await Tesseract.createWorker('rus+eng', 1, {
           logger: m => {
             if (m.status) setPassportStatus(`Распознавание: ${m.status}${m.progress ? ` ${Math.round(m.progress*100)}%` : ''}`);
           }
         });
+        mrzWorker = await Tesseract.createWorker('eng', 1);
 
-        // Отдельные запуски дают более стабильный результат, чем смешивание слов
-        // из разных PSM. Для каждого запуска сначала извлекаем поля, затем выбираем
-        // наиболее уверенный результат.
-        const modes = [
-          { psm: '11', imageMode: 'normal' },
-          { psm: '6', imageMode: 'normal' },
-          { psm: '12', imageMode: 'normal' },
-          { psm: '11', imageMode: 'contrast' }
-        ];
         const results = [];
+        const mrzCandidates = [];
         let combinedText = '';
 
         for (let photoIndex = 0; photoIndex < currentPassportPhotos.length; photoIndex++) {
-          for (const mode of modes) {
-            const img = await preparePassportOcrImage(currentPassportPhotos[photoIndex], mode.imageMode);
+          const photo = currentPassportPhotos[photoIndex];
+          const jobs = [
+            {psm:'11', mode:'normal', crop:null},
+            {psm:'6', mode:'normal', crop:null},
+            {psm:'11', mode:'gray', crop:null},
+            {psm:'11', mode:'strong', crop:null},
+            // Основная зона персональных данных обычно находится справа/выше
+            // фотографии. Это дополнительный независимый проход, а не единственный.
+            {psm:'11', mode:'normal', crop:{x:0.30,y:0.08,w:0.68,h:0.62}},
+            {psm:'6', mode:'gray', crop:{x:0.30,y:0.08,w:0.68,h:0.62}}
+          ];
+          for (const job of jobs) {
+            const img = await preparePassportOcrImage(photo, job.mode, job.crop);
             await worker.setParameters({
-              tessedit_pageseg_mode: mode.psm,
-              preserve_interword_spaces: '1'
+              tessedit_pageseg_mode: job.psm,
+              preserve_interword_spaces: '1',
+              tessedit_char_whitelist: ''
             });
             const res = await worker.recognize(img);
             const text = res.data?.text || '';
             combinedText += '\n' + text;
             const words = Array.isArray(res.data?.words) ? res.data.words : [];
             const parsed = parsePassportStructured(words);
-            results.push({ ...parsed, confidence: averagePassportConfidence(words), photoIndex, mode });
+            results.push({ ...parsed, confidence: averagePassportConfidence(words), photoIndex, job });
           }
+
+          // МЧЗ: берём нижнюю часть фотографии отдельно, только латиница/цифры/<.
+          const mrzImg = await preparePassportOcrImage(photo, 'gray', {x:0.03,y:0.68,w:0.94,h:0.31});
+          await mrzWorker.setParameters({
+            tessedit_pageseg_mode: '6',
+            tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<',
+            preserve_interword_spaces: '0'
+          });
+          const mrzRes = await mrzWorker.recognize(mrzImg);
+          const mrzText = mrzRes.data?.text || '';
+          combinedText += '\n' + mrzText;
+          mrzCandidates.push(...extractMrzCandidates(mrzText));
         }
+
+        // Текстовый резерв для случаев, когда на фото МЧЗ отсутствует.
+        const textData = parsePassportOcr(combinedText);
 
         function bestField(field) {
           const candidates = results.filter(r => r[field]);
           if (!candidates.length) return '';
-          // Поле должно подтверждаться качеством OCR. При нескольких результатах
-          // одинакового качества отдаём предпочтение тому, которое встретилось чаще.
           const counts = {};
           candidates.forEach(r => { counts[r[field]] = (counts[r[field]] || 0) + 1; });
           candidates.sort((a,b) => {
             const ca=counts[a[field]]||1, cb=counts[b[field]]||1;
-            return (cb*25 + (b.confidence||0)) - (ca*25 + (a.confidence||0));
+            return (cb*35 + (b.confidence||0)) - (ca*35 + (a.confidence||0));
           });
           return candidates[0][field];
         }
 
         function bestFio() {
-          const fioCandidates = results.filter(r => r.fio && r.fio.split(/\s+/).length >= 2);
-          if (!fioCandidates.length) return '';
-          const counts={}; fioCandidates.forEach(r=>counts[r.fio]=(counts[r.fio]||0)+1);
-          fioCandidates.sort((a,b)=>(counts[b.fio]*35+(b.confidence||0))-(counts[a.fio]*35+(a.confidence||0)));
-          return fioCandidates[0].fio;
+          const candidates = results.filter(r => r.fio && r.fio.split(/\s+/).length >= 2);
+          if (!candidates.length) return '';
+          const counts={};
+          candidates.forEach(r=>counts[r.fio]=(counts[r.fio]||0)+1);
+          candidates.sort((a,b)=>(counts[b.fio]*45+(b.confidence||0))-(counts[a.fio]*45+(a.confidence||0)));
+          return candidates[0].fio;
         }
 
-        let data = {
-          fio: bestFio(),
-          birthDate: bestField('birthDate'),
-          passport: bestField('passport')
-        };
+        const mrz = chooseBestMrz(mrzCandidates);
+        let fio = bestFio() || textData.fio || '';
+        let birthDate = mrz?.birthDate || bestField('birthDate') || textData.birthDate || '';
+        let passport = mrz?.passport || bestField('passport') || textData.passport || '';
 
-        // Текстовый резерв используется только для тех полей, которые не удалось
-        // определить пространственно.
-        const textData = parsePassportOcr(combinedText);
-        if (!data.fio && textData.fio) data.fio = textData.fio;
-        if (!data.birthDate && textData.birthDate) data.birthDate = textData.birthDate;
-        if (!data.passport && textData.passport) data.passport = textData.passport;
+        // Если визуальный OCR дал ФИО, сохраняем его. Если не дал — используем
+        // машиночитаемую зону как резерв. Это особенно полезно на фотографиях
+        // с бликами, наклоном или слабым контрастом.
+        if (!fio && mrz?.name?.fio) fio = mrz.name.fio;
+
+        // Если МЧЗ дала ФИО и визуальный OCR дал сомнительный результат, выбираем
+        // визуальный вариант только когда он состоит минимум из 3 слов и имеет
+        // нормальную кириллицу. Иначе безопаснее взять проверенный MRZ-вариант.
+        if (mrz?.name?.fio) {
+          const visualWords = fio.split(/\s+/).filter(Boolean);
+          const visualCyr = (fio.match(/[А-ЯЁа-яё]/g)||[]).length;
+          if (visualWords.length < 3 || visualCyr < 6) fio = mrz.name.fio;
+        }
 
         let filled = 0;
-        if (data.fio) { document.getElementById('fio').value = data.fio; filled++; }
-        if (data.birthDate) { document.getElementById('birthDate').value = data.birthDate; filled++; }
-        if (data.passport) { document.getElementById('passport').value = data.passport; filled++; }
+        if (fio) { document.getElementById('fio').value = fio; filled++; }
+        if (birthDate) { document.getElementById('birthDate').value = birthDate; filled++; }
+        if (passport) { document.getElementById('passport').value = passport; filled++; }
 
         const found=[];
-        if(data.fio) found.push('ФИО');
-        if(data.birthDate) found.push('дата рождения');
-        if(data.passport) found.push('серия и номер');
+        if(fio) found.push('ФИО');
+        if(birthDate) found.push('дата рождения');
+        if(passport) found.push('серия и номер');
+        const mrzOk = !!mrz;
         if (filled === 3) {
-          setPassportStatus('Готово: заполнены все 3 поля — ФИО, дата рождения, серия и номер паспорта. Проверьте их перед сохранением.', 'ok');
+          setPassportStatus(
+            mrzOk
+              ? 'Готово: заполнены все 3 поля. Дата рождения и серия/номер дополнительно проверены по машиночитаемой зоне. Проверьте ФИО перед сохранением.'
+              : 'Готово: заполнены все 3 поля. Проверьте данные перед сохранением.',
+            'ok'
+          );
         } else if (filled > 0) {
-          setPassportStatus(`Распознано ${filled} из 3: ${found.join(', ')}. Сделайте более ровное фото и нажмите «Распознать» ещё раз. Поля можно исправить вручную.`, 'error');
+          setPassportStatus(`Распознано ${filled} из 3: ${found.join(', ')}. Попробуйте нажать «Распознать» ещё раз; поля можно исправить вручную.`, 'error');
         } else {
-          setPassportStatus('Не удалось уверенно определить ФИО, дату рождения и серию/номер. Сфотографируйте страницу паспорта целиком, ровно и без бликов, затем попробуйте ещё раз.', 'error');
+          setPassportStatus('Не удалось уверенно определить 3 поля. Нужна фотография всей страницы паспорта без сильного блика; попробуйте ещё раз.', 'error');
         }
       } catch (err) {
         console.error(err);
         setPassportStatus('Ошибка распознавания. Данные не изменены; попробуйте другое фото или заполните поля вручную.', 'error');
       } finally {
-        if (worker) {
-          try { await worker.terminate(); } catch (e) {}
-        }
+        if (worker) { try { await worker.terminate(); } catch (e) {} }
+        if (mrzWorker) { try { await mrzWorker.terminate(); } catch (e) {} }
       }
     };
 
