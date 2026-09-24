@@ -1066,7 +1066,7 @@
     .dashboard-row-value.blue { color:#2563eb; }
     .dashboard-row-value.amber { color:#d97706; }
     .dashboard-installment { padding:18px; }
-    .dashboard-installment-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+    .dashboard-installment-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }
     .dashboard-big-box { border:1px solid #e2e8f0; border-radius:14px; padding:14px; background:#f8fafc; }
     .dashboard-big-label { font-size:9px; font-weight:900; color:#64748b; text-transform:uppercase; letter-spacing:.05em; }
     .dashboard-big-value { margin-top:5px; font-size:22px; font-weight:900; color:#0f172a; }
@@ -1085,7 +1085,8 @@
     .dashboard-quick-btn { border:1px solid #e2e8f0; background:#fff; border-radius:12px; padding:11px 10px; cursor:pointer; font-size:10px; font-weight:900; color:#334155; transition:all .15s; }
     .dashboard-quick-btn:hover { background:#f8fafc; border-color:#bfdbfe; transform:translateY(-1px); }
     .dashboard-footnote { font-size:9px; color:#94a3b8; padding:0 16px 14px; line-height:1.45; }
-    @media (max-width: 1000px) {
+    @media (max-width:900px) { .dashboard-installment-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media (max-width: 1000px) {
       .dashboard-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
       .dashboard-two-col { grid-template-columns:1fr; }
       .dashboard-three-col { grid-template-columns:1fr 1fr; }
@@ -1206,11 +1207,7 @@
       </section>
 
       <section class="dashboard-grid">
-        <div class="dashboard-card dashboard-metric blue">
-          <div class="dashboard-metric-top"><span class="dashboard-metric-label">Общий доход</span><span class="dashboard-metric-icon">📈</span></div>
-          <div id="dashTotalProfit" class="dashboard-metric-value">0 ₽</div>
-          <div class="dashboard-metric-note">без вычета расходов</div>
-        </div>
+        
         <div class="dashboard-card dashboard-metric red">
           <div class="dashboard-metric-top"><span class="dashboard-metric-label">Общие расходы</span><span class="dashboard-metric-icon">📉</span></div>
           <div id="dashGeneralExpense" class="dashboard-metric-value">0 ₽</div>
@@ -1252,6 +1249,14 @@
           <div class="dashboard-installment">
             <div class="dashboard-installment-grid">
               <div class="dashboard-big-box">
+                <div class="dashboard-big-label">Общий доход</div>
+                <div id="dashTotalProfit" class="dashboard-big-value">0 ₽</div>
+              </div>
+              <div class="dashboard-big-box">
+                <div class="dashboard-big-label">Общие платежи</div>
+                <div id="dashPayments" class="dashboard-big-value blue">0 ₽</div>
+              </div>
+              <div class="dashboard-big-box">
                 <div class="dashboard-big-label">Себестоимость рассрочки</div>
                 <div id="dashInstallmentCost" class="dashboard-big-value">0 ₽</div>
               </div>
@@ -1261,7 +1266,6 @@
               </div>
             </div>
             <div class="dashboard-profit-strip"><span>Доход от рассрочки</span><span id="dashInstallmentProfit">0 ₽</span></div>
-            <div class="dashboard-profit-strip" style="background:#eff6ff;color:#1d4ed8;"><span>Общие платежи</span><span id="dashPaymentsMoved">0 ₽</span></div>
           </div>
         </div>
 
