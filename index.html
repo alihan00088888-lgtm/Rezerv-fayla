@@ -4897,53 +4897,146 @@
       return String(text || '')
         .replace(/\r/g, '\n')
         .replace(/[|]/g, 'I')
+        .replace(/[«»“”]/g, '"')
         .replace(/[ \t]+/g, ' ')
         .split('\n')
         .map(s => s.trim())
         .filter(Boolean);
     }
 
+    function cleanPassportOcrValue(value) {
+      return String(value || '')
+        .replace(/[|]/g, 'I')
+        .replace(/^[\s:;,.\-–—]+|[\s:;,.\-–—]+$/g, '')
+        .replace(/\s{2,}/g, ' ')
+        .trim();
+    }
+
+    function looksLikeCyrillicName(value) {
+      const v = cleanPassportOcrValue(value).replace(/[^А-ЯЁа-яёA-Za-z\- ]/g, ' ').replace(/\s+/g, ' ').trim();
+      const words = v.split(' ').filter(Boolean);
+      if (!words.length || words.length > 3) return false;
+      return words.every(w => /^[А-ЯЁA-Za-z][А-ЯЁа-яёA-Za-z\-]{1,29}$/.test(w));
+    }
+
+    function normalizeOcrLabel(line) {
+      return cleanPassportOcrValue(line)
+        .toLowerCase()
+        .replace(/[0о]/g, 'o')
+        .replace(/[1l]/g, 'i')
+        .replace(/[сc]/g, 'c')
+        .replace(/[аa]/g, 'a')
+        .replace(/[мm]/g, 'm')
+        .replace(/[иi]/g, 'i')
+        .replace(/[яy]/g, 'y')
+        .replace(/[^a-zа-яё ]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
+    function findPassportField(lines, labelRegex) {
+      for (let i = 0; i < lines.length; i++) {
+        const line = cleanPassportOcrValue(lines[i]);
+        if (!labelRegex.test(line)) continue;
+
+        // Частый вариант: «Фамилия ИВАНОВ» в одной строке.
+        const sameLine = cleanPassportOcrValue(line.replace(labelRegex, ''));
+        if (looksLikeCyrillicName(sameLine)) return sameLine;
+
+        // Другой вариант паспорта: подпись на одной строке, значение на следующей.
+        for (let j = i + 1; j < Math.min(lines.length, i + 4); j++) {
+          const candidate = cleanPassportOcrValue(lines[j]);
+          if (!candidate) continue;
+          if (/фамил|имя|отчеств|surname|given|patronym|дата|рожд|место|паспорт|серия|номер/i.test(candidate)) break;
+          if (looksLikeCyrillicName(candidate)) return candidate;
+        }
+      }
+      return '';
+    }
+
     function parsePassportOcr(text) {
       const lines = normalizePassportText(text);
       const joined = lines.join(' ');
       const result = {};
+
+      // Дата рождения: сначала ищем дату рядом с подписью, затем любую дату.
       const dateMatches = joined.match(/\b(0?[1-9]|[12]\d|3[01])[.\-/](0?[1-9]|1[0-2])[.\-/](19\d{2}|20\d{2})\b/g) || [];
       const dates = dateMatches.map(d => {
         const m = d.match(/(\d{1,2})[.\-/](\d{1,2})[.\-/](\d{4})/);
         return m ? `${m[3]}-${String(m[2]).padStart(2,'0')}-${String(m[1]).padStart(2,'0')}` : '';
       }).filter(Boolean);
-
-      const dateLine = lines.findIndex(l => /дата\s*рожд|рожд/i.test(l));
-      if (dateLine >= 0) {
-        const m = lines[dateLine].match(/\b(\d{1,2})[.\-/](\d{1,2})[.\-/](\d{4})\b/);
+      const birthIdx = lines.findIndex(l => /дата\s*рожд|date\s*of\s*birth|birth/i.test(l));
+      if (birthIdx >= 0) {
+        const nearby = lines.slice(birthIdx, birthIdx + 3).join(' ');
+        const m = nearby.match(/\b(\d{1,2})[.\-/](\d{1,2})[.\-/](\d{4})\b/);
         if (m) result.birthDate = `${m[3]}-${String(m[2]).padStart(2,'0')}-${String(m[1]).padStart(2,'0')}`;
-        else if (dates[0]) result.birthDate = dates[0];
-      } else if (dates[0]) result.birthDate = dates[0];
+      }
+      if (!result.birthDate && dates.length) result.birthDate = dates[0];
 
-      const passMatch = joined.match(/\b(\d{2}\s?\d{2})\s?(\d{6})\b/);
-      if (passMatch) result.passport = `${passMatch[1].replace(/\s/g,'')} ${passMatch[2]}`;
-      else {
-        const alt = joined.match(/\b(\d{4})\s?(\d{6})\b/);
-        if (alt) result.passport = `${alt[1]} ${alt[2]}`;
+      // Серия + номер российского паспорта: 4 цифры + 6 цифр.
+      const passPatterns = [
+        /\b(\d{4})\s*[- ]?\s*(\d{6})\b/,
+        /\b(\d{2})\s*(\d{2})\s*(\d{6})\b/
+      ];
+      for (const re of passPatterns) {
+        const m = joined.match(re);
+        if (m) {
+          result.passport = m.length === 4 ? `${m[1]}${m[2]} ${m[3]}` : `${m[1]} ${m[2]}`;
+          break;
+        }
       }
 
-      const fioLine = lines.find(l => /фамилия|surname/i.test(l));
-      const nameLine = lines.find(l => /имя|given name/i.test(l));
-      const patronLine = lines.find(l => /отчество|patronymic/i.test(l));
-      function valueAfterLabel(line) {
-        if (!line) return '';
-        return line.replace(/^(фамилия|имя|отчество|surname|given name|patronymic)\s*[:\-]?\s*/i,'').trim();
+      // ФИО. На реальном паспорте OCR часто возвращает подпись и значение
+      // отдельными строками, поэтому ищем значение также в следующих 1–3 строках.
+      const surname = findPassportField(lines, /(?:фамилия|surname)\b/i);
+      const firstName = findPassportField(lines, /(?:имя|given\s*name)\b/i);
+      const patronymic = findPassportField(lines, /(?:отчество|patronymic)\b/i);
+      const fioParts = [surname, firstName, patronymic].filter(Boolean);
+      if (fioParts.length >= 2) {
+        result.fio = fioParts.join(' ');
+      } else {
+        // Запасной вариант: OCR может потерять подписи, но оставить 2–3 строки
+        // с именами. Берём наиболее похожую на ФИО строку, не содержащую служебных слов.
+        const candidates = lines
+          .map(l => cleanPassportOcrValue(l))
+          .filter(l => looksLikeCyrillicName(l))
+          .filter(l => !/паспорт|росси|место|рожд|область|район|город|улиц|серия|номер/i.test(l));
+        if (candidates.length) {
+          const best = candidates.find(l => l.split(/\s+/).length >= 3) || candidates[0];
+          if (best) result.fio = best;
+        }
       }
-      const fioParts = [valueAfterLabel(fioLine), valueAfterLabel(nameLine), valueAfterLabel(patronLine)].filter(Boolean);
-      if (fioParts.length >= 2) result.fio = fioParts.join(' ');
-      else {
-        const candidate = lines.find(l => {
-          const words = l.split(/\s+/).filter(Boolean);
-          return words.length >= 2 && words.length <= 4 && /^[А-ЯЁ][А-ЯЁа-яё-]+(?:\s+[А-ЯЁ][А-ЯЁа-яё-]+){1,3}$/.test(l);
-        });
-        if (candidate) result.fio = candidate;
-      }
+
       return result;
+    }
+
+    async function preparePassportOcrImage(dataUrl, mode = 'normal') {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+          const scale = Math.min(2, Math.max(1, 1800 / Math.max(img.naturalWidth, img.naturalHeight)));
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.round(img.naturalWidth * scale);
+          canvas.height = Math.round(img.naturalHeight * scale);
+          const ctx = canvas.getContext('2d', { willReadFrequently: true });
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          if (mode !== 'normal') {
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const d = imageData.data;
+            for (let i = 0; i < d.length; i += 4) {
+              const gray = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+              // Умеренное усиление контраста, без жёсткого порога — лучше для печатных паспортных полей.
+              const contrast = mode === 'contrast' ? 1.55 : 1.25;
+              const value = Math.max(0, Math.min(255, (gray - 128) * contrast + 128));
+              d[i] = d[i + 1] = d[i + 2] = value;
+            }
+            ctx.putImageData(imageData, 0, 0);
+          }
+          resolve(canvas.toDataURL('image/jpeg', 0.88));
+        };
+        img.onerror = reject;
+        img.src = dataUrl;
+      });
     }
 
     window.scanPassportData = async function() {
@@ -4955,32 +5048,49 @@
         alert('Модуль распознавания ещё не загрузился. Проверьте интернет-соединение и попробуйте снова.');
         return;
       }
-      setPassportStatus('Распознаю данные паспорта… это может занять некоторое время.');
+      setPassportStatus('Распознаю ФИО, дату рождения и паспортные данные…');
+      let worker = null;
       try {
-        const worker = await Tesseract.createWorker('rus+eng', 1, {
+        worker = await Tesseract.createWorker('rus+eng', 1, {
           logger: m => {
             if (m.status) setPassportStatus(`Распознавание: ${m.status}${m.progress ? ` ${Math.round(m.progress*100)}%` : ''}`);
           }
         });
+
+        // Несколько режимов сегментации: один лучше читает строки, другой — отдельные поля.
+        const modes = [
+          { psm: '6', imageMode: 'normal' },
+          { psm: '11', imageMode: 'normal' },
+          { psm: '6', imageMode: 'contrast' }
+        ];
         let combined = '';
         for (let i = 0; i < currentPassportPhotos.length; i++) {
-          const res = await worker.recognize(currentPassportPhotos[i]);
-          combined += '\n' + (res.data?.text || '');
+          for (const mode of modes) {
+            const img = await preparePassportOcrImage(currentPassportPhotos[i], mode.imageMode);
+            await worker.setParameters({ tessedit_pageseg_mode: mode.psm });
+            const res = await worker.recognize(img);
+            combined += '\n' + (res.data?.text || '');
+          }
         }
-        await worker.terminate();
+
         const data = parsePassportOcr(combined);
         let filled = 0;
         if (data.fio) { document.getElementById('fio').value = data.fio; filled++; }
         if (data.birthDate) { document.getElementById('birthDate').value = data.birthDate; filled++; }
         if (data.passport) { document.getElementById('passport').value = data.passport; filled++; }
+
         if (filled) {
-          setPassportStatus(`Готово: автоматически заполнено полей — ${filled}. Проверьте их и при необходимости исправьте вручную.`, 'ok');
+          setPassportStatus(`Готово: автоматически заполнено полей — ${filled}. ФИО, дата и паспорт распознаются отдельно; всё можно исправить вручную.`, 'ok');
         } else {
-          setPassportStatus('Не удалось уверенно определить нужные данные. Проверьте качество фото или заполните поля вручную.', 'error');
+          setPassportStatus('Не удалось уверенно определить нужные данные. Сделайте фото ровнее, ближе и при хорошем освещении и попробуйте ещё раз.', 'error');
         }
       } catch (err) {
         console.error(err);
-        setPassportStatus('Ошибка распознавания. Данные не изменены; заполните их вручную или попробуйте другое фото.', 'error');
+        setPassportStatus('Ошибка распознавания. Данные не изменены; попробуйте другое фото или заполните поля вручную.', 'error');
+      } finally {
+        if (worker) {
+          try { await worker.terminate(); } catch (e) {}
+        }
       }
     };
 
