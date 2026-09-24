@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Система Учета и Договоров</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <style>
     /* === Утилиты === */
     .row-error { background-color: #fee2e2 !important; }
@@ -325,6 +326,20 @@
       .print-contract { width:194mm; max-width:none; padding:0; margin:0; background:#fff; }
       .print-page { width:194mm; min-height:281mm; height:281mm; margin:0; padding:8mm 9mm 7mm; border:0; border-radius:0; page-break-after:always; break-after:page; overflow:hidden; }
       .print-page:last-child { page-break-after:auto; break-after:auto; }
+    }
+
+    /* === Паспорт: фото и OCR === */
+    .passport-scan-box { margin-top:12px; padding:10px; border:1px dashed #93c5fd; border-radius:10px; background:#eff6ff; }
+    .passport-photo-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:8px; margin-top:8px; }
+    .passport-photo-card { position:relative; border:1px solid #dbeafe; border-radius:9px; overflow:hidden; background:#fff; }
+    .passport-photo-card img { width:100%; height:100px; object-fit:cover; display:block; cursor:pointer; }
+    .passport-photo-card .passport-photo-actions { display:flex; gap:4px; padding:5px; }
+    .passport-photo-card button { flex:1; border:0; border-radius:6px; padding:5px 4px; font-size:9px; font-weight:800; cursor:pointer; }
+    .passport-scan-status { margin-top:7px; font-size:10px; color:#475569; }
+    .passport-scan-status.error { color:#b91c1c; font-weight:800; }
+    .passport-scan-status.ok { color:#15803d; font-weight:800; }
+    @media (max-width:640px) {
+      .passport-photo-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
     }
 
     /* === Уведомление о копировании === */
@@ -1952,10 +1967,28 @@
           <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
             <input type="text" id="fio" placeholder="ФИО Покупателя *" required class="p-2 border rounded-md col-span-2 focus:border-blue-500 outline-none">
             <input type="date" id="birthDate" title="Дата рождения" class="p-2 border rounded-md outline-none">
-            <input type="text" id="passport" placeholder="Паспортные данные" class="p-2 border rounded-md outline-none">
+            <input type="text" id="passport" placeholder="Паспорт: серия и номер" class="p-2 border rounded-md outline-none">
             <input type="text" id="phone" placeholder="Телефон *" required class="p-2 border rounded-md outline-none">
             <input type="text" id="extraPhone" placeholder="Доп. номер" class="p-2 border rounded-md outline-none">
-            <input type="text" id="address" placeholder="Адрес проживания" class="p-2 border rounded-md col-span-3 outline-none">
+            <input type="text" id="address" placeholder="Адрес проживания / регистрации" class="p-2 border rounded-md col-span-3 outline-none">
+          </div>
+
+          <div class="passport-scan-box">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <div class="font-black text-[10px] uppercase text-blue-700 tracking-widest">📷 Паспорт клиента</div>
+                <div class="text-[9px] text-slate-500 mt-1">Фамилия, имя, отчество, дата рождения, серия и номер.</div>
+              </div>
+              <div class="flex flex-wrap gap-1.5">
+                <button type="button" onclick="openPassportCamera()" class="px-2.5 py-1.5 rounded-lg bg-blue-600 text-white text-[10px] font-black">📷 Камера</button>
+                <button type="button" onclick="openPassportGallery()" class="px-2.5 py-1.5 rounded-lg bg-white border border-blue-200 text-blue-700 text-[10px] font-black">🖼️ Галерея</button>
+                <button type="button" onclick="scanPassportData()" class="px-2.5 py-1.5 rounded-lg bg-slate-900 text-white text-[10px] font-black">🔎 Распознать</button>
+              </div>
+            </div>
+            <input type="file" id="passportCameraInput" accept="image/*" capture="environment" class="hidden" onchange="handlePassportFiles(this.files)">
+            <input type="file" id="passportGalleryInput" accept="image/*" multiple class="hidden" onchange="handlePassportFiles(this.files)">
+            <div id="passportPhotoGrid" class="passport-photo-grid"></div>
+            <div id="passportScanStatus" class="passport-scan-status">Фото можно добавлять, заменять и удалять. Перед сохранением данные можно исправить вручную.</div>
           </div>
         </div>
 
@@ -4751,9 +4784,212 @@
       return !hasError;
     };
 
+    let currentPassportPhotos = [];
+
+    function compressPassportImage(file, maxSide = 1280, quality = 0.62) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onerror = () => reject(new Error('Не удалось прочитать фотографию.'));
+        reader.onload = () => {
+          const img = new Image();
+          img.onload = () => {
+            const scale = Math.min(1, maxSide / Math.max(img.naturalWidth || img.width, img.naturalHeight || img.height));
+            const canvas = document.createElement('canvas');
+            canvas.width = Math.max(1, Math.round(img.width * scale));
+            canvas.height = Math.max(1, Math.round(img.height * scale));
+            const ctx = canvas.getContext('2d', { alpha:false });
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            resolve(canvas.toDataURL('image/jpeg', quality));
+          };
+          img.onerror = () => reject(new Error('Не удалось открыть фотографию.'));
+          img.src = reader.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function renderPassportPhotos() {
+      const box = document.getElementById('passportPhotoGrid');
+      if (!box) return;
+      if (!currentPassportPhotos.length) {
+        box.innerHTML = '<div class="text-[9px] text-slate-400 py-2">Фотографии паспорта пока не добавлены.</div>';
+        return;
+      }
+      box.innerHTML = currentPassportPhotos.map((src, i) => `
+        <div class="passport-photo-card">
+          <img src="${src}" alt="Фото паспорта ${i+1}" onclick="previewPassportPhoto(${i})">
+          <div class="passport-photo-actions">
+            <button type="button" onclick="replacePassportPhoto(${i})" class="bg-blue-50 text-blue-700">Заменить</button>
+            <button type="button" onclick="removePassportPhoto(${i})" class="bg-red-50 text-red-700">Удалить</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function setPassportStatus(message, type='') {
+      const el = document.getElementById('passportScanStatus');
+      if (!el) return;
+      el.className = 'passport-scan-status' + (type ? ' '+type : '');
+      el.textContent = message;
+    }
+
+    window.openPassportCamera = function() {
+      document.getElementById('passportCameraInput')?.click();
+    };
+    window.openPassportGallery = function() {
+      document.getElementById('passportGalleryInput')?.click();
+    };
+    window.replacePassportPhoto = function(index) {
+      const input = document.getElementById('passportGalleryInput');
+      if (!input) return;
+      input.dataset.replaceIndex = String(index);
+      input.removeAttribute('multiple');
+      input.click();
+      setTimeout(() => { input.setAttribute('multiple','multiple'); }, 0);
+    };
+    window.removePassportPhoto = function(index) {
+      currentPassportPhotos.splice(index, 1);
+      renderPassportPhotos();
+      setPassportStatus('Фото удалено. Можно добавить новое.', 'ok');
+    };
+    window.previewPassportPhoto = function(index) {
+      const src = currentPassportPhotos[index];
+      if (!src) return;
+      const w = window.open('', '_blank');
+      if (w) {
+        w.document.write(`<title>Фото паспорта</title><body style="margin:0;background:#111;display:flex;align-items:center;justify-content:center;min-height:100vh"><img src="${src}" style="max-width:100%;max-height:100vh;object-fit:contain"></body>`);
+        w.document.close();
+      }
+    };
+
+    window.handlePassportFiles = async function(files) {
+      const input = files?.[0] ? (files.length === 1 ? files : files) : null;
+      if (!input || !input.length) return;
+      const galleryInput = document.getElementById('passportGalleryInput');
+      const replaceIndex = galleryInput?.dataset.replaceIndex;
+      if (galleryInput) delete galleryInput.dataset.replaceIndex;
+
+      setPassportStatus('Обрабатываю фото и уменьшаю размер хранения…');
+      try {
+        const compressed = [];
+        for (const file of Array.from(input)) {
+          if (!file.type.startsWith('image/')) continue;
+          compressed.push(await compressPassportImage(file));
+        }
+        if (replaceIndex !== undefined && compressed[0]) {
+          currentPassportPhotos[Number(replaceIndex)] = compressed[0];
+        } else {
+          currentPassportPhotos.push(...compressed);
+        }
+        renderPassportPhotos();
+        setPassportStatus(`Добавлено фото: ${compressed.length}. Размер хранения уменьшен; оригинал камеры не сохраняется.`, 'ok');
+      } catch (err) {
+        console.error(err);
+        setPassportStatus('Не удалось обработать фотографию. Попробуйте другое фото.', 'error');
+      } finally {
+        if (galleryInput) galleryInput.value = '';
+        const cameraInput = document.getElementById('passportCameraInput');
+        if (cameraInput) cameraInput.value = '';
+      }
+    };
+
+    function normalizePassportText(text) {
+      return String(text || '')
+        .replace(/\r/g, '\n')
+        .replace(/[|]/g, 'I')
+        .replace(/[ \t]+/g, ' ')
+        .split('\n')
+        .map(s => s.trim())
+        .filter(Boolean);
+    }
+
+    function parsePassportOcr(text) {
+      const lines = normalizePassportText(text);
+      const joined = lines.join(' ');
+      const result = {};
+      const dateMatches = joined.match(/\b(0?[1-9]|[12]\d|3[01])[.\-/](0?[1-9]|1[0-2])[.\-/](19\d{2}|20\d{2})\b/g) || [];
+      const dates = dateMatches.map(d => {
+        const m = d.match(/(\d{1,2})[.\-/](\d{1,2})[.\-/](\d{4})/);
+        return m ? `${m[3]}-${String(m[2]).padStart(2,'0')}-${String(m[1]).padStart(2,'0')}` : '';
+      }).filter(Boolean);
+
+      const dateLine = lines.findIndex(l => /дата\s*рожд|рожд/i.test(l));
+      if (dateLine >= 0) {
+        const m = lines[dateLine].match(/\b(\d{1,2})[.\-/](\d{1,2})[.\-/](\d{4})\b/);
+        if (m) result.birthDate = `${m[3]}-${String(m[2]).padStart(2,'0')}-${String(m[1]).padStart(2,'0')}`;
+        else if (dates[0]) result.birthDate = dates[0];
+      } else if (dates[0]) result.birthDate = dates[0];
+
+      const passMatch = joined.match(/\b(\d{2}\s?\d{2})\s?(\d{6})\b/);
+      if (passMatch) result.passport = `${passMatch[1].replace(/\s/g,'')} ${passMatch[2]}`;
+      else {
+        const alt = joined.match(/\b(\d{4})\s?(\d{6})\b/);
+        if (alt) result.passport = `${alt[1]} ${alt[2]}`;
+      }
+
+      const fioLine = lines.find(l => /фамилия|surname/i.test(l));
+      const nameLine = lines.find(l => /имя|given name/i.test(l));
+      const patronLine = lines.find(l => /отчество|patronymic/i.test(l));
+      function valueAfterLabel(line) {
+        if (!line) return '';
+        return line.replace(/^(фамилия|имя|отчество|surname|given name|patronymic)\s*[:\-]?\s*/i,'').trim();
+      }
+      const fioParts = [valueAfterLabel(fioLine), valueAfterLabel(nameLine), valueAfterLabel(patronLine)].filter(Boolean);
+      if (fioParts.length >= 2) result.fio = fioParts.join(' ');
+      else {
+        const candidate = lines.find(l => {
+          const words = l.split(/\s+/).filter(Boolean);
+          return words.length >= 2 && words.length <= 4 && /^[А-ЯЁ][А-ЯЁа-яё-]+(?:\s+[А-ЯЁ][А-ЯЁа-яё-]+){1,3}$/.test(l);
+        });
+        if (candidate) result.fio = candidate;
+      }
+      return result;
+    }
+
+    window.scanPassportData = async function() {
+      if (!currentPassportPhotos.length) {
+        alert('Сначала добавьте фото паспорта.');
+        return;
+      }
+      if (!window.Tesseract) {
+        alert('Модуль распознавания ещё не загрузился. Проверьте интернет-соединение и попробуйте снова.');
+        return;
+      }
+      setPassportStatus('Распознаю данные паспорта… это может занять некоторое время.');
+      try {
+        const worker = await Tesseract.createWorker('rus+eng', 1, {
+          logger: m => {
+            if (m.status) setPassportStatus(`Распознавание: ${m.status}${m.progress ? ` ${Math.round(m.progress*100)}%` : ''}`);
+          }
+        });
+        let combined = '';
+        for (let i = 0; i < currentPassportPhotos.length; i++) {
+          const res = await worker.recognize(currentPassportPhotos[i]);
+          combined += '\n' + (res.data?.text || '');
+        }
+        await worker.terminate();
+        const data = parsePassportOcr(combined);
+        let filled = 0;
+        if (data.fio) { document.getElementById('fio').value = data.fio; filled++; }
+        if (data.birthDate) { document.getElementById('birthDate').value = data.birthDate; filled++; }
+        if (data.passport) { document.getElementById('passport').value = data.passport; filled++; }
+        if (filled) {
+          setPassportStatus(`Готово: автоматически заполнено полей — ${filled}. Проверьте их и при необходимости исправьте вручную.`, 'ok');
+        } else {
+          setPassportStatus('Не удалось уверенно определить нужные данные. Проверьте качество фото или заполните поля вручную.', 'error');
+        }
+      } catch (err) {
+        console.error(err);
+        setPassportStatus('Ошибка распознавания. Данные не изменены; заполните их вручную или попробуйте другое фото.', 'error');
+      }
+    };
+
     const modal = document.getElementById('modal');
     window.openCreateModal = function() {
       document.getElementById('contractForm').reset();
+      currentPassportPhotos = [];
+      renderPassportPhotos();
+      setPassportStatus('Фото можно добавлять, заменять и удалять. Перед сохранением данные можно исправить вручную.');
       document.getElementById('editDocId').value = '';
       document.getElementById('modalTitle').innerText = 'Оформление нового договора';
       document.getElementById('downPayment').value = 0;
@@ -4775,6 +5011,9 @@
       if(!contract) return;
       document.getElementById('editDocId').value = id;
       document.getElementById('modalTitle').innerText = `Редактирование №${contract.contractNum}`;
+      currentPassportPhotos = Array.isArray(contract.passportPhotos) ? [...contract.passportPhotos] : [];
+      renderPassportPhotos();
+      setPassportStatus(currentPassportPhotos.length ? `Сохранено фото паспорта: ${currentPassportPhotos.length}.` : 'Фото можно добавлять, заменять и удалять. Перед сохранением данные можно исправить вручную.');
       document.getElementById('fio').value = contract.fio || '';
       document.getElementById('birthDate').value = contract.birthDate || '';
       document.getElementById('passport').value = contract.passport || '';
@@ -4814,6 +5053,7 @@
         fio: document.getElementById('fio').value,
         birthDate: document.getElementById('birthDate').value || '',
         passport: document.getElementById('passport').value || '',
+        passportPhotos: currentPassportPhotos.slice(),
         phone: document.getElementById('phone').value,
         extraPhone: document.getElementById('extraPhone').value || '',
         address: document.getElementById('address').value || '',
