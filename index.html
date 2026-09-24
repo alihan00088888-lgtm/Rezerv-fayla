@@ -1081,6 +1081,7 @@
     .dashboard-chart-bars { width:100%; height:145px; display:flex; align-items:flex-end; justify-content:center; gap:3px; }
     .dashboard-chart-bar { width:10px; min-height:2px; border-radius:4px 4px 0 0; background:#2563eb; }
     .dashboard-chart-bar.expense { background:#ef4444; }
+    .dashboard-chart-bar.real-income { background:#22c55e; }
     .dashboard-chart-label { font-size:8px; color:#94a3b8; font-weight:800; white-space:nowrap; }
     .dashboard-chart-value { font-size:7px; color:#64748b; font-weight:800; white-space:nowrap; }
     .dashboard-quick-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; padding:14px 16px 16px; }
@@ -1267,7 +1268,6 @@
                 <div id="dashInstallmentTotal" class="dashboard-big-value blue">0 ₽</div>
               </div>
             </div>
-            <div class="dashboard-profit-strip"><span>Доход от рассрочки</span><span id="dashInstallmentProfit">0 ₽</span></div>
             <div class="dashboard-installment-grid dashboard-installment-moved">
               <div class="dashboard-big-box">
                 <div class="dashboard-big-label">Общий доход</div>
@@ -1326,7 +1326,7 @@
       <section class="dashboard-card dashboard-section">
         <div class="dashboard-section-head">
           <div><div class="dashboard-section-title">📈 Динамика</div><div class="dashboard-section-sub">Доход без расходов и общие расходы по месяцам</div></div>
-          <div class="flex items-center gap-3 text-[9px] font-bold text-slate-500"><span>■ Доход</span><span class="text-red-500">■ Расход</span></div>
+          <div class="flex items-center gap-3 text-[9px] font-bold text-slate-500"><span>■ Доход</span><span class="text-red-500">■ Расход</span><span class="text-green-500">■ Мой реальный доход</span></div>
         </div>
         <div id="dashboardChart" class="dashboard-chart-wrap"></div>
       </section>
@@ -2978,6 +2978,30 @@
       return months;
     }
 
+    function getDashboardOwnerRealIncomeByMonth(year, month) {
+      const owner = initInvestors.find(inv => inv && inv.isOwner);
+      if (!owner) return 0;
+
+      const key = `${year}-${String(month).padStart(2, '0')}`;
+      const report = initMonthlyReports[key];
+      const entry = report?.entries?.[owner.id];
+      if (!entry) return 0;
+
+      // Это именно прибыль владельца, которая относится к его капиталу.
+      // Затем из неё вычитаются общие расходы месяца, дивиденды владельца
+      // и снятие средств владельцем за этот же месяц.
+      let expense = 0;
+      allIncomeExpenses.forEach(e => {
+        const d = dashParseDate(e.date);
+        if (d && d.getFullYear() === year && d.getMonth() + 1 === month) expense += Number(e.amount) || 0;
+      });
+
+      const ownerProfit = Number(entry.profitActual) || 0;
+      const ownerDividends = Number(entry.dividends) || 0;
+      const ownerWithdrawn = Number(entry.withdrawn) || 0;
+      return ownerProfit - expense - ownerDividends - ownerWithdrawn;
+    }
+
     function getDashboardMonthData(year, month) {
       // На графике показываем фактически заработанную прибыль по полученным
       // платежам — тот же принцип, который используется в инвестициях.
@@ -2987,7 +3011,8 @@
         const d = dashParseDate(e.date);
         if (d && d.getFullYear() === year && d.getMonth() + 1 === month) expense += Number(e.amount) || 0;
       });
-      return { profit, expense };
+      const realIncome = getDashboardOwnerRealIncomeByMonth(year, month);
+      return { profit, expense, realIncome };
     }
 
     function renderDashboardChart(range) {
@@ -2995,15 +3020,17 @@
       if (!container) return;
       const months = getDashboardChartMonths(range);
       const data = months.map(m => ({ ...m, ...getDashboardMonthData(m.year, m.month) }));
-      const maxValue = Math.max(1, ...data.flatMap(x => [x.profit, x.expense]));
+      const maxValue = Math.max(1, ...data.flatMap(x => [x.profit, x.expense, Math.max(0, x.realIncome)]));
       const monthNames = ['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'];
       container.innerHTML = `<div class="dashboard-chart">${data.map(item => {
         const hProfit = Math.max(2, Math.round((item.profit / maxValue) * 130));
         const hExpense = Math.max(2, Math.round((item.expense / maxValue) * 130));
+        const hRealIncome = Math.max(2, Math.round((Math.max(0, item.realIncome) / maxValue) * 130));
         return `<div class="dashboard-chart-month">
-          <div class="dashboard-chart-bars" title="${monthNames[item.month-1]} ${item.year}: доход ${dashFormatMoney(item.profit)}, расход ${dashFormatMoney(item.expense)}">
+          <div class="dashboard-chart-bars" title="${monthNames[item.month-1]} ${item.year}: доход ${dashFormatMoney(item.profit)}, расход ${dashFormatMoney(item.expense)}, мой реальный доход ${dashFormatMoney(item.realIncome)}">
             <div class="dashboard-chart-bar" style="height:${hProfit}px"></div>
             <div class="dashboard-chart-bar expense" style="height:${hExpense}px"></div>
+            <div class="dashboard-chart-bar real-income" style="height:${hRealIncome}px"></div>
           </div>
           <div class="dashboard-chart-value">${item.profit > 999999 ? Math.round(item.profit/1000000)+'м' : item.profit > 999 ? Math.round(item.profit/1000)+'к' : Math.round(item.profit)}</div>
           <div class="dashboard-chart-label">${monthNames[item.month-1]}</div>
@@ -3072,10 +3099,11 @@
       const debtors = getDebtors();
       const installRange = getDashboardInstallmentScope(range);
       const installmentContracts = allContracts.filter(c => !installRange || dashInRange(c.buyDate, installRange));
-      // Себестоимость — деньги, которые фактически ушли магазину за товар.
-      // Флаг «Оплачено Д» означает, что расчёт с магазином завершён.
+      // Себестоимость рассрочки — себестоимость всех договоров за выбранный период.
+      // Она не зависит от отметки «Д»: даже если договор ещё не оплачен магазину,
+      // его себестоимость уже должна входить в общую себестоимость рассрочки.
       const installmentCost = installmentContracts.reduce((sum,c) => {
-        return sum + (c.shopPaid ? (Number(c.costPrice) || 0) : 0);
+        return sum + (Number(c.costPrice) || 0);
       }, 0);
       // Итоговая сумма рассрочки — полная сумма, указанная в договоре.
       const installmentTotal = installmentContracts.reduce((sum,c) => sum + (Number(c.totalCost)||0), 0);
@@ -3109,7 +3137,6 @@
       set('dashOutstanding', dashFormatMoney(metrics.outstanding));
       set('dashInstallmentCost', dashFormatMoney(installmentCost));
       set('dashInstallmentTotal', dashFormatMoney(installmentTotal));
-      set('dashInstallmentProfit', dashFormatMoney(installmentProfit));
       set('dashTotalProfitMoved', dashFormatMoney(metrics.totalProfit));
       set('dashPaymentsMoved', dashFormatMoney(metrics.payments));
       set('dashExpenseDetail', dashFormatMoney(generalExpense));
@@ -5122,12 +5149,9 @@
       body.innerHTML = `
         <div class="contract-detail-grid">
           <div class="contract-detail-card wide"><h3>👤 Клиент</h3><div class="contract-detail-value">${escapeHtml(c.fio || '—')}</div><div class="contract-detail-value mt-1">📞 ${escapeHtml(c.phone || '—')}</div><div class="contract-detail-value mt-1">Доп. телефон: ${escapeHtml(c.extraPhone || '—')}</div><div class="contract-detail-value mt-1">Дата рождения: ${escapeHtml(c.birthDate || '—')}</div><div class="contract-detail-value mt-1">Паспорт: ${escapeHtml(c.passport || '—')}</div><div class="contract-detail-value mt-1">Адрес: ${escapeHtml(c.address || '—')}</div></div>
-          <div class="contract-detail-card"><h3>📋 Договор</h3><div class="contract-detail-value">№${escapeHtml(c.contractNum)}</div><div class="contract-detail-value mt-1">Дата покупки: ${escapeHtml(c.buyDate || '—')}</div><div class="contract-detail-value mt-1">График: ${escapeHtml(c.payDate || '—')}</div></div>
-          <div class="contract-detail-card"><h3>💰 Финансы</h3><div class="contract-detail-value">Рассрочка: ${Number(c.totalCost||0).toLocaleString('ru-RU')} ₽</div><div class="contract-detail-value mt-1">Себестоимость: ${Number(c.costPrice||0).toLocaleString('ru-RU')} ₽</div><div class="contract-detail-value mt-1">Месячный: ${Number(c.monthlyPay||0).toLocaleString('ru-RU')} ₽</div></div>
-          <div class="contract-detail-card"><h3>💳 Состояние</h3><div class="contract-detail-value">Оплачено: ${Number(metrics.totalPaid + Number(c.downPayment||0)).toLocaleString('ru-RU')} ₽</div><div class="contract-detail-value mt-1">Остаток: ${Number(metrics.rest).toLocaleString('ru-RU')} ₽</div><div class="contract-detail-value mt-1">Просрочка: ${Number(metrics.overdueSum).toLocaleString('ru-RU')} ₽</div></div>
-          <div class="contract-detail-card wide"><h3>🏠 Личные данные</h3><div class="contract-detail-value">Паспорт: ${escapeHtml(c.passport || '—')}</div><div class="contract-detail-value mt-1">Дата рождения: ${escapeHtml(c.birthDate || '—')}</div><div class="contract-detail-value mt-1">Адрес: ${escapeHtml(c.address || '—')}</div></div>
-          <div class="contract-detail-card"><h3>📦 Товар</h3><div class="contract-detail-value">${escapeHtml(c.product || '—')}</div><div class="contract-detail-value mt-1">Магазин: ${escapeHtml(c.store || '—')}</div><div class="contract-detail-value mt-1">«Д»: ${c.shopPaid ? '✅ Оплачено' : '—'}</div></div>
-          <div class="contract-detail-card"><h3>👥 Поручитель</h3><div class="contract-detail-value">${escapeHtml(c.guarantorFio || '—')}</div><div class="contract-detail-value mt-1">📞 ${escapeHtml(c.guarantorPhone || '—')}</div><div class="contract-detail-value mt-1">Доп. телефон: ${escapeHtml(c.guarantorExtraPhone || '—')}</div><div class="contract-detail-value mt-1">Паспорт: ${escapeHtml(c.guarantorPassport || '—')}</div><div class="contract-detail-value mt-1">Дата рождения: ${escapeHtml(c.guarantorBirthDate || '—')}</div><div class="contract-detail-value mt-1">Адрес: ${escapeHtml(c.guarantorAddress || '—')}</div></div>
+          <div class="contract-detail-card wide"><h3>👥 Поручитель</h3><div class="contract-detail-value">${escapeHtml(c.guarantorFio || '—')}</div><div class="contract-detail-value mt-1">📞 ${escapeHtml(c.guarantorPhone || '—')}</div><div class="contract-detail-value mt-1">Доп. телефон: ${escapeHtml(c.guarantorExtraPhone || '—')}</div><div class="contract-detail-value mt-1">Паспорт: ${escapeHtml(c.guarantorPassport || '—')}</div><div class="contract-detail-value mt-1">Дата рождения: ${escapeHtml(c.guarantorBirthDate || '—')}</div><div class="contract-detail-value mt-1">Адрес: ${escapeHtml(c.guarantorAddress || '—')}</div></div>
+          <div class="contract-detail-card wide"><h3>📋 Договор и 📦 Товар</h3><div class="contract-detail-value">№${escapeHtml(c.contractNum)}</div><div class="contract-detail-value mt-1">Дата покупки: ${escapeHtml(c.buyDate || '—')}</div><div class="contract-detail-value mt-1">График: ${escapeHtml(c.payDate || '—')}</div><div class="contract-detail-value mt-1">Товар: ${escapeHtml(c.product || '—')}</div><div class="contract-detail-value mt-1">Магазин: ${escapeHtml(c.store || '—')}</div><div class="contract-detail-value mt-1">«Д»: ${c.shopPaid ? '✅ Оплачено' : '—'}</div></div>
+          <div class="contract-detail-card wide"><h3>💰 Финансы и 💳 Состояние</h3><div class="contract-detail-value">Рассрочка: ${Number(c.totalCost||0).toLocaleString('ru-RU')} ₽</div><div class="contract-detail-value mt-1">Себестоимость: ${Number(c.costPrice||0).toLocaleString('ru-RU')} ₽</div><div class="contract-detail-value mt-1">Месячный: ${Number(c.monthlyPay||0).toLocaleString('ru-RU')} ₽</div><div class="contract-detail-value mt-1">Оплачено: ${Number(metrics.totalPaid + Number(c.downPayment||0)).toLocaleString('ru-RU')} ₽</div><div class="contract-detail-value mt-1">Остаток: ${Number(metrics.rest).toLocaleString('ru-RU')} ₽</div><div class="contract-detail-value mt-1">Просрочка: ${Number(metrics.overdueSum).toLocaleString('ru-RU')} ₽</div></div>
         </div>
         <div class="contract-detail-footer-actions">
           <button class="contract-action primary" onclick="closeContractDetail(); openPayModal('${escapeHtml(c.id)}')">＋ Внести оплату</button>
