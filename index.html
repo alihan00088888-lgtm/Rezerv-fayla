@@ -2888,7 +2888,9 @@
         if (!dashInRange(monthDate, range)) return;
         initInvestors.forEach(inv => {
           const e = rep.entries[inv.id];
-          if (e) sum += Number(e.dividends || 0);
+          // Дивиденды владельца уже входят в общие расходы и
+          // не должны повторно вычитаться из дохода через блок дивидендов.
+          if (e && !inv.isOwner) sum += Number(e.dividends || 0);
         });
       });
       return sum;
@@ -3112,8 +3114,11 @@
         initInvestors.forEach(inv => {
           const e = rep.entries[inv.id];
           if (!e) return;
-          if (!inv.isOwner) investorIncome += Number(e.profitActual || 0);
-          dividends += Number(e.dividends || 0);
+          if (!inv.isOwner) {
+            investorIncome += Number(e.profitActual || 0);
+            // Дивиденды владельца уже учтены в общих расходах.
+            dividends += Number(e.dividends || 0);
+          }
           withdrawn += Number(e.withdrawn || 0);
           invested += Number(e.invested || 0);
           if (key === firstReportKey) {
@@ -6273,7 +6278,7 @@
             0,
             (entry.capitalStart || 0) +
             Number(entry.invested || 0) -
-            Number(entry.dividends || 0) -
+            (inv.isOwner ? 0 : Number(entry.dividends || 0)) -
             Number(entry.withdrawn || 0)
           );
           totalCapitalForProfit += cfs;
@@ -6381,7 +6386,9 @@
           const entry = report.entries[inv.id];
           const cs = Number(entry.capitalStart || 0);
           const invested = Number(entry.invested || 0);
-          const dividends = Number(entry.dividends || 0);
+          // Дивиденды владельца уже отражены в расходах и не должны
+          // уменьшать инвестиционный капитал повторно.
+          const dividends = inv.isOwner ? 0 : Number(entry.dividends || 0);
           const withdrawn = Number(entry.withdrawn || 0);
 
           // Капитал текущего месяца показывается БЕЗ прибыли этого же месяца.
