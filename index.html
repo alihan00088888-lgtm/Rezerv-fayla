@@ -3006,7 +3006,7 @@
       // Себестоимость — деньги, которые фактически ушли магазину за товар.
       // Флаг «Оплачено Д» означает, что расчёт с магазином завершён.
       const installmentCost = installmentContracts.reduce((sum,c) => {
-        return sum + (c.shopPaid ? (Number(c.costPrice) || 0) : 0);
+        return sum + (Number(c.costPrice) || 0);
       }, 0);
       // Итоговая сумма рассрочки — полная сумма, указанная в договоре.
       const installmentTotal = installmentContracts.reduce((sum,c) => sum + (Number(c.totalCost)||0), 0);
