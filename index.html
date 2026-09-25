@@ -4952,45 +4952,106 @@
       return '';
     }
 
+    function passportOcrNormalizeNameText(value) {
+      // Tesseract часто путает похожие латинские/кириллические буквы в ФИО.
+      // Для ФИО безопасно приводим только очевидные визуальные пары к кириллице.
+      return String(value || '')
+        .replace(/[A]/g,'А').replace(/[B]/g,'В').replace(/[C]/g,'С').replace(/[E]/g,'Е')
+        .replace(/[H]/g,'Н').replace(/[K]/g,'К').replace(/[M]/g,'М').replace(/[O]/g,'О')
+        .replace(/[P]/g,'Р').replace(/[T]/g,'Т').replace(/[X]/g,'Х').replace(/[Y]/g,'У')
+        .replace(/[a]/g,'а').replace(/[b]/g,'в').replace(/[c]/g,'с').replace(/[e]/g,'е')
+        .replace(/[h]/g,'н').replace(/[k]/g,'к').replace(/[m]/g,'м').replace(/[o]/g,'о')
+        .replace(/[p]/g,'р').replace(/[t]/g,'т').replace(/[x]/g,'х').replace(/[y]/g,'у');
+    }
+
     function passportOcrCleanFio(value) {
-      let s = String(value || '')
+      let s = passportOcrNormalizeNameText(value)
         .toUpperCase()
-        .replace(/[^А-ЯЁA-Z\- ]/g, ' ')
+        .replace(/[^А-ЯЁ\- ]/g, ' ')
         .replace(/\s+/g, ' ')
         .trim();
-      const bad = /^(ФИО|ФАМИЛИЯ|ИМЯ|ОТЧЕСТВО|РОССИЯ|ПАСПОРТ|ПАСПОРТНЫЕ|ДАННЫЕ|МУЖ|ЖЕН|М|Ж|ГРАЖДАНСТВО|МЕСТО|РОЖДЕНИЯ)$/i;
-      if (bad.test(s)) return '';
+      s = s.replace(/^(?:ФАМИЛИЯ|ИМЯ|ОТЧЕСТВО)\s*[:\-]?\s*/i, '').trim();
+      const bad = /^(ФИО|ФАМИЛИЯ|ИМЯ|ОТЧЕСТВО|РОССИЯ|ПАСПОРТ|ПАСПОРТНЫЕ|ДАННЫЕ|МУЖ|ЖЕН|М|Ж|ГРАЖДАНСТВО|МЕСТО|РОЖДЕНИЯ|РОДИЛСЯ|РОДИЛАСЬ|КОД|ПОДРАЗДЕЛЕНИЯ|ВЫДАН|ДАТА|ДАТА РОЖДЕНИЯ)$/i;
+      if (!s || bad.test(s)) return '';
       const words = s.split(' ').filter(Boolean);
       if (words.length < 2 || words.length > 4) return '';
       if (words.some(w => w.length < 2 || w.length > 30)) return '';
+      // Не принимаем строки, похожие на адрес/служебную информацию.
+      if (/(УЛ|ПР|ПЕР|ДОМ|КВ|ОБЛ|РАЙОН|ГОРОД|РОСС|МОСК|РОЖД|ПОДРАЗД|ВЫДАН)/.test(s)) return '';
+      const cyrillicCount = (s.match(/[А-ЯЁ]/g) || []).length;
+      if (cyrillicCount < Math.max(4, Math.floor(s.replace(/ /g,'').length * .75))) return '';
       return words.slice(0,3).join(' ');
     }
 
     function passportOcrExtractFio(text) {
-      const lines = passportOcrNormalizeText(text).split(/\n+/).map(x => x.trim()).filter(Boolean);
+      const normalized = passportOcrNormalizeText(text);
+      const lines = normalized.split(/\n+/).map(x => x.trim()).filter(Boolean);
       const candidates = [];
-      const add = value => { const c = passportOcrCleanFio(value); if (c) candidates.push(c); };
-      for (let i=0;i<lines.length;i++) {
-        const line = lines[i].replace(/[^А-ЯЁа-яёA-Za-z\- ]/g, ' ').replace(/\s+/g,' ').trim();
-        if (!line) continue;
-        const labelMatch = line.match(/(?:ФАМИЛИЯ|ИМЯ|ОТЧЕСТВО)\s*[:\-]?\s*([А-ЯЁа-яёA-Za-z\- ]{3,80})/i);
-        if (labelMatch) add(labelMatch[1]);
-        add(line);
-        // Иногда OCR разбивает ФИО на соседние строки.
-        if (i < lines.length - 1) add(`${line} ${lines[i+1]}`);
+      const add = (value, bonus=0, source='') => {
+        const c = passportOcrCleanFio(value);
+        if (c) candidates.push({ value:c, bonus, source });
+      };
+
+      // 1) Самый надёжный вариант: поля «Фамилия / Имя / Отчество».
+      const labelNames = {};
+      for (let i=0; i<lines.length; i++) {
+        const line = passportOcrNormalizeNameText(lines[i]);
+        const label = line.match(/\b(ФАМИЛИЯ|ИМЯ|ОТЧЕСТВО)\b/i);
+        if (!label) continue;
+        const key = label[1].toUpperCase();
+        const sameLine = line.replace(/.*?\b(?:ФАМИЛИЯ|ИМЯ|ОТЧЕСТВО)\b\s*[:\-]?\s*/i, '').trim();
+        const next = lines[i+1] || '';
+        const next2 = lines[i+2] || '';
+        const one = passportOcrCleanFio(sameLine);
+        if (one) labelNames[key] = one.split(' ')[0];
+        else {
+          const n = passportOcrNormalizeNameText(next).replace(/^(?:ФАМИЛИЯ|ИМЯ|ОТЧЕСТВО)\s*[:\-]?\s*/i,'').trim();
+          const cleaned = passportOcrCleanFio(n);
+          if (cleaned) labelNames[key] = cleaned.split(' ')[0];
+          else {
+            const n2 = passportOcrCleanFio(next2);
+            if (n2) labelNames[key] = n2.split(' ')[0];
+          }
+        }
       }
-      const scored = candidates.map(c => {
-        const words = c.split(' ');
-        let score = 0;
-        if (words.length === 3) score += 7;
-        if (words.length === 2) score += 3;
-        if (/^[А-ЯЁ]+(?:\s+[А-ЯЁ]+){1,2}$/.test(c)) score += 3;
-        if (c.length <= 65) score += 2;
-        if (/(УЛ|ДОМ|ОБЛ|РАЙОН|ГОРОД|РОССИЯ|РОЖД)/.test(c)) score -= 8;
-        return { c, score };
-      });
-      scored.sort((a,b)=>b.score-a.score);
-      return scored[0]?.c || '';
+      const labeled = [labelNames['ФАМИЛИЯ'], labelNames['ИМЯ'], labelNames['ОТЧЕСТВО']].filter(Boolean).join(' ');
+      if (labeled) add(labeled, 30, 'labels');
+
+      // 2) Частый вариант OCR: «Фамилия Иванов», «Имя Иван», «Отчество Иванович».
+      for (let i=0; i<lines.length; i++) {
+        const line = passportOcrNormalizeNameText(lines[i]);
+        const m = line.match(/\b(ФАМИЛИЯ|ИМЯ|ОТЧЕСТВО)\b\s*[:\-]?\s*(.+)$/i);
+        if (m) {
+          const val = passportOcrCleanFio(m[2]);
+          if (val) add(val, 18, 'label-line');
+        }
+      }
+
+      // 3) Если метки не распознаны, ищем целую строку ФИО и соседние строки.
+      for (let i=0; i<lines.length; i++) {
+        const line = passportOcrNormalizeNameText(lines[i])
+          .replace(/[^А-ЯЁа-яё\- ]/g,' ').replace(/\s+/g,' ').trim();
+        if (!line) continue;
+        add(line, 0, 'line');
+        if (i < lines.length-1) add(`${line} ${lines[i+1]}`, 1, 'joined');
+        if (i < lines.length-2) add(`${line} ${lines[i+1]} ${lines[i+2]}`, 1, 'joined3');
+      }
+
+      const scored = candidates.map(({value,bonus,source}) => {
+        const words = value.split(' ');
+        let score = bonus;
+        if (words.length === 3) score += 16;
+        else if (words.length === 2) score += 7;
+        const upper = value.toUpperCase();
+        if (words[0]?.length >= 4) score += 2;
+        if (/(ОВ|ЕВ|ЁВ|ИН|ЫН|СКИЙ|СКАЯ|ЦКИЙ|ЦКАЯ|ОВА|ЕВА|ИНА|ЫНА)$/.test(words[0] || '')) score += 5;
+        if (/(ИЧ|ВИЧ|ЕВИЧ|ОВИЧ|ИЧНА|ЕВНА|ОВНА)$/.test(words[words.length-1] || '')) score += 7;
+        if (/^[А-ЯЁ]+(?:\s+[А-ЯЁ]+){1,2}$/.test(upper)) score += 6;
+        if (/(УЛ|ПР|ПЕР|ДОМ|ОБЛ|РАЙОН|ГОРОД|РОССИЯ|РОЖД|ПОДРАЗД|ВЫДАН)/.test(upper)) score -= 30;
+        if (source === 'labels') score += 20;
+        return { value, score };
+      }).sort((a,b)=>b.score-a.score);
+      return scored[0]?.value || '';
     }
 
     function passportOcrExtract(text) {
@@ -5058,7 +5119,8 @@
           try {
             await worker.setParameters({
               preserve_interword_spaces: '1',
-              tessedit_pageseg_mode: '6'
+              tessedit_pageseg_mode: '6',
+              user_defined_dpi: '300'
             });
           } catch (_) {}
           return worker;
@@ -5098,35 +5160,50 @@
       const worker = await passportOcrGetWorker();
       const results = [];
       const rotations = [0,90,180,270];
-      // Сначала обычное изображение. Если поля не нашли — дополнительная обработка контраста/порогов.
-      for (const rotation of rotations) {
-        passportOcrSetStatus(role, `⏳ Проверяю ориентацию фото… ${rotation}°`);
-        const canvas = await passportOcrPrepare(file, rotation, 'balanced');
-        const result = await worker.recognize(canvas);
-        const confidence = Number(result?.data?.confidence || 0);
-        const text = result?.data?.text || '';
-        const extracted = passportOcrExtract(text);
-        const completeness = (extracted.fio ? 35 : 0) + (extracted.birthDate ? 25 : 0) + (extracted.passport ? 40 : 0);
-        results.push({ confidence, text, data: extracted, score: confidence + completeness });
-        if (extracted.fio && extracted.birthDate && extracted.passport && confidence >= 75) break;
-      }
+      const modes = ['balanced','detail'];
+      const psmModes = ['6','11'];
 
-      let merged = passportOcrMergeResults(results);
-      if (!(merged.fio && merged.birthDate && merged.passport)) {
-        // Второй проход — более сильный контраст, только для недостающих данных.
-        for (const rotation of rotations) {
-          passportOcrSetStatus(role, `⏳ Улучшаю фото для сложного случая… ${rotation}°`);
-          const canvas = await passportOcrPrepare(file, rotation, 'threshold');
-          const result = await worker.recognize(canvas);
-          const confidence = Number(result?.data?.confidence || 0);
-          const text = result?.data?.text || '';
-          const extracted = passportOcrExtract(text);
-          results.push({ confidence, text, data: extracted, score: confidence + (extracted.fio?35:0) + (extracted.birthDate?25:0) + (extracted.passport?40:0) });
-          merged = passportOcrMergeResults(results);
-          if (merged.fio && merged.birthDate && merged.passport && confidence >= 65) break;
+      for (const rotation of rotations) {
+        for (const mode of modes) {
+          for (const psm of psmModes) {
+            try {
+              passportOcrSetStatus(role, `⏳ Распознаю паспорт… ${rotation}°`);
+              const canvas = await passportOcrPrepare(file, rotation, mode);
+              try { await worker.setParameters({ tessedit_pageseg_mode: psm, preserve_interword_spaces:'1', user_defined_dpi:'300' }); } catch (_) {}
+              const result = await worker.recognize(canvas);
+              const confidence = Number(result?.data?.confidence || 0);
+              const text = result?.data?.text || '';
+              const extracted = passportOcrExtract(text);
+              const completeness = (extracted.fio ? 45 : 0) + (extracted.birthDate ? 25 : 0) + (extracted.passport ? 30 : 0);
+              const fioQuality = extracted.fio ? (extracted.fio.split(' ').length === 3 ? 12 : 5) : 0;
+              results.push({ confidence, text, data: extracted, score: confidence + completeness + fioQuality });
+              // Если все три поля уже получены с хорошей уверенностью, остальные варианты не нужны.
+              if (extracted.fio && extracted.birthDate && extracted.passport && confidence >= 78) {
+                return { data: extracted, results };
+              }
+            } catch (err) {
+              console.warn('Passport OCR pass failed:', err);
+            }
+          }
         }
       }
-      return { data: merged, results };
+
+      // Финальный проход с жёстким порогом — помогает на бледных/серых снимках.
+      if (!results.some(r => r.data?.fio && r.data?.birthDate && r.data?.passport)) {
+        for (const rotation of rotations) {
+          try {
+            passportOcrSetStatus(role, `⏳ Улучшаю контраст… ${rotation}°`);
+            const canvas = await passportOcrPrepare(file, rotation, 'threshold');
+            try { await worker.setParameters({ tessedit_pageseg_mode:'11', preserve_interword_spaces:'1', user_defined_dpi:'300' }); } catch (_) {}
+            const result = await worker.recognize(canvas);
+            const confidence = Number(result?.data?.confidence || 0);
+            const text = result?.data?.text || '';
+            const extracted = passportOcrExtract(text);
+            results.push({ confidence, text, data: extracted, score: confidence + (extracted.fio?45:0) + (extracted.birthDate?25:0) + (extracted.passport?30:0) });
+          } catch (err) { console.warn('Passport OCR threshold pass failed:', err); }
+        }
+      }
+      return { data: passportOcrMergeResults(results), results };
     }
 
     async function runPassportOcr(file, role) {
@@ -5161,7 +5238,13 @@
         if (data.passport) document.getElementById(passId).value = data.passport;
         passportOcrState[role] = data;
         const found = [data.fio && 'ФИО', data.birthDate && 'дата рождения', data.passport && 'серия/номер'].filter(Boolean);
-        if (found.length === 3) passportOcrSetStatus(statusRole, `✓ Распознано: ${found.join(', ')}. Проверьте цифры и ФИО перед сохранением.`, 'ok');
+        if (found.length === 3) {
+          const fioWords = String(data.fio || '').trim().split(/\s+/).filter(Boolean);
+          const fioLooksStrong = fioWords.length === 3 && fioWords.every(w => /^[А-ЯЁA-Z-]{2,30}$/i.test(w));
+          passportOcrSetStatus(statusRole, fioLooksStrong
+            ? `✓ Распознано: ${found.join(', ')}. Проверьте ФИО и цифры перед сохранением.`
+            : `⚠️ Все поля найдены, но ФИО нужно обязательно проверить.`, fioLooksStrong ? 'ok' : 'warn');
+        }
         else if (found.length) passportOcrSetStatus(statusRole, `⚠️ Найдено: ${found.join(', ')}. Недостающие поля заполните вручную и проверьте результат.`, 'warn');
         else passportOcrSetStatus(statusRole, '⚠️ Данные не распознаны. Сделайте фото ровно, без бликов и чтобы весь разворот паспорта был виден.', 'error');
       } catch (e) {
