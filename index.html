@@ -1994,6 +1994,7 @@
           <div class="yusra-passports" id="yusraClientPassports">
             <div class="yusra-passport-slot" data-side="front"><strong>Паспорт — лицевая сторона</strong><div class="yusra-passport-actions"><img class="yusra-passport-preview" alt="Лицевая сторона"><label>＋ Добавить / заменить<input type="file" accept="image/*" onchange="yusraChoosePassport(event,'front')"></label><button type="button" onclick="yusraPreviewPassport('front')" hidden>Открыть</button><button type="button" onclick="yusraRemovePassport('front')" hidden>Удалить</button></div></div>
             <div class="yusra-passport-slot" data-side="back"><strong>Паспорт получателя</strong><div class="yusra-passport-actions"><img class="yusra-passport-preview" alt="Паспорт получателя"><label>＋ Добавить / заменить<input type="file" accept="image/*" onchange="yusraChoosePassport(event,'back')"></label><button type="button" onclick="yusraPreviewPassport('back')" hidden>Открыть</button><button type="button" onclick="yusraRemovePassport('back')" hidden>Удалить</button></div></div>
+            <div class="yusra-passport-slot" data-side="contract"><strong>Фото договора</strong><div class="yusra-passport-actions"><img class="yusra-passport-preview" alt="Фото договора"><label>＋ Добавить / заменить<input type="file" accept="image/*" onchange="yusraChoosePassport(event,'contract')"></label><button type="button" onclick="yusraPreviewPassport('contract')" hidden>Открыть</button><button type="button" onclick="yusraRemovePassport('contract')" hidden>Удалить</button></div></div>
           </div>
         </div>
 
@@ -4795,12 +4796,12 @@
     };
 
     // Фото отдельно от основного документа Firestore (лимит 1 МиБ); финансовые данные не изменяются.
-    const yusraSides = ['front','back'];
-    let yusraDraft = {front:null,back:null};
+    const yusraSides = ['front','back','contract'];
+    let yusraDraft = {front:null,back:null,contract:null};
     let yusraDirty = new Set();
     let yusraPhotoSession = 0;
     const yusraPhotoDoc = (id,side) => doc(db,'yusra_data','passport_'+id+'_'+side);
-    const yusraPhotoTitle = side => side === 'front' ? 'Лицевая сторона' : 'Обратная сторона';
+    const yusraPhotoTitle = side => side === 'front' ? 'Лицевая сторона' : side === 'back' ? 'Паспорт получателя' : 'Фото договора';
     function yusraRenderDraft(){
       yusraSides.forEach(side=>{
         const slot=document.querySelector('#yusraClientPassports [data-side="'+side+'"]');
@@ -4815,14 +4816,14 @@
     }
     async function yusraLoadDraft(id){
       const session=++yusraPhotoSession;
-      yusraDraft={front:null,back:null}; yusraDirty.clear(); yusraRenderDraft();
+      yusraDraft={front:null,back:null,contract:null}; yusraDirty.clear(); yusraRenderDraft();
       if(!id)return;
       try{
         const photos=await Promise.all(yusraSides.map(side=>yusraFetchPhoto(id,side)));
         if(session!==yusraPhotoSession)return;
         yusraSides.forEach((side,i)=>{if(!yusraDirty.has(side))yusraDraft[side]=photos[i]});
         yusraRenderDraft();
-      }catch(e){if(session===yusraPhotoSession)alert('Не удалось получить фото паспорта из Firebase: '+e.message)}
+      }catch(e){if(session===yusraPhotoSession)alert('Не удалось получить фотографии из Firebase: '+e.message)}
     }
     async function yusraCommitPhotos(id){
       for(const side of yusraDirty){
@@ -4839,7 +4840,7 @@
       img.onclick=()=>{img.style.maxHeight=img.style.maxHeight==='none'?'55dvh':'none';img.style.maxWidth=img.style.maxWidth==='none'?'100%':'none';img.style.cursor=img.style.maxHeight==='none'?'zoom-out':'zoom-in'};
       box.append(img);document.getElementById('yusraDocOverlay').hidden=false;
     }
-    window.yusraPreviewPassport=side=>{if(yusraDraft[side])yusraShowPhoto(yusraDraft[side],'Паспорт — '+yusraPhotoTitle(side))};
+    window.yusraPreviewPassport=side=>{if(yusraDraft[side])yusraShowPhoto(yusraDraft[side],(side === 'contract' ? 'Фото договора' : yusraPhotoTitle(side)))};
     window.yusraRemovePassport=side=>{if(confirm('Удалить фотографию '+yusraPhotoTitle(side).toLowerCase()+'?')){yusraDraft[side]=null;yusraDirty.add(side);yusraRenderDraft()}};
     // Простейшая оценка границ по отличию от цвета углов; ручная коррекция обязательна.
     function yusraGuessBounds(canvas){
@@ -4866,7 +4867,7 @@
       sample.getContext('2d').drawImage(base,0,0,sample.width,sample.height);
       const guess=yusraGuessBounds(sample);
       return new Promise((resolve,reject)=>{
-        const box=document.getElementById('yusraDocContent');box.replaceChildren();document.getElementById('yusraDocTitle').textContent='Обрезка паспорта';
+        const box=document.getElementById('yusraDocContent');box.replaceChildren();document.getElementById('yusraDocTitle').textContent='Обрезка документа';
         const note=document.createElement('p');note.textContent='Проверьте границы документа. При необходимости скорректируйте ползунками.';note.style.fontSize='12px';box.append(note);
         const preview=document.createElement('canvas');box.append(preview);
         const grid=document.createElement('div');grid.className='yusra-crop-grid';box.append(grid);
@@ -4893,23 +4894,23 @@
       catch(e){alert('Ошибка обработки фотографии: '+e.message)}
     };
     window.yusraDetailOpen=async function(id,side){
-      try{const photo=await yusraFetchPhoto(id,side);if(photo)yusraShowPhoto(photo,'Паспорт — '+yusraPhotoTitle(side));else alert('Фотография отсутствует')}
-      catch(e){alert('Не удалось открыть паспорт: '+e.message)}
+      try{const photo=await yusraFetchPhoto(id,side);if(photo)yusraShowPhoto(photo,(side === 'contract' ? 'Фото договора' : yusraPhotoTitle(side)));else alert('Фотография отсутствует')}
+      catch(e){alert('Не удалось открыть фотографию: '+e.message)}
     };
     window.yusraDetailReplace=function(id,side){
       const input=document.createElement('input');input.type='file';input.accept='image/*';
       input.onchange=async()=>{if(!input.files?.[0])return;try{const photo=await yusraCropFile(input.files[0]);if(!photo)return;await setDoc(yusraPhotoDoc(id,side),{image:photo,updatedAt:Date.now()});window.openContractDetail(id)}catch(e){alert('Не удалось сохранить фото: '+e.message)}};
       input.click();
     };
-    window.yusraDetailDelete=async function(id,side){if(!confirm('Удалить фотографию паспорта?'))return;try{await deleteDoc(yusraPhotoDoc(id,side));window.openContractDetail(id)}catch(e){alert('Не удалось удалить фото: '+e.message)}};
+    window.yusraDetailDelete=async function(id,side){if(!confirm('Удалить фотографию документа?'))return;try{await deleteDoc(yusraPhotoDoc(id,side));window.openContractDetail(id)}catch(e){alert('Не удалось удалить фото: '+e.message)}};
     function yusraDetailBlock(id){
       const safe=escapeHtml(id);
-      return `<div class="contract-detail-card wide"><h3>📷 Фотографии паспорта</h3><div id="yusraDetailPhotoStatus" style="font-size:11px;margin-bottom:7px">Проверка фотографий…</div><div class="yusra-passport-actions">${yusraSides.map(side=>`<div style="border:1px solid #e2e8f0;border-radius:8px;padding:7px;min-width:0;flex:1 1 180px"><strong style="font-size:11px">${yusraPhotoTitle(side)}</strong><div id="yusraDetailStatus_${side}" style="font-size:10px;margin:5px 0">Загрузка…</div><button type="button" onclick="yusraDetailOpen('${safe}','${side}')">Открыть</button> <button type="button" onclick="yusraDetailReplace('${safe}','${side}')">Заменить / добавить</button> <button type="button" onclick="yusraDetailDelete('${safe}','${side}')">Удалить</button></div>`).join('')}</div></div>`;
+      return `<div class="contract-detail-card wide"><h3>📷 Фотографии документов</h3><div id="yusraDetailPhotoStatus" style="font-size:11px;margin-bottom:7px">Проверка фотографий…</div><div class="yusra-passport-actions">${yusraSides.map(side=>`<div style="border:1px solid #e2e8f0;border-radius:8px;padding:7px;min-width:0;flex:1 1 180px"><strong style="font-size:11px">${yusraPhotoTitle(side)}</strong><div id="yusraDetailStatus_${side}" style="font-size:10px;margin:5px 0">Загрузка…</div><button type="button" onclick="yusraDetailOpen('${safe}','${side}')">Открыть</button> <button type="button" onclick="yusraDetailReplace('${safe}','${side}')">Заменить / добавить</button> <button type="button" onclick="yusraDetailDelete('${safe}','${side}')">Удалить</button></div>`).join('')}</div></div>`;
     }
     async function yusraUpdateDetailStatus(id){
       const overall=document.getElementById('yusraDetailPhotoStatus');
       try{const photos=await Promise.all(yusraSides.map(side=>yusraFetchPhoto(id,side)));if(!overall||!overall.isConnected)return;
-        overall.textContent=photos.some(Boolean)?'Фото паспорта есть':'Фотографии ещё не добавлены';
+        overall.textContent=photos.some(Boolean)?'Фотографии есть':'Фотографии ещё не добавлены';
         yusraSides.forEach((side,i)=>{const el=document.getElementById('yusraDetailStatus_'+side);if(el)el.textContent=photos[i]?'✓ Загружено':'Не загружено'});
       }catch(e){if(overall)overall.textContent='Ошибка загрузки фотографий: '+e.message}
     }
