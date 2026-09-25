@@ -927,38 +927,6 @@
     .contract-detail-footer-actions .contract-action { min-height:46px; font-size:11px; padding:9px 12px; }
     .contract-name-button { border:0; background:transparent; padding:0; text-align:left; cursor:pointer; color:#0f172a; }
     .contract-name-button:hover { color:#2563eb; text-decoration:underline; }
-    /* === Мобильное оформление формы нового/редактирования договора === */
-    .passport-photo-box { border:1px dashed #cbd5e1; border-radius:12px; padding:10px; background:#f8fafc; }
-    .passport-photo-preview { display:none; margin-top:8px; position:relative; border:1px solid #dbe3ee; border-radius:10px; background:#fff; padding:6px; }
-    .passport-photo-preview.show { display:block; }
-    .passport-photo-preview img { display:block; width:100%; max-height:220px; object-fit:contain; border-radius:7px; background:#f1f5f9; }
-    .passport-photo-actions { display:flex; gap:6px; flex-wrap:wrap; margin-top:7px; }
-    .passport-photo-actions button { min-height:32px; border:1px solid #dbe3ee; border-radius:8px; padding:5px 9px; font-size:10px; font-weight:800; cursor:pointer; background:#fff; }
-    .passport-photo-actions .remove { background:#fef2f2; color:#b91c1c; border-color:#fecaca; }
-    .passport-photo-hint { margin-top:5px; font-size:9px; line-height:1.35; color:#64748b; }
-    @media (max-width: 640px) {
-      #modal { padding:0 !important; align-items:stretch !important; }
-      #modal > div { width:100% !important; max-width:none !important; max-height:100dvh !important; height:100dvh; border-radius:0 !important; padding:0 !important; display:flex; flex-direction:column; }
-      #modalTitle { position:sticky; top:0; z-index:4; margin:0 !important; padding:14px 48px 12px 14px; background:#fff; border-bottom:1px solid #e2e8f0; font-size:16px; line-height:1.2; }
-      #errorBanner, #dateWarning { margin-left:12px; margin-right:12px; }
-      #contractForm { overflow-y:auto; padding:12px; padding-bottom:86px; flex:1; }
-      #contractForm > div { padding:11px !important; border-radius:12px !important; }
-      #contractForm h3 { margin-bottom:8px !important; }
-      #contractForm input, #contractForm select { min-height:40px; font-size:13px; }
-      #contractForm .grid { gap:8px !important; }
-      #contractForm .col-span-2, #contractForm .col-span-3 { grid-column:span 1 / span 1 !important; }
-      #contractForm > .grid.grid-cols-1.md\:grid-cols-2 { grid-template-columns:1fr !important; }
-      #contractForm > .grid.grid-cols-1.md\:grid-cols-2 > div { width:100%; }
-      #contractForm .grid.grid-cols-2.md\:grid-cols-4 { grid-template-columns:1fr 1fr !important; }
-      #contractForm > .flex.justify-end { position:fixed; left:0; right:0; bottom:0; z-index:5; padding:9px 12px !important; background:rgba(255,255,255,.97); border-top:1px solid #e2e8f0; box-shadow:0 -5px 18px rgba(15,23,42,.08); }
-      #contractForm > .flex.justify-end button { flex:1; min-height:42px; }
-      .passport-photo-preview img { max-height:180px; }
-    }
-
-    @media (max-width: 430px) {
-      #contractForm .grid.grid-cols-2.md\:grid-cols-4 { grid-template-columns:1fr !important; }
-    }
-
     @media (max-width: 768px) {
       .contracts-controls { grid-template-columns:1fr 1fr; }
       .contracts-search { grid-column:1 / -1; }
@@ -1148,7 +1116,49 @@
       .dashboard-date-input { flex:1; min-width:0; width:100%; }
     }
 
-  </style>
+  
+    /* МОБИЛЬНАЯ ФОРМА ДОГОВОРА + ФОТО ПАСПОРТА */
+    .contract-passport-box{margin-top:10px;padding:10px;border:1px dashed #cbd5e1;border-radius:12px;background:#fff}
+    .contract-passport-title{font-size:10px;font-weight:900;color:#475569;text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px}
+    .contract-passport-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+    .contract-passport-item{border:1px solid #e2e8f0;border-radius:10px;padding:8px;background:#f8fafc;min-width:0}
+    .contract-passport-preview{width:100%;height:105px;object-fit:contain;border-radius:7px;background:#e2e8f0;display:block;margin-bottom:7px}
+    .contract-passport-empty{height:105px;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:10px;text-align:center;background:#f1f5f9;border-radius:7px;margin-bottom:7px}
+    .contract-passport-actions{display:flex;gap:6px;flex-wrap:wrap}
+    .contract-passport-btn{border:1px solid #cbd5e1;background:#fff;border-radius:8px;padding:6px 9px;font-size:10px;font-weight:800;cursor:pointer}
+    .contract-passport-btn.primary{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8}
+    .contract-passport-btn.danger{background:#fef2f2;border-color:#fecaca;color:#b91c1c}
+    .passport-view-modal{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:120;display:none;align-items:center;justify-content:center;padding:14px}
+    .passport-view-modal.show{display:flex}
+    .passport-view-card{width:min(900px,100%);max-height:94vh;background:#fff;border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:10px}
+    .passport-view-img{width:100%;max-height:78vh;object-fit:contain;background:#f1f5f9;border-radius:10px}
+    .passport-crop-modal{position:fixed;inset:0;background:rgba(15,23,42,.78);z-index:125;display:none;align-items:center;justify-content:center;padding:12px}
+    .passport-crop-modal.show{display:flex}
+    .passport-crop-card{width:min(900px,100%);max-height:96vh;overflow:auto;background:#fff;border-radius:16px;padding:12px}
+    .passport-crop-wrap{position:relative;display:flex;align-items:center;justify-content:center;background:#0f172a;border-radius:12px;overflow:hidden;min-height:220px}
+    .passport-crop-img{display:block;max-width:100%;max-height:68vh;user-select:none;-webkit-user-drag:none}
+    .passport-crop-overlay{position:absolute;border:2px solid #22c55e;box-shadow:0 0 0 9999px rgba(0,0,0,.38);cursor:move;touch-action:none;box-sizing:border-box}
+    .passport-crop-handle{position:absolute;width:18px;height:18px;background:#22c55e;border:2px solid #fff;border-radius:50%;right:-9px;bottom:-9px;cursor:nwse-resize;touch-action:none}
+    .passport-detail-thumb{width:100%;height:140px;object-fit:contain;background:#f1f5f9;border-radius:9px;display:block}
+    .passport-detail-actions{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+    @media(max-width:640px){
+      #modal{align-items:stretch!important;padding:0!important}
+      #modal>div{width:100%!important;max-width:none!important;max-height:100dvh!important;height:100dvh!important;border-radius:0!important;padding:12px!important}
+      #modalTitle{font-size:16px!important;margin-bottom:10px!important}
+      #contractForm{padding-bottom:76px}
+      #contractForm .grid.grid-cols-1.md\:grid-cols-3{grid-template-columns:1fr!important}
+      #contractForm .grid.grid-cols-1.md\:grid-cols-3 > *{grid-column:span 1!important}
+      #contractForm .grid.grid-cols-2.md\:grid-cols-4{grid-template-columns:1fr!important}
+      #contractForm .grid.grid-cols-1.md\:grid-cols-2{grid-template-columns:1fr!important}
+      #contractForm input,#contractForm select,#contractForm textarea{min-height:44px;font-size:14px}
+      #contractForm label{font-size:10px}
+      #contractForm .bg-slate-50,#contractForm .bg-blue-50,#contractForm .bg-gray-50{padding:11px!important}
+      #contractForm .flex.justify-end.gap-3.pt-4{position:sticky;bottom:-12px;background:#fff;margin:0 -12px;padding:10px 12px!important;z-index:5;box-shadow:0 -5px 16px rgba(15,23,42,.08)}
+      #contractForm .flex.justify-end.gap-3.pt-4 button{min-height:44px;flex:1}
+      .contract-passport-grid{grid-template-columns:1fr}
+      .passport-crop-card{max-height:100dvh;border-radius:12px}
+    }
+</style>
 </head>
 <body class="bg-slate-100 text-gray-800 text-xs min-h-screen">
 
@@ -1963,13 +1973,6 @@
     </div>
   </div>
 
-  <div id="passportPhotoViewer" class="fixed inset-0 bg-black/85 hidden items-center justify-center p-3 z-[70]" onclick="closePassportPhotoViewer()">
-    <div class="relative max-w-5xl w-full h-full flex items-center justify-center" onclick="event.stopPropagation()">
-      <button type="button" onclick="closePassportPhotoViewer()" class="absolute top-2 right-2 md:top-4 md:right-4 w-10 h-10 rounded-full bg-white/90 text-slate-800 text-2xl font-bold shadow-lg">×</button>
-      <img id="passportPhotoViewerImg" src="" alt="Паспорт" class="max-w-full max-h-full object-contain rounded-lg shadow-2xl bg-white">
-    </div>
-  </div>
-
   <!-- МОДАЛЬНЫЕ ОКНА -->
   <div id="modal" class="fixed inset-0 bg-black/60 hidden flex items-center justify-center p-4 z-50">
     <div class="bg-white rounded-xl p-6 max-w-4xl w-full max-h-[95vh] overflow-y-auto shadow-2xl">
@@ -1992,26 +1995,31 @@
             <input type="text" id="fio" placeholder="ФИО Покупателя *" required class="p-2 border rounded-md col-span-2 focus:border-blue-500 outline-none">
             <input type="date" id="birthDate" title="Дата рождения" class="p-2 border rounded-md outline-none">
             <input type="text" id="passport" placeholder="Паспортные данные" class="p-2 border rounded-md outline-none">
-            <div class="passport-photo-box md:col-span-3">
-              <div class="flex items-center justify-between gap-2 flex-wrap">
-                <div>
-                  <div class="text-[10px] font-black uppercase tracking-widest text-slate-500">📷 Фото паспорта</div>
-                  <div class="passport-photo-hint">Фото автоматически обрежется по области документа и сожмётся перед сохранением.</div>
-                </div>
-                <label for="passportPhotoInput" class="inline-flex items-center justify-center min-h-[34px] px-3 rounded-lg bg-blue-600 text-white text-[10px] font-black cursor-pointer hover:bg-blue-700">＋ Добавить фото</label>
-                <input type="file" id="passportPhotoInput" accept="image/*" class="hidden">
-              </div>
-              <div id="passportPhotoPreview" class="passport-photo-preview">
-                <img id="passportPhotoPreviewImg" alt="Фото паспорта">
-                <div class="passport-photo-actions">
-                  <button type="button" onclick="document.getElementById('passportPhotoInput').click()">🔄 Заменить</button>
-                  <button type="button" class="remove" onclick="removePassportPhoto()">🗑 Удалить фото</button>
-                </div>
-              </div>
-            </div>
             <input type="text" id="phone" placeholder="Телефон *" required class="p-2 border rounded-md outline-none">
             <input type="text" id="extraPhone" placeholder="Доп. номер" class="p-2 border rounded-md outline-none">
             <input type="text" id="address" placeholder="Адрес проживания" class="p-2 border rounded-md col-span-3 outline-none">
+            <div class="contract-passport-box col-span-3">
+              <div class="contract-passport-title">📷 Фото паспорта клиента</div>
+              <div class="contract-passport-grid">
+                <div class="contract-passport-item">
+                  <div id="clientPassportFrontPreview" class="contract-passport-empty">Лицевая сторона не добавлена</div>
+                  <div class="contract-passport-actions">
+                    <button type="button" class="contract-passport-btn primary" onclick="choosePassportPhoto('client','front')">＋ Добавить / заменить</button>
+                    <button type="button" id="clientPassportFrontDelete" class="contract-passport-btn danger" onclick="removePassportPhoto('client','front')" style="display:none">Удалить</button>
+                  </div>
+                  <input type="file" id="clientPassportFrontInput" accept="image/*" capture="environment" hidden onchange="handlePassportFile(event,'client','front')">
+                </div>
+                <div class="contract-passport-item">
+                  <div id="clientPassportBackPreview" class="contract-passport-empty">Обратная сторона не добавлена</div>
+                  <div class="contract-passport-actions">
+                    <button type="button" class="contract-passport-btn primary" onclick="choosePassportPhoto('client','back')">＋ Добавить / заменить</button>
+                    <button type="button" id="clientPassportBackDelete" class="contract-passport-btn danger" onclick="removePassportPhoto('client','back')" style="display:none">Удалить</button>
+                  </div>
+                  <input type="file" id="clientPassportBackInput" accept="image/*" capture="environment" hidden onchange="handlePassportFile(event,'client','back')">
+                </div>
+              </div>
+              <div class="text-[9px] text-slate-400 mt-2">Фото автоматически уменьшается и обрезается по документу. При необходимости границы можно подправить.</div>
+            </div>
           </div>
         </div>
 
@@ -2065,26 +2073,30 @@
               <input type="text" id="guarantorFio" placeholder="ФИО Поручителя" class="p-2 border rounded w-full">
               <input type="date" id="guarantorBirthDate" title="Дата рождения поручителя" class="p-2 border rounded w-full">
               <input type="text" id="guarantorPassport" placeholder="Паспортные данные" class="p-2 border rounded w-full">
-              <div class="passport-photo-box md:col-span-3">
-                <div class="flex items-center justify-between gap-2 flex-wrap">
-                  <div>
-                    <div class="text-[10px] font-black uppercase tracking-widest text-slate-500">📷 Фото паспорта поручителя</div>
-                    <div class="passport-photo-hint">Фото автоматически обрежется по области документа и сожмётся перед сохранением.</div>
-                  </div>
-                  <label for="guarantorPassportPhotoInput" class="inline-flex items-center justify-center min-h-[34px] px-3 rounded-lg bg-blue-600 text-white text-[10px] font-black cursor-pointer hover:bg-blue-700">＋ Добавить фото</label>
-                  <input type="file" id="guarantorPassportPhotoInput" accept="image/*" class="hidden">
-                </div>
-                <div id="guarantorPassportPhotoPreview" class="passport-photo-preview">
-                  <img id="guarantorPassportPhotoPreviewImg" alt="Фото паспорта поручителя">
-                  <div class="passport-photo-actions">
-                    <button type="button" onclick="document.getElementById('guarantorPassportPhotoInput').click()">🔄 Заменить</button>
-                    <button type="button" class="remove" onclick="removeGuarantorPassportPhoto()">🗑 Удалить фото</button>
-                  </div>
-                </div>
-              </div>
               <input type="text" id="guarantorPhone" placeholder="Телефон поручителя" class="p-2 border rounded w-full">
               <input type="text" id="guarantorExtraPhone" placeholder="Доп. номер телефона" class="p-2 border rounded w-full">
               <input type="text" id="guarantorAddress" placeholder="Адрес проживания" class="p-2 border rounded w-full sm:col-span-2">
+            <div class="contract-passport-box sm:col-span-2">
+              <div class="contract-passport-title">📷 Фото паспорта поручителя</div>
+              <div class="contract-passport-grid">
+                <div class="contract-passport-item">
+                  <div id="guarantorPassportFrontPreview" class="contract-passport-empty">Лицевая сторона не добавлена</div>
+                  <div class="contract-passport-actions">
+                    <button type="button" class="contract-passport-btn primary" onclick="choosePassportPhoto('guarantor','front')">＋ Добавить / заменить</button>
+                    <button type="button" id="guarantorPassportFrontDelete" class="contract-passport-btn danger" onclick="removePassportPhoto('guarantor','front')" style="display:none">Удалить</button>
+                  </div>
+                  <input type="file" id="guarantorPassportFrontInput" accept="image/*" capture="environment" hidden onchange="handlePassportFile(event,'guarantor','front')">
+                </div>
+                <div class="contract-passport-item">
+                  <div id="guarantorPassportBackPreview" class="contract-passport-empty">Обратная сторона не добавлена</div>
+                  <div class="contract-passport-actions">
+                    <button type="button" class="contract-passport-btn primary" onclick="choosePassportPhoto('guarantor','back')">＋ Добавить / заменить</button>
+                    <button type="button" id="guarantorPassportBackDelete" class="contract-passport-btn danger" onclick="removePassportPhoto('guarantor','back')" style="display:none">Удалить</button>
+                  </div>
+                  <input type="file" id="guarantorPassportBackInput" accept="image/*" capture="environment" hidden onchange="handlePassportFile(event,'guarantor','back')">
+                </div>
+              </div>
+            </div>
             </div>
           </div>
         </div>
@@ -2094,6 +2106,21 @@
           <button type="submit" id="saveBtn" class="px-8 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 shadow-lg transition">Сохранить</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  
+  <div id="passportViewModal" class="passport-view-modal" onclick="if(event.target===this) closePassportViewer()">
+    <div class="passport-view-card">
+      <div class="flex items-center justify-between gap-2"><b id="passportViewTitle">Фото паспорта</b><button type="button" class="contract-passport-btn" onclick="closePassportViewer()">Закрыть</button></div>
+      <img id="passportViewImg" class="passport-view-img" alt="Фото паспорта">
+    </div>
+  </div>
+  <div id="passportCropModal" class="passport-crop-modal">
+    <div class="passport-crop-card">
+      <div class="flex items-center justify-between gap-2 mb-2"><div><b>Обрезка паспорта</b><div class="text-[9px] text-slate-400">Система уже выбрала область документа. При необходимости передвиньте рамку.</div></div><button type="button" class="contract-passport-btn" onclick="closePassportCrop(false)">Отмена</button></div>
+      <div id="passportCropWrap" class="passport-crop-wrap"><img id="passportCropImg" class="passport-crop-img" alt="Предпросмотр паспорта"><div id="passportCropOverlay" class="passport-crop-overlay"><div class="passport-crop-handle"></div></div></div>
+      <div class="flex justify-end gap-2 mt-3"><button type="button" class="contract-passport-btn" onclick="closePassportCrop(false)">Отмена</button><button type="button" class="contract-passport-btn primary" onclick="applyPassportCrop()">Сохранить фото</button></div>
     </div>
   </div>
 
@@ -4825,202 +4852,94 @@
     };
 
     const modal = document.getElementById('modal');
-    let currentPassportPhotoData = '';
-    let currentGuarantorPassportPhotoData = '';
 
-    function showPhotoPreview(dataUrl, wrapId, imgId) {
-      const wrap = document.getElementById(wrapId);
-      const img = document.getElementById(imgId);
-      if (!wrap || !img) return;
-      if (dataUrl) {
-        img.src = dataUrl;
-        wrap.classList.add('show');
-      } else {
-        img.removeAttribute('src');
-        wrap.classList.remove('show');
-      }
+    // ================================================================
+    // ФОТО ПАСПОРТА: локальная обработка, автообрезка, сжатие
+    // ================================================================
+    let contractPassportPhotos = { client:{front:'',back:''}, guarantor:{front:'',back:''} };
+    let passportCropState = null;
+
+    function resetPassportPhotos() {
+      contractPassportPhotos = { client:{front:'',back:''}, guarantor:{front:'',back:''} };
+      renderPassportPreviews();
     }
-
-    function showPassportPhotoPreview(dataUrl) {
-      showPhotoPreview(dataUrl, 'passportPhotoPreview', 'passportPhotoPreviewImg');
+    function setPassportPhotosFromContract(c) {
+      contractPassportPhotos = {
+        client:{front:c?.passportPhotoFront || '', back:c?.passportPhotoBack || ''},
+        guarantor:{front:c?.guarantorPassportPhotoFront || '', back:c?.guarantorPassportPhotoBack || ''}
+      };
+      renderPassportPreviews();
     }
-
-    function showGuarantorPassportPhotoPreview(dataUrl) {
-      showPhotoPreview(dataUrl, 'guarantorPassportPhotoPreview', 'guarantorPassportPhotoPreviewImg');
+    function passportPhotoKey(person,side){ return `${person}${side.charAt(0).toUpperCase()+side.slice(1)}`; }
+    function renderPassportPreviews(){
+      ['client','guarantor'].forEach(person=>['front','back'].forEach(side=>{
+        const key=passportPhotoKey(person,side), img=contractPassportPhotos[person][side];
+        const box=document.getElementById(key+'Preview'), del=document.getElementById(key+'Delete');
+        if(!box) return;
+        if(img){ box.outerHTML=`<img id="${key}Preview" class="contract-passport-preview" src="${img}" alt="Фото паспорта">`; if(del) del.style.display='inline-flex'; }
+        else { box.outerHTML=`<div id="${key}Preview" class="contract-passport-empty">${side==='front'?'Лицевая сторона':'Обратная сторона'} не добавлена</div>`; if(del) del.style.display='none'; }
+        const d=document.getElementById(key+'Delete'); if(d) d.style.display=img?'inline-flex':'none';
+      }));
     }
-
-    window.openPassportPhotoViewer = function(dataUrl, title='Паспорт') {
-      if (!dataUrl) return;
-      const viewer=document.getElementById('passportPhotoViewer');
-      const img=document.getElementById('passportPhotoViewerImg');
-      if (!viewer || !img) return;
-      img.src=dataUrl;
-      img.alt=title;
-      viewer.classList.remove('hidden');
-      viewer.classList.add('flex');
-    };
-    window.closePassportPhotoViewer = function() {
-      const viewer=document.getElementById('passportPhotoViewer');
-      const img=document.getElementById('passportPhotoViewerImg');
-      if (viewer) { viewer.classList.add('hidden'); viewer.classList.remove('flex'); }
-      if (img) img.removeAttribute('src');
-    };
-
-      const wrap = document.getElementById('passportPhotoPreview');
-      const img = document.getElementById('passportPhotoPreviewImg');
-      if (!wrap || !img) return;
-      if (dataUrl) {
-        img.src = dataUrl;
-        wrap.classList.add('show');
-      } else {
-        img.removeAttribute('src');
-        wrap.classList.remove('show');
-      }
+    window.choosePassportPhoto=function(person,side){ const el=document.getElementById(person+'Passport'+(side==='front'?'Front':'Back')+'Input'); if(el){el.value='';el.click();} };
+    window.removePassportPhoto=function(person,side){ contractPassportPhotos[person][side]=''; renderPassportPreviews(); };
+    function loadImageFromFile(file){ return new Promise((resolve,reject)=>{ const r=new FileReader(); r.onload=()=>{const im=new Image(); im.onload=()=>resolve(im); im.onerror=reject; im.src=r.result;}; r.onerror=reject; r.readAsDataURL(file); }); }
+    function detectPassportCrop(im){
+      const max=1000, scale=Math.min(1,max/Math.max(im.width,im.height));
+      const w=Math.max(1,Math.round(im.width*scale)), h=Math.max(1,Math.round(im.height*scale));
+      const c=document.createElement('canvas'); c.width=w;c.height=h; const ctx=c.getContext('2d',{willReadFrequently:true}); ctx.drawImage(im,0,0,w,h);
+      const d=ctx.getImageData(0,0,w,h).data, step=Math.max(2,Math.floor(Math.min(w,h)/220));
+      function sample(x,y){const i=(y*w+x)*4;return (d[i]+d[i+1]+d[i+2])/3;}
+      const corners=[sample(2,2),sample(w-3,2),sample(2,h-3),sample(w-3,h-3)]; const bg=corners.reduce((a,b)=>a+b,0)/corners.length;
+      let minX=w,minY=h,maxX=0,maxY=0,count=0;
+      for(let y=0;y<h;y+=step){for(let x=0;x<w;x+=step){const v=sample(x,y); if(Math.abs(v-bg)>18){minX=Math.min(minX,x);minY=Math.min(minY,y);maxX=Math.max(maxX,x);maxY=Math.max(maxY,y);count++;}}}
+      const found=count>30 && (maxX-minX)>w*.35 && (maxY-minY)>h*.25;
+      let x=found?minX:Math.round(w*.04), y=found?minY:Math.round(h*.04), rw=found?maxX-minX:w-Math.round(w*.08), rh=found?maxY-minY:h-Math.round(h*.08);
+      const pad=Math.round(Math.min(w,h)*.015); x=Math.max(0,x-pad);y=Math.max(0,y-pad);rw=Math.min(w-x,rw+pad*2);rh=Math.min(h-y,rh+pad*2);
+      return {x:x/scale,y:y/scale,w:rw/scale,h:rh/scale,displayW:w,displayH:h};
     }
-
-    window.removePassportPhoto = function() {
-      if (!currentPassportPhotoData || confirm('Удалить фото паспорта клиента?')) {
-        currentPassportPhotoData = '';
-        const input = document.getElementById('passportPhotoInput');
-        if (input) input.value = '';
-        showPassportPhotoPreview('');
-      }
-    };
-
-    window.removeGuarantorPassportPhoto = function() {
-      if (!currentGuarantorPassportPhotoData || confirm('Удалить фото паспорта поручителя?')) {
-        currentGuarantorPassportPhotoData = '';
-        const input = document.getElementById('guarantorPassportPhotoInput');
-        if (input) input.value = '';
-        showGuarantorPassportPhotoPreview('');
-      }
-    };
-
-    function loadImageFromFile(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-          const img = new Image();
-          img.onload = () => resolve(img);
-          img.onerror = () => reject(new Error('Не удалось открыть изображение'));
-          img.src = reader.result;
-        };
-        reader.onerror = () => reject(new Error('Не удалось прочитать файл'));
-        reader.readAsDataURL(file);
-      });
-    }
-
-    // Автообрезка: ищем границы объекта, отличающегося от фона по краям кадра.
-    // Если уверенно найти документ не получилось, используется безопасный центральный crop.
-    function detectPassportCrop(img) {
-      const maxScan = 180;
-      const scale = Math.min(1, maxScan / Math.max(img.naturalWidth || img.width, img.naturalHeight || img.height));
-      const w = Math.max(40, Math.round((img.naturalWidth || img.width) * scale));
-      const h = Math.max(40, Math.round((img.naturalHeight || img.height) * scale));
-      const c = document.createElement('canvas');
-      c.width = w; c.height = h;
-      const ctx = c.getContext('2d', { willReadFrequently:true });
-      ctx.drawImage(img, 0, 0, w, h);
-      const data = ctx.getImageData(0,0,w,h).data;
-      const border = [];
-      const edge = Math.max(2, Math.round(Math.min(w,h) * .035));
-      for (let y=0;y<h;y++) for (let x=0;x<w;x++) {
-        if (x<edge || y<edge || x>=w-edge || y>=h-edge) {
-          const i=(y*w+x)*4; border.push(data[i],data[i+1],data[i+2]);
-        }
-      }
-      const avg = border.reduce((a,v)=>a+v,0)/(border.length||1);
-      const threshold = 34;
-      const rowHits = new Array(h).fill(0), colHits = new Array(w).fill(0);
-      for (let y=0;y<h;y++) for (let x=0;x<w;x++) {
-        const i=(y*w+x)*4;
-        const lum = .299*data[i] + .587*data[i+1] + .114*data[i+2];
-        if (Math.abs(lum-avg) > threshold) { rowHits[y]++; colHits[x]++; }
-      }
-      const minRow = Math.max(3, Math.round(w*.08)), minCol = Math.max(3, Math.round(h*.08));
-      let top=0,bottom=h-1,left=0,right=w-1;
-      const goodRows=rowHits.map(v=>v>minRow), goodCols=colHits.map(v=>v>minCol);
-      while(top<h-1 && !goodRows[top]) top++;
-      while(bottom>0 && !goodRows[bottom]) bottom--;
-      while(left<w-1 && !goodCols[left]) left++;
-      while(right>0 && !goodCols[right]) right--;
-      const detectedArea=Math.max(0,(right-left)*(bottom-top));
-      const fullArea=w*h;
-      const useful=detectedArea>fullArea*.18 && detectedArea<fullArea*.94 && (right-left)>w*.35 && (bottom-top)>h*.25;
-      if (!useful) {
-        // Безопасный crop: сохраняем почти весь кадр, не отрезая документ по краям.
-        const pad=.05;
-        return {sx:Math.round(w*pad), sy:Math.round(h*pad), sw:Math.round(w*(1-2*pad)), sh:Math.round(h*(1-2*pad))};
-      }
-      const padX=Math.round((right-left)*.035), padY=Math.round((bottom-top)*.035);
-      left=Math.max(0,left-padX); right=Math.min(w-1,right+padX); top=Math.max(0,top-padY); bottom=Math.min(h-1,bottom+padY);
-      return {sx:left/scale, sy:top/scale, sw:(right-left+1)/scale, sh:(bottom-top+1)/scale};
-    }
-
-    async function compressPassportPhoto(file) {
-      if (!file || !String(file.type||'').startsWith('image/')) throw new Error('Выберите изображение паспорта.');
-      const img = await loadImageFromFile(file);
-      const crop = detectPassportCrop(img);
-      const maxSide = 1000;
-      const ratio = crop.sw / crop.sh;
-      let outW = Math.min(maxSide, Math.max(500, Math.round(crop.sw)));
-      let outH = Math.round(outW / ratio);
-      if (outH > maxSide) { outH=maxSide; outW=Math.round(outH*ratio); }
-      const canvas=document.createElement('canvas'); canvas.width=outW; canvas.height=outH;
-      const ctx=canvas.getContext('2d');
-      ctx.fillStyle='#fff'; ctx.fillRect(0,0,outW,outH);
-      ctx.drawImage(img,crop.sx,crop.sy,crop.sw,crop.sh,0,0,outW,outH);
-      let quality=.68, data=canvas.toDataURL('image/jpeg',quality);
-      while (data.length>120000 && quality>.34) { quality-=.06; data=canvas.toDataURL('image/jpeg',quality); }
-      return data;
-    }
-
-    document.getElementById('passportPhotoInput')?.addEventListener('change', async (e) => {
+    window.handlePassportFile=async function(e,person,side){
       const file=e.target.files?.[0]; if(!file) return;
-      try {
-        const btn=e.target.closest('.passport-photo-box')?.querySelector('label[for="passportPhotoInput"]');
-        if(btn){btn.textContent='⏳ Обработка...';btn.style.pointerEvents='none';}
-        currentPassportPhotoData=await compressPassportPhoto(file);
-        showPassportPhotoPreview(currentPassportPhotoData);
-      } catch(err) {
-        alert(err?.message || 'Не удалось обработать фото паспорта.');
-        e.target.value='';
-      } finally {
-        const btn=e.target.closest('.passport-photo-box')?.querySelector('label[for="passportPhotoInput"]');
-        if(btn){btn.textContent='＋ Добавить фото';btn.style.pointerEvents='';}
-      }
-    });
-
-
-    document.getElementById('guarantorPassportPhotoInput')?.addEventListener('change', async (e) => {
-      const file=e.target.files?.[0]; if(!file) return;
-      try {
-        const btn=e.target.closest('.passport-photo-box')?.querySelector('label[for="guarantorPassportPhotoInput"]');
-        if(btn){btn.textContent='⏳ Обработка...';btn.style.pointerEvents='none';}
-        currentGuarantorPassportPhotoData=await compressPassportPhoto(file);
-        showGuarantorPassportPhotoPreview(currentGuarantorPassportPhotoData);
-      } catch(err) {
-        alert(err?.message || 'Не удалось обработать фото паспорта поручителя.');
-        e.target.value='';
-      } finally {
-        const btn=e.target.closest('.passport-photo-box')?.querySelector('label[for="guarantorPassportPhotoInput"]');
-        if(btn){btn.textContent='＋ Добавить фото';btn.style.pointerEvents='';}
-      }
-    });
+      if(!file.type.startsWith('image/')){alert('Выберите изображение.');return;}
+      try{
+        const im=await loadImageFromFile(file), crop=detectPassportCrop(im);
+        passportCropState={person,side,image:im,crop};
+        const img=document.getElementById('passportCropImg'); img.src=im.src;
+        const modal=document.getElementById('passportCropModal'); modal.classList.add('show');
+        requestAnimationFrame(()=>initPassportCropOverlay());
+      }catch(err){alert('Не удалось обработать фотографию паспорта.');}
+    };
+    function initPassportCropOverlay(){
+      const st=passportCropState, img=document.getElementById('passportCropImg'), ov=document.getElementById('passportCropOverlay'); if(!st||!img||!ov) return;
+      const naturalW=st.image.naturalWidth||st.image.width, naturalH=st.image.naturalHeight||st.image.height;
+      const sx=img.clientWidth/naturalW, sy=img.clientHeight/naturalH; st.scaleX=sx;st.scaleY=sy;
+      ov.style.left=(st.crop.x*sx)+'px';ov.style.top=(st.crop.y*sy)+'px';ov.style.width=(st.crop.w*sx)+'px';ov.style.height=(st.crop.h*sy)+'px';
+      ov.onpointerdown=(ev)=>{ if(ev.target.classList.contains('passport-crop-handle')) return; ev.preventDefault(); ov.setPointerCapture(ev.pointerId); st.drag={x:ev.clientX,y:ev.clientY,left:parseFloat(ov.style.left),top:parseFloat(ov.style.top)}; };
+      ov.onpointermove=(ev)=>{if(!st.drag)return; const dx=ev.clientX-st.drag.x,dy=ev.clientY-st.drag.y; const maxL=img.clientWidth-ov.offsetWidth,maxT=img.clientHeight-ov.offsetHeight; ov.style.left=Math.max(0,Math.min(maxL,st.drag.left+dx))+'px';ov.style.top=Math.max(0,Math.min(maxT,st.drag.top+dy))+'px';};
+      ov.onpointerup=()=>{st.drag=null;};
+      const h=ov.querySelector('.passport-crop-handle'); h.onpointerdown=(ev)=>{ev.preventDefault();ev.stopPropagation();h.setPointerCapture(ev.pointerId);st.resize={x:ev.clientX,y:ev.clientY,w:ov.offsetWidth,h:ov.offsetHeight};};
+      h.onpointermove=(ev)=>{if(!st.resize)return; const nw=Math.max(80,st.resize.w+ev.clientX-st.resize.x),nh=Math.max(60,st.resize.h+ev.clientY-st.resize.y);ov.style.width=Math.min(img.clientWidth-parseFloat(ov.style.left),nw)+'px';ov.style.height=Math.min(img.clientHeight-parseFloat(ov.style.top),nh)+'px';}; h.onpointerup=()=>{st.resize=null;};
+    }
+    window.closePassportCrop=function(){ passportCropState=null; document.getElementById('passportCropModal')?.classList.remove('show'); };
+    window.applyPassportCrop=function(){
+      const st=passportCropState,img=document.getElementById('passportCropImg'),ov=document.getElementById('passportCropOverlay'); if(!st||!img||!ov)return;
+      const sx=img.naturalWidth/img.clientWidth, sy=img.naturalHeight/img.clientHeight;
+      let x=Math.max(0,Math.round(parseFloat(ov.style.left)*sx)), y=Math.max(0,Math.round(parseFloat(ov.style.top)*sy));
+      let w=Math.min(img.naturalWidth-x,Math.round(ov.offsetWidth*sx)), h=Math.min(img.naturalHeight-y,Math.round(ov.offsetHeight*sy));
+      const maxSide=1600, scale=Math.min(1,maxSide/Math.max(w,h)); const out=document.createElement('canvas');out.width=Math.max(1,Math.round(w*scale));out.height=Math.max(1,Math.round(h*scale)); const ctx=out.getContext('2d');ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(st.image,x,y,w,h,0,0,out.width,out.height);
+      let quality=.78, data=out.toDataURL('image/jpeg',quality); while(data.length>650000 && quality>.5){quality-=.06;data=out.toDataURL('image/jpeg',quality);} 
+      contractPassportPhotos[st.person][st.side]=data; renderPassportPreviews(); closePassportCrop();
+    };
+    window.openPassportViewer=function(person,side,title){const src=contractPassportPhotos[person]?.[side];if(!src)return;document.getElementById('passportViewImg').src=src;document.getElementById('passportViewTitle').textContent=title||'Фото паспорта';document.getElementById('passportViewModal').classList.add('show');};
+    window.closePassportViewer=function(){document.getElementById('passportViewModal')?.classList.remove('show');};
+    window.openStoredPassportViewer=function(src,title){if(!src)return;document.getElementById('passportViewImg').src=src;document.getElementById('passportViewTitle').textContent=title||'Фото паспорта';document.getElementById('passportViewModal').classList.add('show');};
 
     window.openCreateModal = function() {
       document.getElementById('contractForm').reset();
       document.getElementById('editDocId').value = '';
+      resetPassportPhotos();
       document.getElementById('modalTitle').innerText = 'Оформление нового договора';
       document.getElementById('downPayment').value = 0;
-      currentPassportPhotoData = '';
-      currentGuarantorPassportPhotoData = '';
-      showPassportPhotoPreview('');
-      showGuarantorPassportPhotoPreview('');
-      const passportInput = document.getElementById('passportPhotoInput');
-      const guarantorPassportInput = document.getElementById('guarantorPassportPhotoInput');
-      if (passportInput) passportInput.value = '';
-      if (guarantorPassportInput) guarantorPassportInput.value = '';
       document.getElementById('dateWarning').classList.remove('show');
       validateFinance();
       modal.classList.remove('hidden');
@@ -5038,18 +4957,11 @@
       const contract = allContracts.find(c => c.id === id);
       if(!contract) return;
       document.getElementById('editDocId').value = id;
+      setPassportPhotosFromContract(contract);
       document.getElementById('modalTitle').innerText = `Редактирование №${contract.contractNum}`;
       document.getElementById('fio').value = contract.fio || '';
       document.getElementById('birthDate').value = contract.birthDate || '';
       document.getElementById('passport').value = contract.passport || '';
-      currentPassportPhotoData = contract.passportPhoto || '';
-      currentGuarantorPassportPhotoData = contract.guarantorPassportPhoto || '';
-      showPassportPhotoPreview(currentPassportPhotoData);
-      showGuarantorPassportPhotoPreview(currentGuarantorPassportPhotoData);
-      const passportInput = document.getElementById('passportPhotoInput');
-      const guarantorPassportInput = document.getElementById('guarantorPassportPhotoInput');
-      if (passportInput) passportInput.value = '';
-      if (guarantorPassportInput) guarantorPassportInput.value = '';
       document.getElementById('phone').value = contract.phone || '';
       document.getElementById('extraPhone').value = contract.extraPhone || '';
       document.getElementById('address').value = contract.address || '';
@@ -5086,8 +4998,10 @@
         fio: document.getElementById('fio').value,
         birthDate: document.getElementById('birthDate').value || '',
         passport: document.getElementById('passport').value || '',
-        passportPhoto: currentPassportPhotoData || '',
-        guarantorPassportPhoto: currentGuarantorPassportPhotoData || '',
+        passportPhotoFront: contractPassportPhotos.client.front || '',
+        passportPhotoBack: contractPassportPhotos.client.back || '',
+        guarantorPassportPhotoFront: contractPassportPhotos.guarantor.front || '',
+        guarantorPassportPhotoBack: contractPassportPhotos.guarantor.back || '',
         phone: document.getElementById('phone').value,
         extraPhone: document.getElementById('extraPhone').value || '',
         address: document.getElementById('address').value || '',
@@ -5468,8 +5382,8 @@
       statusEl.innerHTML = `<span class="contract-status-pill ${status.key}">${status.icon} ${status.label}</span>`;
       body.innerHTML = `
         <div class="contract-detail-grid">
-          <div class="contract-detail-card wide"><h3>👤 Клиент</h3><div class="contract-detail-value">${escapeHtml(c.fio || '—')}</div><div class="contract-detail-value mt-1">📞 ${escapeHtml(c.phone || '—')}</div><div class="contract-detail-value mt-1">Доп. телефон: ${escapeHtml(c.extraPhone || '—')}</div><div class="contract-detail-value mt-1">Дата рождения: ${escapeHtml(c.birthDate || '—')}</div><div class="contract-detail-value mt-1">Паспорт: ${escapeHtml(c.passport || '—')}</div>${c.passportPhoto ? `<div class="mt-2"><div class="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">Фото паспорта</div><button type="button" onclick="openPassportPhotoViewer('${c.passportPhoto}','Паспорт клиента')" class="block w-full mt-1 cursor-zoom-in" title="Открыть фото"><img src="${c.passportPhoto}" alt="Фото паспорта" class="w-full max-h-56 object-contain rounded-lg border border-slate-200 bg-slate-50"></button></div>` : ''}<div class="contract-detail-value mt-1">Адрес: ${escapeHtml(c.address || '—')}</div></div>
-          <div class="contract-detail-card wide"><h3>👥 Поручитель</h3><div class="contract-detail-value">${escapeHtml(c.guarantorFio || '—')}</div><div class="contract-detail-value mt-1">📞 ${escapeHtml(c.guarantorPhone || '—')}</div><div class="contract-detail-value mt-1">Доп. телефон: ${escapeHtml(c.guarantorExtraPhone || '—')}</div><div class="contract-detail-value mt-1">Паспорт: ${escapeHtml(c.guarantorPassport || '—')}</div>${c.guarantorPassportPhoto ? `<div class="mt-2"><div class="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">Фото паспорта поручителя</div><button type="button" onclick="openPassportPhotoViewer('${c.guarantorPassportPhoto}','Паспорт поручителя')" class="block w-full cursor-zoom-in" title="Открыть фото"><img src="${c.guarantorPassportPhoto}" alt="Фото паспорта поручителя" class="w-full max-h-56 object-contain rounded-lg border border-slate-200 bg-slate-50"></button></div>` : ''}<div class="contract-detail-value mt-1">Дата рождения: ${escapeHtml(c.guarantorBirthDate || '—')}</div><div class="contract-detail-value mt-1">Адрес: ${escapeHtml(c.guarantorAddress || '—')}</div></div>
+          <div class="contract-detail-card wide"><h3>👤 Клиент</h3><div class="contract-detail-value">${escapeHtml(c.fio || '—')}</div><div class="contract-detail-value mt-1">📞 ${escapeHtml(c.phone || '—')}</div><div class="contract-detail-value mt-1">Доп. телефон: ${escapeHtml(c.extraPhone || '—')}</div><div class="contract-detail-value mt-1">Дата рождения: ${escapeHtml(c.birthDate || '—')}</div><div class="contract-detail-value mt-1">Паспорт: ${escapeHtml(c.passport || '—')}</div><div class="contract-detail-value mt-1">Адрес: ${escapeHtml(c.address || '—')}</div>${(c.passportPhotoFront||c.passportPhotoBack)?`<div class="mt-3"><div class="text-[10px] font-black text-slate-500 mb-2">📷 Фото паспорта</div><div class="grid grid-cols-2 gap-2">${c.passportPhotoFront?`<button type="button" onclick="openStoredPassportViewer(${JSON.stringify(c.passportPhotoFront)},'Паспорт клиента — лицевая сторона')"><img class="passport-detail-thumb" src="${c.passportPhotoFront}" alt="Паспорт"></button>`:''}${c.passportPhotoBack?`<button type="button" onclick="openStoredPassportViewer(${JSON.stringify(c.passportPhotoBack)},'Паспорт клиента — обратная сторона')"><img class="passport-detail-thumb" src="${c.passportPhotoBack}" alt="Паспорт"></button>`:''}</div></div>`:''}</div>
+          <div class="contract-detail-card wide"><h3>👥 Поручитель</h3><div class="contract-detail-value">${escapeHtml(c.guarantorFio || '—')}</div><div class="contract-detail-value mt-1">📞 ${escapeHtml(c.guarantorPhone || '—')}</div><div class="contract-detail-value mt-1">Доп. телефон: ${escapeHtml(c.guarantorExtraPhone || '—')}</div><div class="contract-detail-value mt-1">Паспорт: ${escapeHtml(c.guarantorPassport || '—')}</div><div class="contract-detail-value mt-1">Дата рождения: ${escapeHtml(c.guarantorBirthDate || '—')}</div><div class="contract-detail-value mt-1">Адрес: ${escapeHtml(c.guarantorAddress || '—')}</div>${(c.guarantorPassportPhotoFront||c.guarantorPassportPhotoBack)?`<div class="mt-3"><div class="text-[10px] font-black text-slate-500 mb-2">📷 Фото паспорта поручителя</div><div class="grid grid-cols-2 gap-2">${c.guarantorPassportPhotoFront?`<button type="button" onclick="openStoredPassportViewer(${JSON.stringify(c.guarantorPassportPhotoFront)},'Паспорт поручителя — лицевая сторона')"><img class="passport-detail-thumb" src="${c.guarantorPassportPhotoFront}" alt="Паспорт"></button>`:''}${c.guarantorPassportPhotoBack?`<button type="button" onclick="openStoredPassportViewer(${JSON.stringify(c.guarantorPassportPhotoBack)},'Паспорт поручителя — обратная сторона')"><img class="passport-detail-thumb" src="${c.guarantorPassportPhotoBack}" alt="Паспорт"></button>`:''}</div></div>`:''}</div>
           <div class="contract-detail-card wide"><h3>📋 Договор и 📦 Товар</h3><div class="contract-detail-value">№${escapeHtml(c.contractNum)}</div><div class="contract-detail-value mt-1">Дата покупки: ${escapeHtml(c.buyDate || '—')}</div><div class="contract-detail-value mt-1">График: ${escapeHtml(c.payDate || '—')}</div><div class="contract-detail-value mt-1">Товар: ${escapeHtml(c.product || '—')}</div><div class="contract-detail-value mt-1">Магазин: ${escapeHtml(c.store || '—')}</div><div class="contract-detail-value mt-1">«Д»: ${c.shopPaid ? '✅ Оплачено' : '—'}</div></div>
           <div class="contract-detail-card wide"><h3>💰 Финансы и 💳 Состояние</h3><div class="contract-detail-value">Рассрочка: ${Number(c.totalCost||0).toLocaleString('ru-RU')} ₽</div><div class="contract-detail-value mt-1">Себестоимость: ${Number(c.costPrice||0).toLocaleString('ru-RU')} ₽</div><div class="contract-detail-value mt-1">Месячный: ${Number(c.monthlyPay||0).toLocaleString('ru-RU')} ₽</div><div class="contract-detail-value mt-1">Оплачено: ${Number(metrics.totalPaid + Number(c.downPayment||0)).toLocaleString('ru-RU')} ₽</div><div class="contract-detail-value mt-1">Остаток: ${Number(metrics.rest).toLocaleString('ru-RU')} ₽</div><div class="contract-detail-value mt-1">Просрочка: ${Number(metrics.overdueSum).toLocaleString('ru-RU')} ₽</div></div>
         </div>
