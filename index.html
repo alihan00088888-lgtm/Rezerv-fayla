@@ -4912,14 +4912,31 @@
       return `${y.toString().padStart(4,'0')}-${String(mo).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     }
 
+    // Разрешённые данные из паспорта: ТОЛЬКО дата рождения, серия/номер
+    // и ФИО. Остальной текст паспорта намеренно игнорируется.
     function passportOcrExtractDate(text) {
       const normalized = passportOcrNormalizeText(text);
-      const matches = normalized.match(/\b\d{1,2}[.\/-]\d{1,2}[.\/-]\d{4}\b/g) || [];
+      const lines = normalized.split(/\n+/).map(x => x.trim()).filter(Boolean);
+      const birthLabel = /(?:ДАТА\s+)?РОЖДЕНИЯ\b/i;
+      const dateRe = /\b\d{1,2}[.\/-]\d{1,2}[.\/-]\d{4}\b/g;
+
+      // В первую очередь берём только дату, которая находится рядом с
+      // подписью «Дата рождения». Это не даёт подхватить дату выдачи паспорта.
+      for (let i = 0; i < lines.length; i++) {
+        if (!birthLabel.test(lines[i])) continue;
+        const nearby = [lines[i], lines[i + 1] || '', lines[i + 2] || ''].join(' ');
+        const m = nearby.match(dateRe);
+        if (m) {
+          const iso = passportOcrDateToIso(m[0]);
+          if (iso) return iso;
+        }
+      }
+
+      // Запасной вариант: только одна дата в распознанном тексте.
+      // Если дат несколько и нет подписи «Дата рождения» — ничего не выбираем.
+      const matches = normalized.match(dateRe) || [];
       const dates = [...new Set(matches.map(passportOcrDateToIso).filter(Boolean))];
-      if (!dates.length) return '';
-      const currentYear = new Date().getFullYear();
-      const plausible = dates.filter(x => Number(x.slice(0,4)) >= 1900 && Number(x.slice(0,4)) <= currentYear - 10);
-      return (plausible.sort((a,b) => a.localeCompare(b))[0] || dates[0] || '');
+      return dates.length === 1 ? dates[0] : '';
     }
 
     function passportOcrNormalizePassportDigits(value) {
@@ -4930,18 +4947,25 @@
 
     function passportOcrExtractPassport(text) {
       const normalized = passportOcrNormalizeText(text).toUpperCase();
-      const variants = [normalized, passportOcrNormalizePassportDigits(normalized)];
-      for (const value of variants) {
-        const formatted = value.match(/(?:^|\D)(\d{2}\s*\d{2}\s*\d{6})(?:\D|$)/);
-        if (formatted) return formatted[1].replace(/\s+/g, ' ').trim();
-        const ten = value.match(/(?:^|\D)(\d{10})(?:\D|$)/);
-        if (ten) return `${ten[1].slice(0,4)} ${ten[1].slice(4)}`;
-      }
       const lines = normalized.split(/\n+/).map(x => x.trim()).filter(Boolean);
+      const variants = [normalized, passportOcrNormalizePassportDigits(normalized)];
+
+      // Разрешаем только формат российской серии/номера: 4 + 6 цифр.
+      // Любые другие цифры (код подразделения, телефон, адрес, даты и т.п.)
+      // не заполняются в поле паспорта.
+      const strict = /(?:^|\D)(\d{2}\s*\d{2}\s*\d{6})(?:\D|$)/;
+      for (const value of variants) {
+        const m = value.match(strict);
+        if (m) return m[1].replace(/\s+/g, ' ').trim();
+      }
+
+      // Если OCR разделил «Серия» и «Номер», принимаем только строку рядом
+      // с этими подписями и только ровно 10 цифр.
       for (const line of lines) {
+        if (!/(?:СЕРИЯ|НОМЕР)\b/i.test(line)) continue;
         const fixed = passportOcrNormalizePassportDigits(line);
         const digits = fixed.replace(/\D/g, '');
-        if (digits.length === 10 && !/\d{1,2}[.\/-]\d{1,2}[.\/-]\d{4}/.test(line)) return `${digits.slice(0,4)} ${digits.slice(4)}`;
+        if (digits.length === 10) return `${digits.slice(0,4)} ${digits.slice(4)}`;
       }
       return '';
     }
@@ -4961,17 +4985,14 @@
         .replace(/[^А-ЯЁ\- ]/g, ' ').replace(/\s+/g, ' ').trim();
       s = s.replace(/^(?:ФАМИЛИЯ|ИМЯ|ОТЧЕСТВО)\s*[:\-]?\s*/i, '').trim();
       const bad = /^(ФИО|ФАМИЛИЯ|ИМЯ|ОТЧЕСТВО|РОССИЯ|ПАСПОРТ|ПАСПОРТНЫЕ|ДАННЫЕ|МУЖ|ЖЕН|М|Ж|ГРАЖДАНСТВО|МЕСТО|РОЖДЕНИЯ|РОДИЛСЯ|РОДИЛАСЬ|КОД|ПОДРАЗДЕЛЕНИЯ|ВЫДАН|ДАТА|ДАТА РОЖДЕНИЯ)$/i;
-      // Сильный фильтр от служебного текста паспорта. Раньше строка
-      // «МИНИСТЕРСТВО ВНУТРЕННИХ ДЕЛ» ошибочно принималась за ФИО.
-      const serviceWords = /(МИНИСТЕРСТВО|ВНУТРЕННИХ|ВНУТРЕННИЕ|ДЕЛ|МВД|УМВД|ГУМВД|УФМС|ФМС|ПОДРАЗДЕЛЕНИЯ|ПОДРАЗДЕЛЕНИЕ|ГРАЖДАНСТВО|РОССИЙСК|РОССИЯ|РОССИЙСКАЯ|ФЕДЕРАЦ|ПАСПОРТ|ВЫДАН|ДАТА|РОЖДЕНИЯ|КОД|МЕСТО|ГОРОД|ОБЛАСТЬ|РАЙОН|УЛИЦА|ДОМ|КВАРТИРА|РОДИЛСЯ|РОДИЛАСЬ)/i;
+      const serviceWords = /(МИНИСТЕРСТВО|ВНУТРЕННИХ|ВНУТРЕННИЕ|ДЕЛ|МВД|УМВД|ГУМВД|УФМС|ФМС|ПОДРАЗДЕЛЕНИЯ|ПОДРАЗДЕЛЕНИЕ|ГРАЖДАНСТВО|РОССИЙСК|РОССИЯ|РОССИЙСКАЯ|ФЕДЕРАЦ|ПАСПОРТ|ВЫДАН|ДАТА|РОЖДЕНИЯ|КОД|МЕСТО|ГОРОД|ОБЛАСТЬ|РАЙОН|УЛИЦА|ДОМ|КВАРТИРА|РОДИЛСЯ|РОДИЛАСЬ|ОТДЕЛ|ОТДЕЛЕНИ|УПРАВЛЕНИ|ДЕПАРТАМЕНТ|РЕСПУБЛИК|ЧЕЧЕНСК|ГРОЗНЫЙ|СЛУЖБ)/i;
       if (!s || bad.test(s) || serviceWords.test(s)) return '';
       const words = s.split(' ').filter(Boolean);
-      if ((!allowSingle && (words.length < 2 || words.length > 4)) || (allowSingle && (words.length < 1 || words.length > 2))) return '';
+      if ((!allowSingle && words.length !== 3) || (allowSingle && words.length !== 1)) return '';
       if (words.some(w => w.length < 2 || w.length > 30)) return '';
-      if (/(УЛ|ПР|ПЕР|ДОМ|КВ|ОБЛ|РАЙОН|ГОРОД|РОСС|МОСК|РОЖД|ПОДРАЗД|ВЫДАН|МВД|УМВД|ГУМВД|УФМС|ФМС|ФЕДЕРАЦ|РЕСПУБЛ|ЧЕЧЕНСК|СЛУЖБ|ОТДЕЛ|ОТДЕЛЕНИ|УПРАВЛЕНИ|ДЕПАРТАМЕНТ)/.test(s)) return '';
       const cyrillicCount = (s.match(/[А-ЯЁ]/g) || []).length;
-      if (cyrillicCount < Math.max(4, Math.floor(s.replace(/ /g,'').length * .75))) return '';
-      return words.slice(0,3).join(' ');
+      if (cyrillicCount < Math.max(4, Math.floor(s.replace(/ /g,'').length * .8))) return '';
+      return words.join(' ');
     }
 
     function passportOcrExtractFio(text) {
@@ -4983,6 +5004,8 @@
         if (c) candidates.push({ value:c, bonus, source });
       };
 
+      // Основной и единственный надёжный способ: ФИО должно быть явно связано
+      // с подписями «Фамилия / Имя / Отчество».
       const labelNames = {};
       for (let i=0; i<lines.length; i++) {
         const line = passportOcrNormalizeNameText(lines[i]);
@@ -4992,47 +5015,39 @@
         const sameLine = line.replace(/.*?\b(?:ФАМИЛИЯ|ИМЯ|ОТЧЕСТВО)\b\s*[:\-]?\s*/i, '').trim();
         const next = lines[i+1] || '';
         const next2 = lines[i+2] || '';
-        const one = passportOcrCleanFio(sameLine, true);
-        if (one) labelNames[key] = one.split(' ')[0];
+        const tryOne = (v) => passportOcrCleanFio(v, true);
+        const one = tryOne(sameLine);
+        if (one) labelNames[key] = one;
         else {
           const n = passportOcrNormalizeNameText(next).replace(/^(?:ФАМИЛИЯ|ИМЯ|ОТЧЕСТВО)\s*[:\-]?\s*/i,'').trim();
-          const cleaned = passportOcrCleanFio(n, true);
-          if (cleaned) labelNames[key] = cleaned.split(' ')[0];
+          const cleaned = tryOne(n);
+          if (cleaned) labelNames[key] = cleaned;
           else {
-            const n2 = passportOcrCleanFio(next2, true);
-            if (n2) labelNames[key] = n2.split(' ')[0];
+            const n2 = tryOne(next2);
+            if (n2) labelNames[key] = n2;
           }
         }
       }
-      const labeled = [labelNames['ФАМИЛИЯ'], labelNames['ИМЯ'], labelNames['ОТЧЕСТВО']].filter(Boolean).join(' ');
-      if (labeled) add(labeled, 45, 'labels');
 
-      for (let i=0; i<lines.length; i++) {
-        const line = passportOcrNormalizeNameText(lines[i]);
-        const m = line.match(/\b(ФАМИЛИЯ|ИМЯ|ОТЧЕСТВО)\b\s*[:\-]?\s*(.+)$/i);
-        if (m) add(m[2], 25, 'label-line');
+      const labeled = [labelNames['ФАМИЛИЯ'], labelNames['ИМЯ'], labelNames['ОТЧЕСТВО']].filter(Boolean).join(' ');
+      if (labelNames['ФАМИЛИЯ'] && labelNames['ИМЯ'] && labelNames['ОТЧЕСТВО']) {
+        add(labeled, 100, 'labels');
       }
 
+      // Если OCR вывел все три значения одной строкой после слова «ФИО»,
+      // разрешаем только эту явно подписанную строку.
       for (let i=0; i<lines.length; i++) {
-        const line = passportOcrNormalizeNameText(lines[i]).replace(/[^А-ЯЁа-яё\- ]/g,' ').replace(/\s+/g,' ').trim();
-        if (!line) continue;
-        // В паспорте рядом с ФИО часто встречаются строки органа выдачи.
-        // Их нельзя рассматривать как ФИО, даже если OCR прочитал их как 2–3 слова.
-        if (/(^|\s)(МВД|УМВД|ГУМВД|УФМС|ФМС)(\s|$)/.test(line.toUpperCase()) ||
-            /(МИНИСТЕРСТВО|ВНУТРЕННИХ ДЕЛ|ПОДРАЗДЕЛЕНИ|ФЕДЕРАЦ|РОССИЙСКАЯ|РОССИИ|РЕСПУБЛИК|ЧЕЧЕНСК|ОТДЕЛЕНИ|УПРАВЛЕНИ)/i.test(line)) continue;
-        add(line, 0, 'line');
+        const line = passportOcrNormalizeNameText(lines[i]);
+        const m = line.match(/\bФИО\b\s*[:\-]?\s*(.+)$/i);
+        if (m) add(m[1], 90, 'fio-label');
       }
 
       const scored = candidates.map(({value,bonus,source}) => {
         const words = value.split(' ');
         let score = bonus;
-        if (/(МИНИСТЕРСТВО|ВНУТРЕННИХ|ДЕЛ|МВД|УМВД|ГУМВД|УФМС|ФМС|ПОДРАЗДЕЛЕНИЯ|ГРАЖДАНСТВО|РОССИЯ|РОССИЙСКАЯ|РЕСПУБЛИК|ФЕДЕРАЦ|ЧЕЧЕНСК|ОТДЕЛЕНИ|УПРАВЛЕНИ|ПАСПОРТ|ВЫДАН|РОЖДЕНИЯ|МЕСТО)/i.test(value)) score -= 500;
-        if (words.length === 3) score += 22; else if (words.length === 2) score += 8;
-        if (words[0]?.length >= 4) score += 3;
-        if (/(ОВ|ЕВ|ЁВ|ИН|ЫН|СКИЙ|СКАЯ|ЦКИЙ|ЦКАЯ|ОВА|ЕВА|ИНА|ЫНА)$/.test(words[0] || '')) score += 5;
-        if (/(ИЧ|ВИЧ|ЕВИЧ|ОВИЧ|ИЧНА|ЕВНА|ОВНА)$/.test(words[words.length-1] || '')) score += 8;
-        if (/^[А-ЯЁ]+(?:\s+[А-ЯЁ]+){1,2}$/.test(value.toUpperCase())) score += 8;
-        if (source === 'labels') score += 35;
+        if (source === 'labels') score += 30;
+        if (words.length === 3) score += 10;
+        if (words.every(w => w.length >= 3)) score += 5;
         return { value, score };
       }).sort((a,b)=>b.score-a.score);
       return scored[0]?.value || '';
@@ -5041,10 +5056,10 @@
     function passportOcrExtract(text) {
       const clean = passportOcrNormalizeText(text);
       return {
+        // В результат возвращаются только три разрешённых поля.
         fio: passportOcrExtractFio(clean),
         birthDate: passportOcrExtractDate(clean),
-        passport: passportOcrExtractPassport(clean),
-        rawText: clean
+        passport: passportOcrExtractPassport(clean)
       };
     }
 
