@@ -328,20 +328,6 @@
       .print-page:last-child { page-break-after:auto; break-after:auto; }
     }
 
-    /* === Паспорт: фото и OCR === */
-    .passport-scan-box { margin-top:12px; padding:10px; border:1px dashed #93c5fd; border-radius:10px; background:#eff6ff; }
-    .passport-photo-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:8px; margin-top:8px; }
-    .passport-photo-card { position:relative; border:1px solid #dbeafe; border-radius:9px; overflow:hidden; background:#fff; }
-    .passport-photo-card img { width:100%; height:100px; object-fit:cover; display:block; cursor:pointer; }
-    .passport-photo-card .passport-photo-actions { display:flex; gap:4px; padding:5px; }
-    .passport-photo-card button { flex:1; border:0; border-radius:6px; padding:5px 4px; font-size:9px; font-weight:800; cursor:pointer; }
-    .passport-scan-status { margin-top:7px; font-size:10px; color:#475569; }
-    .passport-scan-status.error { color:#b91c1c; font-weight:800; }
-    .passport-scan-status.ok { color:#15803d; font-weight:800; }
-    @media (max-width:640px) {
-      .passport-photo-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
-    }
-
     /* === Уведомление о копировании === */
     .copy-notification {
       position: fixed; top: 20px; right: 20px;
@@ -1131,6 +1117,15 @@
       .dashboard-date-input { flex:1; min-width:0; width:100%; }
     }
 
+
+    /* === OCR паспорта для договора === */
+    .passport-ocr-box { margin-top:8px; padding:9px; border:1px dashed #93c5fd; border-radius:10px; background:#eff6ff; }
+    .passport-ocr-row { display:flex; align-items:center; gap:7px; flex-wrap:wrap; }
+    .passport-ocr-btn { border:0; border-radius:8px; padding:7px 10px; background:#2563eb; color:#fff; font-size:10px; font-weight:900; cursor:pointer; }
+    .passport-ocr-btn:hover { background:#1d4ed8; }
+    .passport-ocr-btn:disabled { opacity:.55; cursor:wait; }
+    .passport-ocr-status { font-size:9px; color:#64748b; font-weight:700; }
+    .passport-ocr-hint { margin-top:5px; font-size:8px; line-height:1.35; color:#64748b; }
   </style>
 </head>
 <body class="bg-slate-100 text-gray-800 text-xs min-h-screen">
@@ -1967,28 +1962,19 @@
           <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
             <input type="text" id="fio" placeholder="ФИО Покупателя *" required class="p-2 border rounded-md col-span-2 focus:border-blue-500 outline-none">
             <input type="date" id="birthDate" title="Дата рождения" class="p-2 border rounded-md outline-none">
-            <input type="text" id="passport" placeholder="Паспорт: серия и номер" class="p-2 border rounded-md outline-none">
+            <input type="text" id="passport" placeholder="Паспортные данные" class="p-2 border rounded-md outline-none">
             <input type="text" id="phone" placeholder="Телефон *" required class="p-2 border rounded-md outline-none">
             <input type="text" id="extraPhone" placeholder="Доп. номер" class="p-2 border rounded-md outline-none">
-            <input type="text" id="address" placeholder="Адрес проживания / регистрации" class="p-2 border rounded-md col-span-3 outline-none">
+            <input type="text" id="address" placeholder="Адрес проживания" class="p-2 border rounded-md col-span-3 outline-none">
           </div>
-
-          <div class="passport-scan-box">
-            <div class="flex flex-wrap items-center justify-between gap-2">
-              <div>
-                <div class="font-black text-[10px] uppercase text-blue-700 tracking-widest">📷 Паспорт клиента</div>
-                <div class="text-[9px] text-slate-500 mt-1">Фамилия, имя, отчество, дата рождения, серия и номер.</div>
-              </div>
-              <div class="flex flex-wrap gap-1.5">
-                <button type="button" onclick="openPassportCamera()" class="px-2.5 py-1.5 rounded-lg bg-blue-600 text-white text-[10px] font-black">📷 Камера</button>
-                <button type="button" onclick="openPassportGallery()" class="px-2.5 py-1.5 rounded-lg bg-white border border-blue-200 text-blue-700 text-[10px] font-black">🖼️ Галерея</button>
-                <button type="button" onclick="scanPassportData()" class="px-2.5 py-1.5 rounded-lg bg-slate-900 text-white text-[10px] font-black">🔎 Распознать</button>
-              </div>
+          <div class="passport-ocr-box">
+            <div class="passport-ocr-row">
+              <span class="text-[9px] font-black uppercase text-blue-700">📷 Паспорт покупателя</span>
+              <input type="file" id="buyerPassportPhoto" accept="image/*" capture="environment" class="hidden">
+              <button type="button" class="passport-ocr-btn" onclick="document.getElementById('buyerPassportPhoto').click()">Загрузить фото</button>
+              <span id="buyerPassportOcrStatus" class="passport-ocr-status">Фото обрабатывается прямо в браузере</span>
             </div>
-            <input type="file" id="passportCameraInput" accept="image/*" capture="environment" class="hidden" onchange="handlePassportFiles(this.files)">
-            <input type="file" id="passportGalleryInput" accept="image/*" multiple class="hidden" onchange="handlePassportFiles(this.files)">
-            <div id="passportPhotoGrid" class="passport-photo-grid"></div>
-            <div id="passportScanStatus" class="passport-scan-status">Фото можно добавлять, заменять и удалять. Перед сохранением данные можно исправить вручную.</div>
+            <div class="passport-ocr-hint">После выбора фото YUSRA автоматически попробует распознать ФИО, дату рождения, серию и номер и заполнит поля выше. Перед сохранением проверьте результат.</div>
           </div>
         </div>
 
@@ -2045,6 +2031,15 @@
               <input type="text" id="guarantorPhone" placeholder="Телефон поручителя" class="p-2 border rounded w-full">
               <input type="text" id="guarantorExtraPhone" placeholder="Доп. номер телефона" class="p-2 border rounded w-full">
               <input type="text" id="guarantorAddress" placeholder="Адрес проживания" class="p-2 border rounded w-full sm:col-span-2">
+            </div>
+            <div class="passport-ocr-box">
+              <div class="passport-ocr-row">
+                <span class="text-[9px] font-black uppercase text-blue-700">📷 Паспорт поручителя</span>
+                <input type="file" id="guarantorPassportPhoto" accept="image/*" capture="environment" class="hidden">
+                <button type="button" class="passport-ocr-btn" onclick="document.getElementById('guarantorPassportPhoto').click()">Загрузить фото</button>
+                <span id="guarantorPassportOcrStatus" class="passport-ocr-status">Фото обрабатывается прямо в браузере</span>
+              </div>
+              <div class="passport-ocr-hint">После выбора фото данные будут автоматически распознаны и подставлены в поля поручителя. Перед сохранением проверьте результат.</div>
             </div>
           </div>
         </div>
@@ -4784,907 +4779,144 @@
       return !hasError;
     };
 
-    let currentPassportPhotos = [];
+    // ================================================================
+    // OCR ПАСПОРТА — обработка фотографии локально в браузере
+    // ================================================================
+    const passportOcrState = { buyer: null, guarantor: null };
 
-    function compressPassportImage(file, maxSide = 1280, quality = 0.62) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onerror = () => reject(new Error('Не удалось прочитать фотографию.'));
-        reader.onload = () => {
-          const img = new Image();
-          img.onload = () => {
-            const scale = Math.min(1, maxSide / Math.max(img.naturalWidth || img.width, img.naturalHeight || img.height));
-            const canvas = document.createElement('canvas');
-            canvas.width = Math.max(1, Math.round(img.width * scale));
-            canvas.height = Math.max(1, Math.round(img.height * scale));
-            const ctx = canvas.getContext('2d', { alpha:false });
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            resolve(canvas.toDataURL('image/jpeg', quality));
-          };
-          img.onerror = () => reject(new Error('Не удалось открыть фотографию.'));
-          img.src = reader.result;
-        };
-        reader.readAsDataURL(file);
-      });
-    }
-
-    function renderPassportPhotos() {
-      const box = document.getElementById('passportPhotoGrid');
-      if (!box) return;
-      if (!currentPassportPhotos.length) {
-        box.innerHTML = '<div class="text-[9px] text-slate-400 py-2">Фотографии паспорта пока не добавлены.</div>';
-        return;
-      }
-      box.innerHTML = currentPassportPhotos.map((src, i) => `
-        <div class="passport-photo-card">
-          <img src="${src}" alt="Фото паспорта ${i+1}" onclick="previewPassportPhoto(${i})">
-          <div class="passport-photo-actions">
-            <button type="button" onclick="replacePassportPhoto(${i})" class="bg-blue-50 text-blue-700">Заменить</button>
-            <button type="button" onclick="removePassportPhoto(${i})" class="bg-red-50 text-red-700">Удалить</button>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function setPassportStatus(message, type='') {
-      const el = document.getElementById('passportScanStatus');
-      if (!el) return;
-      el.className = 'passport-scan-status' + (type ? ' '+type : '');
-      el.textContent = message;
-    }
-
-    window.openPassportCamera = function() {
-      document.getElementById('passportCameraInput')?.click();
-    };
-    window.openPassportGallery = function() {
-      document.getElementById('passportGalleryInput')?.click();
-    };
-    window.replacePassportPhoto = function(index) {
-      const input = document.getElementById('passportGalleryInput');
-      if (!input) return;
-      input.dataset.replaceIndex = String(index);
-      input.removeAttribute('multiple');
-      input.click();
-      setTimeout(() => { input.setAttribute('multiple','multiple'); }, 0);
-    };
-    window.removePassportPhoto = function(index) {
-      currentPassportPhotos.splice(index, 1);
-      renderPassportPhotos();
-      setPassportStatus('Фото удалено. Можно добавить новое.', 'ok');
-    };
-    window.previewPassportPhoto = function(index) {
-      const src = currentPassportPhotos[index];
-      if (!src) return;
-      const w = window.open('', '_blank');
-      if (w) {
-        w.document.write(`<title>Фото паспорта</title><body style="margin:0;background:#111;display:flex;align-items:center;justify-content:center;min-height:100vh"><img src="${src}" style="max-width:100%;max-height:100vh;object-fit:contain"></body>`);
-        w.document.close();
-      }
-    };
-
-    window.handlePassportFiles = async function(files) {
-      const input = files?.[0] ? (files.length === 1 ? files : files) : null;
-      if (!input || !input.length) return;
-      const galleryInput = document.getElementById('passportGalleryInput');
-      const replaceIndex = galleryInput?.dataset.replaceIndex;
-      if (galleryInput) delete galleryInput.dataset.replaceIndex;
-
-      setPassportStatus('Обрабатываю фото и уменьшаю размер хранения…');
-      try {
-        const compressed = [];
-        for (const file of Array.from(input)) {
-          if (!file.type.startsWith('image/')) continue;
-          compressed.push(await compressPassportImage(file));
-        }
-        if (replaceIndex !== undefined && compressed[0]) {
-          currentPassportPhotos[Number(replaceIndex)] = compressed[0];
-        } else {
-          currentPassportPhotos.push(...compressed);
-        }
-        renderPassportPhotos();
-        setPassportStatus(`Добавлено фото: ${compressed.length}. Размер хранения уменьшен; оригинал камеры не сохраняется.`, 'ok');
-      } catch (err) {
-        console.error(err);
-        setPassportStatus('Не удалось обработать фотографию. Попробуйте другое фото.', 'error');
-      } finally {
-        if (galleryInput) galleryInput.value = '';
-        const cameraInput = document.getElementById('passportCameraInput');
-        if (cameraInput) cameraInput.value = '';
-      }
-    };
-
-    function normalizePassportText(text) {
+    function normalizeOcrText(text) {
       return String(text || '')
+        .replace(/[|]/g, 'I')
+        .replace(/[«»]/g, '"')
         .replace(/\r/g, '\n')
-        .replace(/[|]/g, 'I')
-        .replace(/[«»“”]/g, '"')
-        .replace(/[ \t]+/g, ' ')
-        .split('\n')
-        .map(s => s.trim())
-        .filter(Boolean);
+        .split('\n').map(x => x.replace(/\s+/g, ' ').trim()).filter(Boolean).join('\n');
     }
 
-    function cleanPassportOcrValue(value) {
-      return String(value || '')
-        .replace(/[|]/g, 'I')
-        .replace(/^[\s:;,.\-–—]+|[\s:;,.\-–—]+$/g, '')
-        .replace(/\s{2,}/g, ' ')
-        .trim();
-    }
-
-    function looksLikeCyrillicName(value) {
-      const v = cleanPassportOcrValue(value).replace(/[^А-ЯЁа-яёA-Za-z\- ]/g, ' ').replace(/\s+/g, ' ').trim();
-      const words = v.split(' ').filter(Boolean);
-      if (!words.length || words.length > 3) return false;
-      return words.every(w => /^[А-ЯЁA-Za-z][А-ЯЁа-яёA-Za-z\-]{1,29}$/.test(w));
-    }
-
-    function normalizeOcrLabel(line) {
-      return cleanPassportOcrValue(line)
-        .toLowerCase()
-        .replace(/[0о]/g, 'o')
-        .replace(/[1l]/g, 'i')
-        .replace(/[сc]/g, 'c')
-        .replace(/[аa]/g, 'a')
-        .replace(/[мm]/g, 'm')
-        .replace(/[иi]/g, 'i')
-        .replace(/[яy]/g, 'y')
-        .replace(/[^a-zа-яё ]/g, '')
-        .replace(/\s+/g, ' ')
-        .trim();
-    }
-
-    function findPassportField(lines, labelRegex) {
-      for (let i = 0; i < lines.length; i++) {
-        const line = cleanPassportOcrValue(lines[i]);
-        if (!labelRegex.test(line)) continue;
-
-        // Частый вариант: «Фамилия ИВАНОВ» в одной строке.
-        const sameLine = cleanPassportOcrValue(line.replace(labelRegex, ''));
-        if (looksLikeCyrillicName(sameLine)) return sameLine;
-
-        // Другой вариант паспорта: подпись на одной строке, значение на следующей.
-        for (let j = i + 1; j < Math.min(lines.length, i + 4); j++) {
-          const candidate = cleanPassportOcrValue(lines[j]);
-          if (!candidate) continue;
-          if (/фамил|имя|отчеств|surname|given|patronym|дата|рожд|место|паспорт|серия|номер/i.test(candidate)) break;
-          if (looksLikeCyrillicName(candidate)) return candidate;
-        }
-      }
+    function ocrDateToInput(value) {
+      const v = String(value || '').trim();
+      let m = v.match(/\b(\d{2})[.\-/](\d{2})[.\-/](\d{4})\b/);
+      if (m) return `${m[3]}-${m[2]}-${m[1]}`;
+      m = v.match(/\b(\d{4})[.\-/](\d{2})[.\-/](\d{2})\b/);
+      if (m) return `${m[1]}-${m[2]}-${m[3]}`;
       return '';
     }
 
-    function parsePassportOcr(text) {
-      const lines = normalizePassportText(text);
-      const joined = lines.join(' ');
-      const result = {};
+    function extractPassportData(rawText) {
+      const text = normalizeOcrText(rawText);
+      const lines = text.split('\n').map(x => x.trim()).filter(Boolean);
+      const upper = text.toUpperCase();
+      let fio = '';
+      let birthDate = '';
+      let passport = '';
 
-      // Дата рождения: сначала ищем дату рядом с подписью, затем любую дату.
-      const dateMatches = joined.match(/\b(0?[1-9]|[12]\d|3[01])[.\-/](0?[1-9]|1[0-2])[.\-/](19\d{2}|20\d{2})\b/g) || [];
-      const dates = dateMatches.map(d => {
-        const m = d.match(/(\d{1,2})[.\-/](\d{1,2})[.\-/](\d{4})/);
-        return m ? `${m[3]}-${String(m[2]).padStart(2,'0')}-${String(m[1]).padStart(2,'0')}` : '';
-      }).filter(Boolean);
-      const birthIdx = lines.findIndex(l => /дата\s*рожд|date\s*of\s*birth|birth/i.test(l));
-      if (birthIdx >= 0) {
-        const nearby = lines.slice(birthIdx, birthIdx + 4).join(' ');
-        const m = nearby.match(/\b(\d{1,2})[.\-/](\d{1,2})[.\-/](\d{4})\b/);
-        if (m) result.birthDate = `${m[3]}-${String(m[2]).padStart(2,'0')}-${String(m[1]).padStart(2,'0')}`;
+      // MRZ: международный паспорт/ID. Берём номер документа и дату рождения,
+      // если на фотографии присутствует машинно-считываемая зона.
+      const mrz = lines.filter(l => /^[A-Z0-9<]{25,44}$/.test(l.replace(/\s/g, ''))).map(l => l.replace(/\s/g, ''));
+      const mrzDate = mrz.join(' ').match(/\b(\d{6})[0-9<]/);
+      if (mrzDate) {
+        const d = mrzDate[1];
+        const yy = Number(d.slice(0,2));
+        const year = yy <= 30 ? 2000 + yy : 1900 + yy;
+        birthDate = `${year}-${d.slice(2,4)}-${d.slice(4,6)}`;
       }
-      if (!result.birthDate && dates.length) {
-        // В российском паспорте первая дата обычно относится к дате рождения.
-        result.birthDate = dates[0];
+      if (mrz.length) {
+        const docLine = mrz.find(l => l.startsWith('P<') || l.startsWith('I<'));
+        if (docLine) {
+          const parts = docLine.split('<<');
+          const names = (parts[1] || '').split('<').filter(Boolean).slice(0,3);
+          const surname = (parts[0] || '').replace(/^P<|^I</,'').replace(/</g,' ').trim();
+          if (surname || names.length) fio = [surname, ...names].filter(Boolean).join(' ');
+          const num = docLine.match(/^[PI][A-Z<]{1,3}([A-Z0-9<]{6,9})/);
+          if (num) passport = num[1].replace(/</g,'').trim();
+        }
       }
 
-      // Серия + номер: допускаем типичные ошибки OCR и разные варианты пробелов.
-      const passPatterns = [
-        /\b(\d{4})\s*[- ]?\s*(\d{6})\b/,
-        /\b(\d{2})\s*(\d{2})\s*(\d{6})\b/
+      // Российский паспорт: обычно серия 4 цифры + номер 6 цифр.
+      const ruPassport = upper.match(/\b(\d{2})\s?(\d{2})\s?(\d{6})\b/) || upper.match(/\b(\d{4})\s?(\d{6})\b/);
+      if (ruPassport) passport = ruPassport.slice(1).filter(Boolean).join(' ');
+
+      // Дата рождения — сначала строки с ключевыми словами.
+      const datePatterns = [
+        /(?:ДАТА\s*РОЖДЕНИЯ|DATE\s*OF\s*BIRTH|РОЖДЕНИЕ)[^\d]*(\d{2}[.\-/]\d{2}[.\-/]\d{4})/i,
+        /(?:ДАТА\s*РОЖДЕНИЯ|DATE\s*OF\s*BIRTH|РОЖДЕНИЕ)[^\d]*(\d{4}[.\-/]\d{2}[.\-/]\d{2})/i
       ];
-      for (const re of passPatterns) {
-        const m = joined.match(re);
-        if (m) {
-          result.passport = m.length === 4 ? `${m[1]}${m[2]} ${m[3]}` : `${m[1]} ${m[2]}`;
-          break;
-        }
+      for (const re of datePatterns) {
+        const m = text.match(re);
+        if (m) { birthDate = ocrDateToInput(m[1]); break; }
+      }
+      if (!birthDate) {
+        const dates = [...text.matchAll(/\b\d{2}[.\-/]\d{2}[.\-/]\d{4}\b/g)].map(m => ocrDateToInput(m[0]));
+        const plausible = dates.find(d => d && new Date(d).getFullYear() >= 1900 && new Date(d).getFullYear() <= new Date().getFullYear());
+        if (plausible) birthDate = plausible;
       }
 
-      // Текстовый запасной способ. Основной способ ниже использует координаты OCR,
-      // потому что порядок строк у Tesseract на фото паспорта часто нарушается.
-      const surname = findPassportField(lines, /(?:фамилия|surname)\b/i);
-      const firstName = findPassportField(lines, /(?:имя|given\s*name)\b/i);
-      const patronymic = findPassportField(lines, /(?:отчество|patronymic)\b/i);
-      const fioParts = [surname, firstName, patronymic].filter(Boolean);
-      if (fioParts.length >= 2) result.fio = fioParts.join(' ');
-      else {
-        const candidates = lines
-          .map(l => cleanPassportOcrValue(l))
-          .filter(l => looksLikeCyrillicName(l))
-          .filter(l => !/паспорт|росси|место|рожд|область|район|город|улиц|серия|номер/i.test(l));
-        if (candidates.length) {
-          const best = candidates.find(l => l.split(/\s+/).length >= 3) || candidates[0];
-          if (best) result.fio = best;
-        }
-      }
-      return result;
-    }
-
-    // Проверка слова на то, что это именно ФИО, а не подпись/служебный текст.
-    function isPassportNameWord(value) {
-      const v = cleanPassportOcrValue(value).replace(/[^А-ЯЁа-яёA-Za-z-]/g, '');
-      if (v.length < 2 || v.length > 35) return false;
-      if (/^(фамилия|имя|отчество|surname|given|name|patronymic)$/i.test(v)) return false;
-      return /^[А-ЯЁа-яёA-Za-z][А-ЯЁа-яёA-Za-z-]*$/.test(v);
-    }
-
-    function passportNameScore(value, preferUpper = false) {
-      const v = cleanPassportOcrValue(value);
-      if (!isPassportNameWord(v)) return -999;
-      let score = 10;
-      if (/^[А-ЯЁ][А-ЯЁа-яё-]+$/.test(v)) score += 5;
-      if (/^[А-ЯЁA-Z\- ]+$/.test(v)) score += 2;
-      if (preferUpper && /^[А-ЯЁA-Z\-]+$/.test(v)) score += 2;
-      if (/[0-9]/.test(v)) score -= 20;
-      return score;
-    }
-
-    function normalizePassportLabelForMatch(value) {
-      return cleanPassportOcrValue(value)
-        .toLowerCase()
-        .replace(/ё/g, 'е')
-        .replace(/[0о]/g, 'o')
-        .replace(/[1l|]/g, 'i')
-        .replace(/[сc]/g, 'c')
-        .replace(/[аa]/g, 'a')
-        .replace(/[мm]/g, 'm')
-        .replace(/[иi]/g, 'i')
-        .replace(/[яy]/g, 'y')
-        .replace(/[^a-zа-яё]/g, '');
-    }
-
-    function levenshtein(a, b) {
-      a = String(a || ''); b = String(b || '');
-      const dp = Array.from({length: b.length + 1}, (_, i) => i);
-      for (let i = 1; i <= a.length; i++) {
-        let prev = dp[0]; dp[0] = i;
-        for (let j = 1; j <= b.length; j++) {
-          const cur = dp[j];
-          dp[j] = Math.min(
-            dp[j] + 1,
-            dp[j - 1] + 1,
-            prev + (a[i - 1] === b[j - 1] ? 0 : 1)
-          );
-          prev = cur;
-        }
-      }
-      return dp[b.length];
-    }
-
-    function passportLabelType(value) {
-      const v = normalizePassportLabelForMatch(value);
-      if (!v) return '';
-      const aliases = {
-        surname: ['фамилия','familiya','surname'],
-        firstname: ['имя','imya','firstname','givenname'],
-        patronymic: ['отчество','otchestvo','patronymic']
-      };
-      for (const [type, arr] of Object.entries(aliases)) {
-        for (const a of arr) {
-          const aa = normalizePassportLabelForMatch(a);
-          if (v === aa || v.includes(aa) || aa.includes(v)) return type;
-          const maxErr = aa.length >= 8 ? 3 : 1;
-          if (levenshtein(v, aa) <= maxErr) return type;
-        }
-      }
-      return '';
-    }
-
-    // Улучшенный разбор паспорта по координатам OCR.
-    // Важно: не смешиваем слова из разных запусков OCR. Каждый запуск разбирается
-    // отдельно, а затем результаты по каждому из 3 нужных полей сравниваются.
-    function passportWordText(w) {
-      return cleanPassportOcrValue(w?.text || '');
-    }
-
-    function passportWordCenter(w) {
-      const b = w?.bbox || {};
-      return {
-        x: ((Number(b.x0) || 0) + (Number(b.x1) || 0)) / 2,
-        y: ((Number(b.y0) || 0) + (Number(b.y1) || 0)) / 2,
-        h: Math.max(1, (Number(b.y1) || 0) - (Number(b.y0) || 0)),
-        w: Math.max(1, (Number(b.x1) || 0) - (Number(b.x0) || 0))
-      };
-    }
-
-    function passportBuildLines(words) {
-      const valid = (words || []).filter(w => {
-        const t = passportWordText(w);
-        const c = Number(w?.confidence ?? w?.conf ?? 0);
-        return t && w?.bbox && c >= 18;
-      }).map((w, idx) => ({
-        ...w,
-        _idx: idx,
-        _t: passportWordText(w),
-        _c: passportWordCenter(w)
-      }));
-
-      // Сначала используем line_num/block_num, если Tesseract их отдал.
-      const groups = new Map();
-      valid.forEach(w => {
-        const key = (w.block_num != null && w.par_num != null && w.line_num != null)
-          ? `${w.block_num}:${w.par_num}:${w.line_num}` : null;
-        if (key) {
-          if (!groups.has(key)) groups.set(key, []);
-          groups.get(key).push(w);
-        }
-      });
-
-      let lines = [...groups.values()];
-      if (!lines.length || lines.some(g => g.length < 1)) {
-        // Резерв: группировка по вертикали. Это важно для браузеров/версий Tesseract,
-        // где line_num иногда отсутствует.
-        lines = [];
-        const sorted = [...valid].sort((a,b) => a._c.y - b._c.y || a._c.x - b._c.x);
-        for (const w of sorted) {
-          let line = lines.find(g => {
-            const avgY = g.reduce((sum,x) => sum + x._c.y, 0) / g.length;
-            const avgH = g.reduce((sum,x) => sum + x._c.h, 0) / g.length;
-            return Math.abs(w._c.y - avgY) <= Math.max(10, avgH * 0.7);
-          });
-          if (!line) { line = []; lines.push(line); }
-          line.push(w);
-        }
-      }
-
-      return lines.map(wordsInLine => {
-        const arr = wordsInLine.sort((a,b) => a._c.x - b._c.x);
-        return {
-          words: arr,
-          text: arr.map(w => w._t).join(' '),
-          x0: Math.min(...arr.map(w => Number(w.bbox.x0) || 0)),
-          x1: Math.max(...arr.map(w => Number(w.bbox.x1) || 0)),
-          y0: Math.min(...arr.map(w => Number(w.bbox.y0) || 0)),
-          y1: Math.max(...arr.map(w => Number(w.bbox.y1) || 0)),
-          cy: arr.reduce((sum,w) => sum + w._c.y, 0) / arr.length
-        };
-      }).sort((a,b) => a.cy - b.cy || a.x0 - b.x0);
-    }
-
-    function passportNameCandidateScore(text, confidence = 0, field = '') {
-      const raw = cleanPassportOcrValue(text).replace(/^[^А-ЯЁA-Za-z]+|[^А-ЯЁа-яёA-Za-z-]+$/g, '');
-      if (!isPassportNameWord(raw)) return -999;
-      if (passportLabelType(raw)) return -999;
-      if (/паспорт|росси|граждан|дата|рожд|место|пол|выдан|код|подраздел/i.test(raw)) return -999;
-      let score = 25 + Math.min(25, Number(confidence || 0) / 4);
-      if (/^[А-ЯЁ][А-ЯЁа-яё-]{2,}$/.test(raw)) score += 10;
-      if (/^[А-ЯЁA-Z-]{3,}$/.test(raw)) score += 6;
-      if (raw.length >= 3 && raw.length <= 28) score += 5;
-      if (field === 'surname' && /ов$|ова$|ев$|ева$|ин$|ина$|ский$|ская$|енко$|чук$/i.test(raw)) score += 3;
-      return score;
-    }
-
-    function passportFindLabelAnchors(words) {
-      const lines = passportBuildLines(words);
-      const anchors = [];
-      lines.forEach(line => {
-        // Проверяем и отдельные слова, и короткие пары слов.
-        line.words.forEach((w, i) => {
-          const type = passportLabelType(w._t);
-          if (type) anchors.push({type, word:w, line, labelText:w._t});
-          if (i < line.words.length - 1) {
-            const pair = `${line.words[i]._t} ${line.words[i+1]._t}`;
-            const pairType = passportLabelType(pair);
-            if (pairType) anchors.push({type:pairType, word:w, line, labelText:pair});
-          }
+      // ФИО: строка после «Фамилия», «Имя», «Отчество» или наиболее похожая
+      // строка из 2–3 кириллических слов.
+      const fioLabel = lines.findIndex(l => /^(ФАМИЛИЯ|SURNAME)\b/i.test(l));
+      if (fioLabel >= 0 && lines[fioLabel + 1]) fio = lines[fioLabel + 1];
+      if (!fio) {
+        const candidate = lines.find(l => {
+          const clean = l.replace(/[^А-ЯЁа-яёA-Za-z\- ]/g, ' ').replace(/\s+/g,' ').trim();
+          const words = clean.split(' ').filter(Boolean);
+          return words.length >= 2 && words.length <= 3 && words.every(w => w.length >= 2) &&
+            words.filter(w => /[А-ЯЁа-яё]/.test(w)).length >= 2 &&
+            !/(ПАСПОРТ|РОССИЯ|РОЖДЕН|ОТДЕЛ|ВЫДАН|ПОДПИС|PASSPORT|SURNAME|GIVEN|BIRTH|DATE)/i.test(clean);
         });
-        // Иногда OCR соединяет подпись с мусором: «ФамилияИВАНОВ».
-        const nt = normalizePassportLabelForMatch(line.text);
-        for (const [type, aliases] of Object.entries({
-          surname:['фамилия','surname'], firstname:['имя','givenname','firstname'], patronymic:['отчество','patronymic']
-        })) {
-          if (aliases.some(a => nt.includes(normalizePassportLabelForMatch(a))) && !anchors.some(a => a.type===type && a.line===line)) {
-            anchors.push({type, word:line.words[0], line, labelText:line.text, joined:true});
-          }
-        }
-      });
-      return anchors;
-    }
-
-    function passportPickFieldFromWords(words, field) {
-      const anchors = passportFindLabelAnchors(words).filter(a => a.type === field);
-      if (!anchors.length) return null;
-
-      let best = null;
-      for (const anchor of anchors) {
-        const label = anchor.word._c;
-        const line = anchor.line;
-        const labelRight = anchor.joined ? line.x0 : Number(anchor.word.bbox.x1) || label.x;
-        const labelLeft = anchor.joined ? line.x0 : Number(anchor.word.bbox.x0) || label.x;
-
-        // Кандидаты на той же строке: преимущественно справа от подписи.
-        for (const w of line.words) {
-          if (w === anchor.word) continue;
-          const wc = w._c;
-          const dx = wc.x - labelRight;
-          const dy = Math.abs(wc.y - label.y);
-          if (dx < -4 || dy > Math.max(16, label.h * 1.5)) continue;
-          const sc0 = passportNameCandidateScore(w._t, w.confidence, field);
-          if (sc0 < 0) continue;
-          const score = sc0 + 90 - Math.min(55, dx * 0.28) - Math.min(35, dy * 1.5);
-          if (!best || score > best.score) best = {text:w._t, score, mode:'same-line', anchor, word:w};
-        }
-
-        // Вариант «подпись сверху, значение ниже». Ищем в ближайших 2 строках,
-        // сохраняя горизонтальную привязку к подписи.
-        const anchorLineIndex = line ? linesIndex(words, line) : -1;
-        const allLines = passportBuildLines(words);
-        const li = allLines.indexOf(line);
-        if (li >= 0) {
-          for (let k = 1; k <= 3; k++) {
-            const next = allLines[li + k];
-            if (!next) break;
-            for (const w of next.words) {
-              const dx = Math.abs(w._c.x - label.x);
-              const dy = w._c.y - label.y;
-              if (dy < 0 || dy > 120 || dx > 240) continue;
-              const sc0 = passportNameCandidateScore(w._t, w.confidence, field);
-              if (sc0 < 0) continue;
-              const score = sc0 + 58 - Math.min(40, dx * 0.18) - Math.min(30, dy * 0.20) - k * 5;
-              if (!best || score > best.score) best = {text:w._t, score, mode:'below', anchor, word:w};
-            }
-          }
-        }
+        if (candidate) fio = candidate;
       }
-      return best && best.score >= 35 ? cleanPassportOcrValue(best.text) : null;
+
+      fio = String(fio || '').replace(/[^А-ЯЁа-яёA-Za-z\- ]/g, ' ').replace(/\s+/g,' ').trim();
+      if (fio.length > 80) fio = '';
+      return { fio, birthDate, passport, rawText: text };
     }
 
-    function linesIndex(words, line) { return passportBuildLines(words).indexOf(line); }
-
-    function extractDateNearLabel(words) {
-      const lines = passportBuildLines(words);
-      const dateRe = /\b(0?[1-9]|[12]\d|3[01])[.\/-](0?[1-9]|1[0-2])[.\/-](19\d{2}|20\d{2})\b/g;
-      let best = null;
-      lines.forEach((line, li) => {
-        const normalized = normalizePassportLabelForMatch(line.text);
-        const hasBirthLabel = /датарожд|dateofbirth|birth/.test(normalized);
-        for (const w of line.words) {
-          const matches = [...w._t.matchAll(dateRe)];
-          matches.forEach(m => {
-            const raw = m[0];
-            const parts = raw.match(/(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{4})/);
-            if (!parts) return;
-            const iso = `${parts[3]}-${String(parts[2]).padStart(2,'0')}-${String(parts[1]).padStart(2,'0')}`;
-            let score = Number(w.confidence || 0) / 3;
-            if (hasBirthLabel) score += 120;
-            score += Math.max(0, 35 - li * 0.5);
-            if (!best || score > best.score) best = {iso, score};
-          });
-        }
-        // Дата может быть разбита OCR на 3 отдельных слова.
-        for (let i=0;i<line.words.length-2;i++) {
-          const combo = `${line.words[i]._t}${line.words[i+1]._t}${line.words[i+2]._t}`;
-          const m = combo.match(/(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{4})/);
-          if (!m) continue;
-          const iso = `${m[3]}-${String(m[2]).padStart(2,'0')}-${String(m[1]).padStart(2,'0')}`;
-          let score = 35;
-          if (hasBirthLabel) score += 120;
-          if (!best || score > best.score) best = {iso, score};
-        }
-      });
-
-      if (best && best.score >= 25) return best.iso;
-
-      // Резерв: выбираем самую раннюю реалистичную дату. В российском паспорте
-      // дата рождения обычно раньше даты выдачи/оформления.
-      const all = [];
-      const text = lines.map(l=>l.text).join(' ');
-      for (const m of text.matchAll(dateRe)) {
-        const p=m[0].match(/(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{4})/);
-        if (p) all.push({iso:`${p[3]}-${String(p[2]).padStart(2,'0')}-${String(p[1]).padStart(2,'0')}`, year:Number(p[3])});
-      }
-      all.sort((a,b)=>a.year-b.year);
-      return all[0]?.iso || '';
-    }
-
-    function extractPassportNumberFromWords(words) {
-      const lines = passportBuildLines(words);
-      const allText = lines.map(l=>l.text).join(' ');
-      const candidates = [];
-      const add = (series, num, score) => {
-        const s=String(series).replace(/\D/g,''); const n=String(num).replace(/\D/g,'');
-        if (s.length===4 && n.length===6) candidates.push({value:`${s} ${n}`,score});
-      };
-      const re1=/\b(\d{4})\s*[- ]?\s*(\d{6})\b/g;
-      for (const m of allText.matchAll(re1)) add(m[1],m[2],40);
-      const re2=/\b(\d{2})\s*(\d{2})\s*(\d{6})\b/g;
-      for (const m of allText.matchAll(re2)) add(`${m[1]}${m[2]}`,m[3],38);
-
-      lines.forEach((line,li)=>{
-        const n=normalizePassportLabelForMatch(line.text);
-        if (/серия|номер|passport|document/.test(n)) {
-          const m=line.text.match(/(\d{2})\s*(\d{2})\s*(\d{6})/);
-          if(m) add(`${m[1]}${m[2]}`,m[3],100-li);
-          const m2=line.text.match(/(\d{4})\s*(\d{6})/);
-          if(m2) add(m2[1],m2[2],105-li);
-        }
-      });
-      candidates.sort((a,b)=>b.score-a.score);
-      return candidates[0]?.value || '';
-    }
-
-    function parsePassportStructured(words) {
-      const fio = {};
-      for (const field of ['surname','firstname','patronymic']) {
-        const v = passportPickFieldFromWords(words, field);
-        if (v) fio[field]=v;
-      }
-      const parts=[fio.surname,fio.firstname,fio.patronymic].filter(Boolean);
-      const result={};
-      if (parts.length >= 2) {
-        result.fio=parts.join(' ');
-        result.surname=fio.surname||'';
-        result.firstName=fio.firstname||'';
-        result.patronymic=fio.patronymic||'';
-      }
-      const birthDate=extractDateNearLabel(words); if(birthDate) result.birthDate=birthDate;
-      const passport=extractPassportNumberFromWords(words); if(passport) result.passport=passport;
-      return result;
-    }
-
-    async function preparePassportOcrImage(dataUrl, mode = 'normal', crop = null) {
-      return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.onload = () => {
-          const iw = img.naturalWidth || img.width;
-          const ih = img.naturalHeight || img.height;
-          const src = crop ? {
-            x: Math.max(0, Math.round(iw * crop.x)),
-            y: Math.max(0, Math.round(ih * crop.y)),
-            w: Math.max(1, Math.min(iw, Math.round(iw * crop.w))),
-            h: Math.max(1, Math.min(ih, Math.round(ih * crop.h)))
-          } : {x:0,y:0,w:iw,h:ih};
-          const maxInputSide = 2400;
-          const scale = Math.min(2.4, Math.max(1, maxInputSide / Math.max(src.w, src.h)));
-          const canvas = document.createElement('canvas');
-          canvas.width = Math.max(1, Math.round(src.w * scale));
-          canvas.height = Math.max(1, Math.round(src.h * scale));
-          const ctx = canvas.getContext('2d', { willReadFrequently: true, alpha:false });
-          ctx.imageSmoothingEnabled = true;
-          ctx.imageSmoothingQuality = 'high';
-          ctx.fillStyle = '#fff';
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-          ctx.drawImage(img, src.x, src.y, src.w, src.h, 0, 0, canvas.width, canvas.height);
-
-          if (mode !== 'normal') {
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const d = imageData.data;
-            const contrast = mode === 'strong' ? 1.75 : (mode === 'gray' ? 1.0 : 1.38);
-            const brightness = mode === 'strong' ? 3 : 0;
-            for (let i = 0; i < d.length; i += 4) {
-              let gray = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
-              gray = Math.max(0, Math.min(255, (gray - 128) * contrast + 128 + brightness));
-              d[i] = d[i + 1] = d[i + 2] = gray;
-            }
-            ctx.putImageData(imageData, 0, 0);
-          }
-          resolve(canvas.toDataURL('image/jpeg', 0.92));
-        };
-        img.onerror = reject;
-        img.src = dataUrl;
-      });
-    }
-
-    // На странице российского паспорта серия/номер часто напечатаны вертикально\n    // у правого края. Обычный OCR всей страницы эту область распознаёт плохо,\n    // поэтому читаем её отдельно после поворота на 90 градусов.\n    async function preparePassportNumberImage(dataUrl, rightFraction = 0.15, degrees = 90) {\n      return new Promise((resolve, reject) => {\n        const img = new Image();\n        img.onload = () => {\n          const iw = img.naturalWidth || img.width;\n          const ih = img.naturalHeight || img.height;\n          const left = Math.max(0, Math.round(iw * (1 - rightFraction)));\n          const sw = Math.max(1, iw - left);\n          const sh = ih;\n          const rad = degrees * Math.PI / 180;\n          const sin = Math.abs(Math.sin(rad));\n          const cos = Math.abs(Math.cos(rad));\n          const outW = Math.max(1, Math.round(sw * cos + sh * sin));\n          const outH = Math.max(1, Math.round(sw * sin + sh * cos));\n          const scale = Math.min(3, Math.max(1, 1800 / Math.max(outW, outH)));\n          const canvas = document.createElement('canvas');\n          canvas.width = Math.max(1, Math.round(outW * scale));\n          canvas.height = Math.max(1, Math.round(outH * scale));\n          const ctx = canvas.getContext('2d', { willReadFrequently: true, alpha:false });\n          ctx.fillStyle = '#fff';\n          ctx.fillRect(0, 0, canvas.width, canvas.height);\n          ctx.translate(canvas.width / 2, canvas.height / 2);\n          ctx.rotate(rad);\n          ctx.drawImage(img, left, 0, sw, sh, -sw * scale / 2, -sh * scale / 2, sw * scale, sh * scale);\n          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);\n          const d = imageData.data;\n          for (let i = 0; i < d.length; i += 4) {\n            const gray = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];\n            const value = Math.max(0, Math.min(255, (gray - 128) * 1.45 + 128));\n            d[i] = d[i + 1] = d[i + 2] = value;\n          }\n          ctx.setTransform(1,0,0,1,0,0);\n          ctx.putImageData(imageData, 0, 0);\n          resolve(canvas.toDataURL('image/jpeg', 0.94));\n        };\n        img.onerror = reject;\n        img.src = dataUrl;\n      });\n    }\n\n    function extractPassportSeriesNumber(text) {\n      const raw = String(text || '').replace(/[^0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();\n      const matches = [];\n      for (const m of raw.matchAll(/(?:^|\s)(\d{2})\s*(\d{2})\s*(\d{6})(?=\s|$)/g)) {\n        matches.push(`${m[1]}${m[2]} ${m[3]}`);\n      }\n      for (const m of raw.matchAll(/(?:^|\s)(\d{4})\s*(\d{6})(?=\s|$)/g)) {\n        matches.push(`${m[1]} ${m[2]}`);\n      }\n      return matches.find(v => /^\d{4} \d{6}$/.test(v)) || '';\n    }\n\n    // Машиночитаемая зона (МЧЗ) российского внутреннего паспорта — самый
-    // надёжный источник для даты рождения и серии/номера. Она имеет 2 строки
-    // по 44 символа и фиксированные позиции. Используем её как независимую
-    // проверку, а не как замену визуального OCR.
-    function normalizeMrzLine(text) {
-      let s = String(text || '')
-        .toUpperCase()
-        .replace(/«|»|“|”|\|/g, '<')
-        .replace(/\s+/g, '')
-        .replace(/[^A-Z0-9<]/g, '');
-      // Типичные ошибки OCR именно для MRZ. Исправляем только там, где
-      // символ должен быть цифрой, чтобы не портить фамилии/имена.
-      return s;
-    }
-
-    function mrzDigitValue(ch) {
-      const map = {O:'0', Q:'0', D:'0', I:'1', L:'1', Z:'2', S:'5', G:'6', T:'7', B:'8', P:'9'};
-      return /\d/.test(ch) ? ch : (map[ch] || '');
-    }
-
-    function normalizeMrzNumericPart(s) {
-      return String(s || '').split('').map(mrzDigitValue).join('');
-    }
-
-    function mrzCharValue(ch) {
-      if (ch === '<') return 0;
-      if (/\d/.test(ch)) return Number(ch);
-      if (/^[A-Z]$/.test(ch)) return ch.charCodeAt(0) - 55;
-      return 0;
-    }
-
-    function mrzCheck(data, checkChar) {
-      const check = Number(checkChar);
-      if (!Number.isInteger(check)) return false;
-      const weights = [7,3,1];
-      let sum = 0;
-      for (let i=0;i<data.length;i++) sum += mrzCharValue(data[i]) * weights[i % 3];
-      return sum % 10 === check;
-    }
-
-    function transliterateMrzToCyrillic(text) {
-      // Соответствие для модернизированного КЛЕР, применяемого в МЧЗ
-      // российского паспорта. Сначала обрабатываем многозначные символы.
-      const map = {
-        A:'А', V:'Б', G:'В', D:'Г', E:'Е', '2':'Ё', J:'Ж', Z:'З', Q:'И', K:'Й',
-        L:'К', M:'Л', N:'М', O:'Н', P:'О', R:'П', S:'Р', T:'С', U:'Т', F:'У', H:'Ф',
-        C:'Х', '3':'Ц', '4':'Ч', W:'Ш', X:'Щ', Y:'Ы', '9':'Ь', '6':'Э', '7':'Ю', '8':'Я'
-      };
-      return String(text || '').split('').map(ch => map[ch] || ch).join('');
-    }
-
-    function mrzNameParts(firstLine) {
-      const s = String(firstLine || '').replace(/</g, '<');
-      // Для внутреннего паспорта после PN/RUS идёт ФИО. Основной разделитель
-      // фамилии и имени — <<; дополнительные части имени разделяются <.
-      const body = s.length >= 44 ? s.slice(5, 44) : s.replace(/^PNRUS/, '');
-      const parts = body.split('<<');
-      if (parts.length < 2) return null;
-      const surname = parts[0].replace(/</g,' ').trim();
-      const given = parts[1].replace(/<+/g,' ').trim();
-      if (!surname || !given) return null;
-      const all = [surname, ...given.split(/\s+/).filter(Boolean)];
-      const cyr = all.map(transliterateMrzToCyrillic);
-      if (cyr.length < 2) return null;
-      return {
-        surname: cyr[0],
-        firstName: cyr[1] || '',
-        patronymic: cyr.slice(2).join(' '),
-        fio: cyr.join(' ')
-      };
-    }
-
-    function extractMrzCandidates(text) {
-      const rawLines = String(text || '').split(/\r?\n/).map(normalizeMrzLine).filter(Boolean);
-      const candidates = [];
-      for (let i=0;i<rawLines.length;i++) {
-        let a = rawLines[i];
-        if (a.length < 30) continue;
-        // MRZ иногда распознаётся с одним пропущенным символом. Берём наиболее
-        // длинный фрагмент вокруг PN/RUS, затем проверяем структуру.
-        if (!/^PNRUS/.test(a) && !/^P.?RUS/.test(a)) continue;
-        for (let j=i+1;j<rawLines.length;j++) {
-          let b = rawLines[j];
-          if (b.length < 30) continue;
-          const a44 = a.padEnd(44,'<').slice(0,44);
-          const b44 = b.padEnd(44,'<').slice(0,44);
-          const numeric1 = normalizeMrzNumericPart(b44.slice(0,9));
-          const birth6 = normalizeMrzNumericPart(b44.slice(13,19));
-          if (!/^\d{9}$/.test(numeric1) || !/^\d{6}$/.test(birth6)) continue;
-          if (!/^RUS$/.test(b44.slice(10,13))) continue;
-          const yy = Number(birth6.slice(0,2));
-          const mm = Number(birth6.slice(2,4));
-          const dd = Number(birth6.slice(4,6));
-          if (mm < 1 || mm > 12 || dd < 1 || dd > 31) continue;
-
-          const docCheck = mrzCheck(numeric1, mrzDigitValue(b44[9]));
-          const birthCheck = mrzCheck(birth6, mrzDigitValue(b44[19]));
-          const extraRaw = b44.slice(28,42);
-          const extra = extraRaw.split('').map(mrzDigitValue).join('');
-          const extraCheck = /^\d{14}$/.test(extra) ? mrzCheck(extra, mrzDigitValue(b44[42])) : false;
-          const finalData = `${numeric1}${b44[9]}${b44.slice(13,20)}${b44.slice(21,28)}${b44.slice(28,43)}`;
-          const finalCheck = mrzCheck(finalData, mrzDigitValue(b44[43]));
-
-          const nowYY = new Date().getFullYear() % 100;
-          const birthYear = yy <= nowYY ? 2000 + yy : 1900 + yy;
-          const iso = `${birthYear.toString().padStart(4,'0')}-${birth6.slice(2,4)}-${birth6.slice(4,6)}`;
-          // Для внутренних паспортов в позиции 29 (индекс 28) находится
-          // последняя цифра серии. Первые три цифры — позиции 1-3.
-          const first3 = numeric1.slice(0,3);
-          const lastSeriesDigit = extra.charAt(0);
-          const number = numeric1.slice(3);
-          const passport = /^\d{3}\d$/.test(first3 + lastSeriesDigit) && /^\d{6}$/.test(number)
-            ? `${first3}${lastSeriesDigit} ${number}` : '';
-          const name = mrzNameParts(a44);
-          let score = 0;
-          score += 35;
-          if (docCheck) score += 35;
-          if (birthCheck) score += 35;
-          if (extraCheck) score += 20;
-          if (finalCheck) score += 35;
-          if (name?.fio) score += 25;
-          candidates.push({a:a44,b:b44,birthDate:iso,passport,name,score,checks:{docCheck,birthCheck,extraCheck,finalCheck}});
-        }
-      }
-      candidates.sort((x,y)=>y.score-x.score);
-      return candidates;
-    }
-
-    function chooseBestMrz(results) {
-      if (!results.length) return null;
-      const valid = results.filter(r => r.checks.docCheck || r.checks.birthCheck || r.checks.finalCheck);
-      return (valid.length ? valid : results)[0];
-    }
-
-    window.scanPassportData = async function() {
-      if (!currentPassportPhotos.length) {
-        alert('Сначала добавьте фото паспорта.');
-        return;
-      }
+    async function runPassportOcr(file, role) {
+      const statusEl = document.getElementById(role === 'buyer' ? 'buyerPassportOcrStatus' : 'guarantorPassportOcrStatus');
+      const button = document.querySelector(`#${role === 'buyer' ? 'buyerPassportPhoto' : 'guarantorPassportPhoto'}`)?.parentElement?.querySelector('.passport-ocr-btn');
+      if (!file) return;
       if (!window.Tesseract) {
-        alert('Модуль распознавания ещё не загрузился. Проверьте интернет-соединение и попробуйте снова.');
+        if (statusEl) statusEl.textContent = 'OCR ещё загружается. Попробуйте ещё раз через несколько секунд.';
         return;
       }
-      setPassportStatus('Подготавливаю фото и ищу структуру паспорта…');
-      let worker = null;
-      let mrzWorker = null;
       try {
-        worker = await Tesseract.createWorker('rus+eng', 1, {
+        if (statusEl) statusEl.textContent = '⏳ Распознавание паспорта…';
+        if (button) button.disabled = true;
+        const result = await Tesseract.recognize(file, 'rus+eng', {
           logger: m => {
-            if (m.status) setPassportStatus(`Распознавание: ${m.status}${m.progress ? ` ${Math.round(m.progress*100)}%` : ''}`);
+            if (statusEl && m && m.status === 'recognizing text' && typeof m.progress === 'number') {
+              statusEl.textContent = `⏳ Распознавание… ${Math.round(m.progress * 100)}%`;
+            }
           }
         });
-        mrzWorker = await Tesseract.createWorker('eng', 1);
-
-        const results = [];
-        const mrzCandidates = [];
-        let combinedText = '';
-
-        for (let photoIndex = 0; photoIndex < currentPassportPhotos.length; photoIndex++) {
-          const photo = currentPassportPhotos[photoIndex];
-          const jobs = [
-            {psm:'11', mode:'normal', crop:null},
-            {psm:'6', mode:'normal', crop:null},
-            {psm:'11', mode:'gray', crop:null},
-            {psm:'11', mode:'strong', crop:null},
-            // Основная зона персональных данных обычно находится справа/выше
-            // фотографии. Это дополнительный независимый проход, а не единственный.
-            {psm:'11', mode:'normal', crop:{x:0.30,y:0.08,w:0.68,h:0.62}},
-            {psm:'6', mode:'gray', crop:{x:0.30,y:0.08,w:0.68,h:0.62}}
-          ];
-          for (const job of jobs) {
-            const img = await preparePassportOcrImage(photo, job.mode, job.crop);
-            await worker.setParameters({
-              tessedit_pageseg_mode: job.psm,
-              preserve_interword_spaces: '1',
-              tessedit_char_whitelist: ''
-            });
-            const res = await worker.recognize(img, {}, { text: true, blocks: true, tsv: true });
-            const text = res.data?.text || '';
-            combinedText += '\n' + text;
-            const words = Array.isArray(res.data?.words) ? res.data.words : [];
-            const parsed = parsePassportStructured(words);
-            results.push({ ...parsed, confidence: averagePassportConfidence(words), photoIndex, job });
-          }
-
-          // Отдельно читаем вертикальную серию/номер у правого края.
-          let passportFromStrip = '';
-          for (const fraction of [0.15, 0.18]) {
-            if (passportFromStrip) break;
-            const numImg = await preparePassportNumberImage(photo, fraction, 90);
-            await worker.setParameters({
-              tessedit_pageseg_mode: '7',
-              tessedit_char_whitelist: '0123456789',
-              preserve_interword_spaces: '1'
-            });
-            const numRes = await worker.recognize(numImg, {}, { text: true });
-            passportFromStrip = extractPassportSeriesNumber(numRes.data?.text || '');
-          }
-          if (!passportFromStrip) {
-            const numImg = await preparePassportNumberImage(photo, 0.15, 270);
-            await worker.setParameters({
-              tessedit_pageseg_mode: '7',
-              tessedit_char_whitelist: '0123456789',
-              preserve_interword_spaces: '1'
-            });
-            const numRes = await worker.recognize(numImg, {}, { text: true });
-            passportFromStrip = extractPassportSeriesNumber(numRes.data?.text || '');
-          }
-          if (passportFromStrip) {
-            results.push({ passport: passportFromStrip, confidence: 95, photoIndex, job: { type:'vertical-passport-number' } });
-          }
-
-          // МЧЗ: берём нижнюю часть фотографии отдельно, только латиница/цифры/<.
-          const mrzImg = await preparePassportOcrImage(photo, 'gray', {x:0.03,y:0.68,w:0.94,h:0.31});
-          await mrzWorker.setParameters({
-            tessedit_pageseg_mode: '6',
-            tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<',
-            preserve_interword_spaces: '0'
-          });
-          const mrzRes = await mrzWorker.recognize(mrzImg);
-          const mrzText = mrzRes.data?.text || '';
-          combinedText += '\n' + mrzText;
-          mrzCandidates.push(...extractMrzCandidates(mrzText));
-        }
-
-        // Текстовый резерв для случаев, когда на фото МЧЗ отсутствует.
-        const textData = parsePassportOcr(combinedText);
-
-        function bestField(field) {
-          const candidates = results.filter(r => r[field]);
-          if (!candidates.length) return '';
-          const counts = {};
-          candidates.forEach(r => { counts[r[field]] = (counts[r[field]] || 0) + 1; });
-          candidates.sort((a,b) => {
-            const ca=counts[a[field]]||1, cb=counts[b[field]]||1;
-            return (cb*35 + (b.confidence||0)) - (ca*35 + (a.confidence||0));
-          });
-          return candidates[0][field];
-        }
-
-        function bestFio() {
-          const candidates = results.filter(r => r.fio && r.fio.split(/\s+/).length >= 2);
-          if (!candidates.length) return '';
-          const counts={};
-          candidates.forEach(r=>counts[r.fio]=(counts[r.fio]||0)+1);
-          candidates.sort((a,b)=>(counts[b.fio]*45+(b.confidence||0))-(counts[a.fio]*45+(a.confidence||0)));
-          return candidates[0].fio;
-        }
-
-        const mrz = chooseBestMrz(mrzCandidates);
-        let fio = bestFio() || textData.fio || '';
-        let birthDate = mrz?.birthDate || bestField('birthDate') || textData.birthDate || '';
-        let passport = mrz?.passport || bestField('passport') || textData.passport || '';
-
-        // Если визуальный OCR дал ФИО, сохраняем его. Если не дал — используем
-        // машиночитаемую зону как резерв. Это особенно полезно на фотографиях
-        // с бликами, наклоном или слабым контрастом.
-        if (!fio && mrz?.name?.fio) fio = mrz.name.fio;
-
-        // Если МЧЗ дала ФИО и визуальный OCR дал сомнительный результат, выбираем
-        // визуальный вариант только когда он состоит минимум из 3 слов и имеет
-        // нормальную кириллицу. Иначе безопаснее взять проверенный MRZ-вариант.
-        if (mrz?.name?.fio) {
-          const visualWords = fio.split(/\s+/).filter(Boolean);
-          const visualCyr = (fio.match(/[А-ЯЁа-яё]/g)||[]).length;
-          if (visualWords.length < 3 || visualCyr < 6) fio = mrz.name.fio;
-        }
-
-        let filled = 0;
-        if (fio) { document.getElementById('fio').value = fio; filled++; }
-        if (birthDate) { document.getElementById('birthDate').value = birthDate; filled++; }
-        if (passport) { document.getElementById('passport').value = passport; filled++; }
-
-        const found=[];
-        if(fio) found.push('ФИО');
-        if(birthDate) found.push('дата рождения');
-        if(passport) found.push('серия и номер');
-        const mrzOk = !!mrz;
-        if (filled === 3) {
-          setPassportStatus(
-            mrzOk
-              ? 'Готово: заполнены все 3 поля. Дата рождения и серия/номер дополнительно проверены по машиночитаемой зоне. Проверьте ФИО перед сохранением.'
-              : 'Готово: заполнены все 3 поля. Проверьте данные перед сохранением.',
-            'ok'
-          );
-        } else if (filled > 0) {
-          setPassportStatus(`Распознано ${filled} из 3: ${found.join(', ')}. Попробуйте нажать «Распознать» ещё раз; поля можно исправить вручную.`, 'error');
-        } else {
-          setPassportStatus('Не удалось уверенно определить 3 поля. Нужна фотография всей страницы паспорта без сильного блика; попробуйте ещё раз.', 'error');
-        }
+        const data = extractPassportData(result?.data?.text || '');
+        const prefix = role === 'buyer' ? '' : 'guarantor';
+        const fioId = prefix ? `${prefix}Fio` : 'fio';
+        const birthId = prefix ? `${prefix}BirthDate` : 'birthDate';
+        const passId = prefix ? `${prefix}Passport` : 'passport';
+        if (data.fio) document.getElementById(fioId).value = data.fio;
+        if (data.birthDate) document.getElementById(birthId).value = data.birthDate;
+        if (data.passport) document.getElementById(passId).value = data.passport;
+        passportOcrState[role] = data;
+        const found = [data.fio && 'ФИО', data.birthDate && 'дата рождения', data.passport && 'серия/номер'].filter(Boolean);
+        if (statusEl) statusEl.textContent = found.length ? `✓ Распознано: ${found.join(', ')}. Проверьте поля.` : '⚠️ Не удалось уверенно распознать данные. Сделайте более чёткое фото.';
       } catch (err) {
-        console.error(err);
-        setPassportStatus('Ошибка распознавания. Данные не изменены; попробуйте другое фото или заполните поля вручную.', 'error');
+        console.error('OCR паспорта:', err);
+        if (statusEl) statusEl.textContent = '⚠️ Ошибка распознавания. Попробуйте другое фото.';
       } finally {
-        if (worker) { try { await worker.terminate(); } catch (e) {} }
-        if (mrzWorker) { try { await mrzWorker.terminate(); } catch (e) {} }
+        if (button) button.disabled = false;
       }
-    };
-
-    function averagePassportConfidence(words) {
-      const vals=(words||[]).map(w=>Number(w?.confidence ?? w?.conf ?? 0)).filter(v=>v>0);
-      if(!vals.length) return 0;
-      return vals.reduce((a,b)=>a+b,0)/vals.length;
     }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const buyer = document.getElementById('buyerPassportPhoto');
+      const guarantor = document.getElementById('guarantorPassportPhoto');
+      buyer?.addEventListener('change', e => runPassportOcr(e.target.files?.[0], 'buyer'));
+      guarantor?.addEventListener('change', e => runPassportOcr(e.target.files?.[0], 'guarantor'));
+    });
 
     const modal = document.getElementById('modal');
     window.openCreateModal = function() {
       document.getElementById('contractForm').reset();
-      currentPassportPhotos = [];
-      renderPassportPhotos();
-      setPassportStatus('Фото можно добавлять, заменять и удалять. Перед сохранением данные можно исправить вручную.');
       document.getElementById('editDocId').value = '';
       document.getElementById('modalTitle').innerText = 'Оформление нового договора';
       document.getElementById('downPayment').value = 0;
@@ -5706,9 +4938,6 @@
       if(!contract) return;
       document.getElementById('editDocId').value = id;
       document.getElementById('modalTitle').innerText = `Редактирование №${contract.contractNum}`;
-      currentPassportPhotos = Array.isArray(contract.passportPhotos) ? [...contract.passportPhotos] : [];
-      renderPassportPhotos();
-      setPassportStatus(currentPassportPhotos.length ? `Сохранено фото паспорта: ${currentPassportPhotos.length}.` : 'Фото можно добавлять, заменять и удалять. Перед сохранением данные можно исправить вручную.');
       document.getElementById('fio').value = contract.fio || '';
       document.getElementById('birthDate').value = contract.birthDate || '';
       document.getElementById('passport').value = contract.passport || '';
@@ -5748,7 +4977,6 @@
         fio: document.getElementById('fio').value,
         birthDate: document.getElementById('birthDate').value || '',
         passport: document.getElementById('passport').value || '',
-        passportPhotos: currentPassportPhotos.slice(),
         phone: document.getElementById('phone').value,
         extraPhone: document.getElementById('extraPhone').value || '',
         address: document.getElementById('address').value || '',
