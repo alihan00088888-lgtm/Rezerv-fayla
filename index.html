@@ -2004,7 +2004,7 @@
             <div>
               <label class="block text-[9px] font-bold text-slate-500 mb-1 uppercase">Серия и номер паспорта</label>
               <input type="text" id="passport" placeholder="Например: 45 12 345678" inputmode="numeric" autocomplete="off" class="p-2 border rounded-md w-full outline-none">
-              <div class="passport-field-note">После распознавания обязательно проверьте цифры.</div>
+              <div class="passport-field-note">После распознавания проверьте только ФИО, дату рождения и серию/номер.</div>
             </div>
             <div class="full">
               <div class="passport-ocr-box">
@@ -2093,7 +2093,7 @@
               <div>
                 <label class="block text-[9px] font-bold text-slate-500 mb-1 uppercase">Серия и номер паспорта</label>
                 <input type="text" id="guarantorPassport" placeholder="Например: 45 12 345678" inputmode="numeric" autocomplete="off" class="p-2 border rounded w-full">
-                <div class="passport-field-note">Проверьте распознанные цифры перед сохранением.</div>
+                <div class="passport-field-note">Проверяйте только ФИО, дату рождения и серию/номер перед сохранением.</div>
               </div>
               <div class="full">
                 <div class="passport-ocr-box">
@@ -5004,49 +5004,74 @@
         if (c) candidates.push({ value:c, bonus, source });
       };
 
-      // Основной и единственный надёжный способ: ФИО должно быть явно связано
-      // с подписями «Фамилия / Имя / Отчество».
+      // Основной режим: читаем только значения, привязанные к словам
+      // «Фамилия / Имя / Отчество». Никакие адреса, место рождения,
+      // подразделение, гражданство и прочие строки в ФИО не попадают.
       const labelNames = {};
+      const labels = ['ФАМИЛИЯ','ИМЯ','ОТЧЕСТВО'];
       for (let i=0; i<lines.length; i++) {
         const line = passportOcrNormalizeNameText(lines[i]);
-        const label = line.match(/\b(ФАМИЛИЯ|ИМЯ|ОТЧЕСТВО)\b/i);
-        if (!label) continue;
-        const key = label[1].toUpperCase();
-        const sameLine = line.replace(/.*?\b(?:ФАМИЛИЯ|ИМЯ|ОТЧЕСТВО)\b\s*[:\-]?\s*/i, '').trim();
-        const next = lines[i+1] || '';
-        const next2 = lines[i+2] || '';
-        const tryOne = (v) => passportOcrCleanFio(v, true);
-        const one = tryOne(sameLine);
-        if (one) labelNames[key] = one;
-        else {
-          const n = passportOcrNormalizeNameText(next).replace(/^(?:ФАМИЛИЯ|ИМЯ|ОТЧЕСТВО)\s*[:\-]?\s*/i,'').trim();
-          const cleaned = tryOne(n);
-          if (cleaned) labelNames[key] = cleaned;
-          else {
-            const n2 = tryOne(next2);
-            if (n2) labelNames[key] = n2;
+        for (const label of labels) {
+          const re = new RegExp(`\\b${label}\\b\\s*[:\\-]?\\s*(.*?)(?=\\b(?:ФАМИЛИЯ|ИМЯ|ОТЧЕСТВО)\\b|$)`, 'i');
+          const m = line.match(re);
+          if (!m) continue;
+          let value = m[1].trim();
+          // Если значение пустое, пробуем следующую строку, но только как
+          // одно слово из кириллицы.
+          if (!value) {
+            const next = passportOcrNormalizeNameText(lines[i+1] || '').trim();
+            const one = passportOcrCleanFio(next, true);
+            if (one) value = one;
           }
+          const one = passportOcrCleanFio(value, true);
+          if (one) labelNames[label] = one;
         }
       }
 
-      const labeled = [labelNames['ФАМИЛИЯ'], labelNames['ИМЯ'], labelNames['ОТЧЕСТВО']].filter(Boolean).join(' ');
+      const labeled = labels.map(x => labelNames[x]).filter(Boolean).join(' ');
       if (labelNames['ФАМИЛИЯ'] && labelNames['ИМЯ'] && labelNames['ОТЧЕСТВО']) {
-        add(labeled, 100, 'labels');
+        add(labeled, 140, 'labels');
       }
 
-      // Если OCR вывел все три значения одной строкой после слова «ФИО»,
-      // разрешаем только эту явно подписанную строку.
+      // Некоторые OCR-движки склеивают подписи и значения в одну строку:
+      // «ФАМИЛИЯ ИВАНОВ ИМЯ ИВАН ОТЧЕСТВО ИВАНОВИЧ».
+      // Разбираем только эти три подписанные сегмента.
+      for (const line0 of lines) {
+        const line = passportOcrNormalizeNameText(line0);
+        const m = line.match(/ФАМИЛИЯ\s*[:\-]?\s*([А-ЯЁ\-]{2,30})\s+ИМЯ\s*[:\-]?\s*([А-ЯЁ\-]{2,30})\s+ОТЧЕСТВО\s*[:\-]?\s*([А-ЯЁ\-]{2,30})/i);
+        if (m) add(`${m[1]} ${m[2]} ${m[3]}`, 135, 'inline-labels');
+      }
+
+      // Редкий случай: подписи идут отдельными строками, а значения OCR
+      // переносит не сразу после подписи. Ищем строго одно кириллическое
+      // слово после каждой подписи, не сканируя весь паспорт «на глаз».
       for (let i=0; i<lines.length; i++) {
-        const line = passportOcrNormalizeNameText(lines[i]);
+        const label = passportOcrNormalizeNameText(lines[i]).match(/\b(ФАМИЛИЯ|ИМЯ|ОТЧЕСТВО)\b/i)?.[1]?.toUpperCase();
+        if (!label) continue;
+        for (let j=i+1; j<=Math.min(i+3, lines.length-1); j++) {
+          const one = passportOcrCleanFio(passportOcrNormalizeNameText(lines[j]), true);
+          if (one && !/^(ФАМИЛИЯ|ИМЯ|ОТЧЕСТВО)$/i.test(one)) {
+            labelNames[label] = one;
+            break;
+          }
+        }
+      }
+      if (labelNames['ФАМИЛИЯ'] && labelNames['ИМЯ'] && labelNames['ОТЧЕСТВО']) {
+        add([labelNames['ФАМИЛИЯ'],labelNames['ИМЯ'],labelNames['ОТЧЕСТВО']].join(' '), 130, 'near-labels');
+      }
+
+      // Если OCR явно вывел строку «ФИО: ...», разрешаем только её.
+      for (const line0 of lines) {
+        const line = passportOcrNormalizeNameText(line0);
         const m = line.match(/\bФИО\b\s*[:\-]?\s*(.+)$/i);
-        if (m) add(m[1], 90, 'fio-label');
+        if (m) add(m[1], 115, 'fio-label');
       }
 
       const scored = candidates.map(({value,bonus,source}) => {
         const words = value.split(' ');
         let score = bonus;
-        if (source === 'labels') score += 30;
-        if (words.length === 3) score += 10;
+        if (source === 'labels' || source === 'inline-labels') score += 30;
+        if (words.length === 3) score += 15;
         if (words.every(w => w.length >= 3)) score += 5;
         return { value, score };
       }).sort((a,b)=>b.score-a.score);
@@ -5063,7 +5088,9 @@
       };
     }
 
-    function passportOcrFileToBase64(file, maxSide=2200, quality=.86) {
+    // Подготавливаем несколько вариантов изображения. Это повышает шанс распознавания
+    // при слабом освещении, лёгком размытии, бликах и неидеальном скане.
+    function passportOcrFileToVariants(file, maxSide=2600) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onerror = () => reject(new Error('Не удалось прочитать фото.'));
@@ -5071,19 +5098,41 @@
           const img = new Image();
           img.onload = () => {
             try {
-              const scale = Math.min(1, maxSide / Math.max(img.naturalWidth || img.width, img.naturalHeight || img.height));
-              const w = Math.max(1, Math.round((img.naturalWidth || img.width) * scale));
-              const h = Math.max(1, Math.round((img.naturalHeight || img.height) * scale));
+              const srcW = img.naturalWidth || img.width;
+              const srcH = img.naturalHeight || img.height;
+              const scale = Math.min(1, maxSide / Math.max(srcW, srcH));
+              const w = Math.max(1, Math.round(srcW * scale));
+              const h = Math.max(1, Math.round(srcH * scale));
               const canvas = document.createElement('canvas');
               canvas.width = w; canvas.height = h;
               const ctx = canvas.getContext('2d', { willReadFrequently:true });
               ctx.fillStyle = '#fff';
-              ctx.fillRect(0,0,w,h);
-              ctx.drawImage(img,0,0,w,h);
-              let dataUrl = canvas.toDataURL('image/jpeg', quality);
-              // Free OCR.Space tier has a 1 MB file limit; compress further when necessary.
-              if (dataUrl.length > 1300000) dataUrl = canvas.toDataURL('image/jpeg', .68);
-              resolve(dataUrl);
+              ctx.fillRect(0, 0, w, h);
+              ctx.drawImage(img, 0, 0, w, h);
+
+              const make = (mode) => {
+                const c = document.createElement('canvas');
+                c.width = w; c.height = h;
+                const x = c.getContext('2d', { willReadFrequently:true });
+                x.fillStyle = '#fff'; x.fillRect(0,0,w,h);
+                if (mode === 'original') {
+                  x.drawImage(canvas,0,0);
+                } else {
+                  x.filter = mode === 'gray' ? 'grayscale(1) contrast(1.18) brightness(1.04)' : 'grayscale(1) contrast(1.35) brightness(1.03)';
+                  x.drawImage(canvas,0,0);
+                  if (mode === 'sharp') {
+                    // Лёгкая резкость без агрессивной обработки, чтобы не портить цифры.
+                    x.globalAlpha = .22;
+                    x.drawImage(c, -1, 0); x.drawImage(c, 1, 0);
+                    x.globalAlpha = 1;
+                  }
+                }
+                let url = c.toDataURL('image/jpeg', .84);
+                if (url.length > 1300000) url = c.toDataURL('image/jpeg', .68);
+                return url;
+              };
+
+              resolve([make('original'), make('gray'), make('sharp')]);
             } catch (e) { reject(e); }
           };
           img.onerror = () => reject(new Error('Фото имеет неподдерживаемый формат.'));
@@ -5126,33 +5175,78 @@
       if (data?.passport) score += 25;
       const words = String(data?.fio || '').trim().split(/\s+/).filter(Boolean);
       if (words.length === 3) score += 15;
+      if (words.every(w => /^[А-ЯЁ-]{2,30}$/i.test(w)) && words.length === 3) score += 10;
+      if (data?.passport && /^\d{2} \d{2} \d{6}$/.test(data.passport)) score += 10;
       if (text && text.length > 40) score += 5;
       return score;
     }
 
     async function passportOcrRecognize(file, role) {
-      const image = await passportOcrFileToBase64(file);
+      const variants = await passportOcrFileToVariants(file);
       const results = [];
-      // Engine 3 prioritizes recognition accuracy; Engine 2 is used as a fallback
-      // because it can sometimes read a different noisy/blurred rendering better.
-      for (const engine of [3,2]) {
+      let best = null;
+
+      // Сначала используем основной движок на нескольких обработанных вариантах.
+      // Как только все три разрешённых поля уверенно найдены — дополнительные запросы не нужны.
+      for (let i = 0; i < variants.length; i++) {
         try {
-          passportOcrSetStatus(role, `⏳ Распознаю паспорт… этап ${engine === 3 ? '1' : '2'} из 2`);
-          const api = await passportOcrCallApi(image, engine);
+          passportOcrSetStatus(role, `⏳ Распознаю паспорт… обработка фото ${i + 1} из ${variants.length}`);
+          const api = await passportOcrCallApi(variants[i], 3);
           const data = passportOcrExtract(api.text);
-          results.push({ engine, text:api.text, data, score:passportOcrScoreData(data, api.text) });
-          if (data.fio && data.birthDate && data.passport && passportOcrScoreData(data, api.text) >= 95) break;
+          const score = passportOcrScoreData(data, api.text);
+          const item = { engine:3, variant:i, text:api.text, data, score };
+          results.push(item);
+          if (!best || score > best.score) best = item;
+          if (data.fio && data.birthDate && data.passport && score >= 105) break;
         } catch (e) {
-          console.warn(`Passport OCR Engine ${engine} failed:`, e);
-          if (engine === 2 && !results.length) throw e;
+          console.warn(`Passport OCR variant ${i + 1} failed:`, e);
         }
       }
-      if (!results.length) throw new Error('OCR не вернул текст.');
 
-      const best = results.slice().sort((a,b)=>b.score-a.score)[0];
-      // Если разные движки дали разные ФИО, не выбираем случайно слабый результат:
-      // используем только лучший результат и обязательно показываем пользователю проверку.
-      return { data:best.data || {}, results };
+      // Если основной движок не дал полноценный результат, пробуем резервный движок
+      // на наиболее информативном варианте. Это особенно полезно для шумных фото.
+      if (!best || best.score < 95) {
+        const candidateVariants = variants.length ? [best?.variant ?? 0, 0, 1, 2] : [0];
+        const seen = new Set();
+        for (const variantIndex of candidateVariants) {
+          if (seen.has(variantIndex) || !variants[variantIndex]) continue;
+          seen.add(variantIndex);
+          try {
+            passportOcrSetStatus(role, '⏳ Делаю дополнительную проверку распознавания…');
+            const api = await passportOcrCallApi(variants[variantIndex], 2);
+            const data = passportOcrExtract(api.text);
+            const score = passportOcrScoreData(data, api.text);
+            const item = { engine:2, variant:variantIndex, text:api.text, data, score };
+            results.push(item);
+            if (!best || score > best.score) best = item;
+            if (data.fio && data.birthDate && data.passport && score >= 105) break;
+          } catch (e) {
+            console.warn(`Passport OCR fallback variant ${variantIndex} failed:`, e);
+          }
+        }
+      }
+
+      if (!best) throw new Error('OCR не вернул текст.');
+
+      // Если разные варианты дали разные значения, выбираем только значения,
+      // которые подтверждаются несколькими результатами. Иначе берём лучший
+      // результат по строгой проверке формата.
+      const chooseConsensus = (key, fallback) => {
+        const values = results.map(r => String(r.data?.[key] || '').trim()).filter(Boolean);
+        if (!values.length) return '';
+        const counts = new Map();
+        values.forEach(v => counts.set(v, (counts.get(v) || 0) + 1));
+        const repeated = [...counts.entries()].sort((a,b)=>b[1]-a[1] || b[0].length-a[0].length)[0];
+        if (repeated && repeated[1] >= 2) return repeated[0];
+        return String(fallback?.data?.[key] || '').trim();
+      };
+
+      const data = {
+        fio: chooseConsensus('fio', best),
+        birthDate: chooseConsensus('birthDate', best),
+        passport: chooseConsensus('passport', best)
+      };
+      return { data, results, score: passportOcrScoreData(data, best.text) };
     }
 
     async function runPassportOcr(file, role) {
