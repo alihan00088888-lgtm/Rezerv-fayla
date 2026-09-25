@@ -1130,6 +1130,8 @@
     .passport-ocr-preview { display:none; margin-top:9px; align-items:center; gap:9px; }
     .passport-ocr-preview.show { display:flex; }
     .passport-ocr-preview img { width:58px; height:58px; object-fit:cover; border-radius:9px; border:1px solid #cbd5e1; background:#f8fafc; }
+    .passport-ocr-preview { min-height:58px; }
+    .passport-ocr-preview img[src=""] { display:none; }
     .passport-ocr-status { min-width:0; font-size:10px; line-height:1.35; color:#64748b; font-weight:700; }
     .passport-ocr-status.ok { color:#15803d; }
     .passport-ocr-status.warn { color:#b45309; }
@@ -4866,6 +4868,7 @@
     // ================================================================
     const passportOcrState = { buyer: null, guarantor: null };
     let passportOcrWorkerPromise = null;
+    let passportOcrBusy = false;
 
     function passportOcrSetStatus(role, message, type='') {
       const el = document.getElementById(role === 'buyer' ? 'buyerPassportOcrStatus' : 'guarantorPassportOcrStatus');
@@ -4900,36 +4903,51 @@
       const m = String(raw || '').match(/(?:^|\D)(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{4})(?:\D|$)/);
       if (!m) return '';
       const d = Number(m[1]), mo = Number(m[2]), y = Number(m[3]);
+      const now = new Date();
       const dt = new Date(y, mo - 1, d);
-      if (dt.getFullYear() !== y || dt.getMonth() !== mo - 1 || dt.getDate() !== d || y < 1900 || y > new Date().getFullYear()) return '';
+      if (dt.getFullYear() !== y || dt.getMonth() !== mo - 1 || dt.getDate() !== d || y < 1900 || y > now.getFullYear()) return '';
       return `${y.toString().padStart(4,'0')}-${String(mo).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     }
 
     function passportOcrExtractDate(text) {
       const normalized = passportOcrNormalizeText(text);
       const matches = normalized.match(/\b\d{1,2}[.\/-]\d{1,2}[.\/-]\d{4}\b/g) || [];
-      const dates = matches.map(passportOcrDateToIso).filter(Boolean);
+      const dates = [...new Set(matches.map(passportOcrDateToIso).filter(Boolean))];
       if (!dates.length) return '';
-      // Дата рождения на типичном развороте паспорта чаще всего относится к более раннему году.
       const currentYear = new Date().getFullYear();
+      // Для российского паспорта дата рождения обычно является самой ранней из найденных дат.
       const plausible = dates.filter(x => Number(x.slice(0,4)) >= 1900 && Number(x.slice(0,4)) <= currentYear - 10);
-      return (plausible.length ? plausible : dates)[0] || '';
+      return (plausible.sort((a,b) => a.localeCompare(b))[0] || dates[0] || '');
+    }
+
+    function passportOcrNormalizePassportDigits(value) {
+      return String(value || '')
+        .replace(/[ОOО]/g, '0')
+        .replace(/[ЗЗ]/g, '3')
+        .replace(/[ІI]/g, '1')
+        .replace(/[Б]/g, '6')
+        .replace(/[Т]/g, '7')
+        .replace(/[В]/g, '8')
+        .replace(/[Г]/g, '1');
     }
 
     function passportOcrExtractPassport(text) {
       const normalized = passportOcrNormalizeText(text).toUpperCase();
-      const compact = normalized.replace(/[^0-9]/g, '');
-      // Сначала ищем классический формат серии + номера российского паспорта.
-      const formatted = normalized.match(/\b\d{2}\s*\d{2}\s*\d{6}\b/);
-      if (formatted) return formatted[0].replace(/\s+/g, ' ').trim();
-      // Затем допускаем OCR, потерявший пробелы: ровно 10 цифр.
-      const ten = normalized.match(/(?:^|\D)(\d{10})(?:\D|$)/);
-      if (ten) return `${ten[1].slice(0,4)} ${ten[1].slice(4)}`;
-      // Последний fallback: 4+6 цифр в одной строке.
+      const variants = [normalized, passportOcrNormalizePassportDigits(normalized)];
+      for (const value of variants) {
+        const formatted = value.match(/(?:^|\D)(\d{2}\s*\d{2}\s*\d{6})(?:\D|$)/);
+        if (formatted) return formatted[1].replace(/\s+/g, ' ').trim();
+        const ten = value.match(/(?:^|\D)(\d{10})(?:\D|$)/);
+        if (ten) return `${ten[1].slice(0,4)} ${ten[1].slice(4)}`;
+      }
+      // Fallback: собираем только строки, похожие на паспортную серию/номер.
       const lines = normalized.split(/\n+/).map(x => x.trim()).filter(Boolean);
       for (const line of lines) {
-        const digits = line.replace(/\D/g, '');
-        if (digits.length === 10 && !/^\d{2}[./-]\d{2}[./-]\d{4}$/.test(line)) return `${digits.slice(0,4)} ${digits.slice(4)}`;
+        const fixed = passportOcrNormalizePassportDigits(line);
+        const digits = fixed.replace(/\D/g, '');
+        if (digits.length === 10 && !/\d{1,2}[./-]\d{1,2}[./-]\d{4}/.test(line)) {
+          return `${digits.slice(0,4)} ${digits.slice(4)}`;
+        }
       }
       return '';
     }
@@ -4940,7 +4958,7 @@
         .replace(/[^А-ЯЁA-Z\- ]/g, ' ')
         .replace(/\s+/g, ' ')
         .trim();
-      const bad = /^(ФИО|ФАМИЛИЯ|ИМЯ|ОТЧЕСТВО|РОССИЯ|ПАСПОРТ|ПАСПОРТНЫЕ|ДАННЫЕ|МУЖ|ЖЕН|М|Ж)$/i;
+      const bad = /^(ФИО|ФАМИЛИЯ|ИМЯ|ОТЧЕСТВО|РОССИЯ|ПАСПОРТ|ПАСПОРТНЫЕ|ДАННЫЕ|МУЖ|ЖЕН|М|Ж|ГРАЖДАНСТВО|МЕСТО|РОЖДЕНИЯ)$/i;
       if (bad.test(s)) return '';
       const words = s.split(' ').filter(Boolean);
       if (words.length < 2 || words.length > 4) return '';
@@ -4951,32 +4969,38 @@
     function passportOcrExtractFio(text) {
       const lines = passportOcrNormalizeText(text).split(/\n+/).map(x => x.trim()).filter(Boolean);
       const candidates = [];
+      const add = value => { const c = passportOcrCleanFio(value); if (c) candidates.push(c); };
       for (let i=0;i<lines.length;i++) {
         const line = lines[i].replace(/[^А-ЯЁа-яёA-Za-z\- ]/g, ' ').replace(/\s+/g,' ').trim();
         if (!line) continue;
-        const cleaned = passportOcrCleanFio(line);
-        if (cleaned) candidates.push(cleaned);
         const labelMatch = line.match(/(?:ФАМИЛИЯ|ИМЯ|ОТЧЕСТВО)\s*[:\-]?\s*([А-ЯЁа-яёA-Za-z\- ]{3,80})/i);
-        if (labelMatch) {
-          const c = passportOcrCleanFio(labelMatch[1]);
-          if (c) candidates.push(c);
-        }
+        if (labelMatch) add(labelMatch[1]);
+        add(line);
+        // Иногда OCR разбивает ФИО на соседние строки.
+        if (i < lines.length - 1) add(`${line} ${lines[i+1]}`);
       }
-      // Предпочитаем трёхсловные ФИО; исключаем строки, похожие на адрес/служебный текст.
-      const scored = candidates.map(c => ({ c, score: (c.split(' ').length === 3 ? 5 : 0) + (c.length < 70 ? 1 : 0) }));
+      const scored = candidates.map(c => {
+        const words = c.split(' ');
+        let score = 0;
+        if (words.length === 3) score += 7;
+        if (words.length === 2) score += 3;
+        if (/^[А-ЯЁ]+(?:\s+[А-ЯЁ]+){1,2}$/.test(c)) score += 3;
+        if (c.length <= 65) score += 2;
+        if (/(УЛ|ДОМ|ОБЛ|РАЙОН|ГОРОД|РОССИЯ|РОЖД)/.test(c)) score -= 8;
+        return { c, score };
+      });
       scored.sort((a,b)=>b.score-a.score);
       return scored[0]?.c || '';
     }
 
     function passportOcrExtract(text) {
       const clean = passportOcrNormalizeText(text);
-      const data = {
+      return {
         fio: passportOcrExtractFio(clean),
         birthDate: passportOcrExtractDate(clean),
         passport: passportOcrExtractPassport(clean),
         rawText: clean
       };
-      return data;
     }
 
     function passportOcrLoadImage(file) {
@@ -4989,9 +5013,9 @@
       });
     }
 
-    async function passportOcrPrepare(file, rotation=0, contrast=1.12) {
+    async function passportOcrPrepare(file, rotation=0, mode='balanced') {
       const img = await passportOcrLoadImage(file);
-      const maxSide = 2200;
+      const maxSide = mode === 'detail' ? 2800 : 2400;
       const scale = Math.min(1, maxSide / Math.max(img.naturalWidth || img.width, img.naturalHeight || img.height));
       const sw = Math.max(1, Math.round((img.naturalWidth || img.width) * scale));
       const sh = Math.max(1, Math.round((img.naturalHeight || img.height) * scale));
@@ -5006,11 +5030,15 @@
       ctx.rotate(rad);
       ctx.drawImage(img, -sw/2, -sh/2, sw, sh);
       ctx.restore();
+
       const image = ctx.getImageData(0,0,cw,ch);
       const d = image.data;
+      const contrast = mode === 'threshold' ? 1.35 : 1.12;
+      const threshold = 155;
       for (let i=0;i<d.length;i+=4) {
         const gray = 0.299*d[i] + 0.587*d[i+1] + 0.114*d[i+2];
-        const g = Math.max(0, Math.min(255, (gray - 128) * contrast + 128));
+        let g = Math.max(0, Math.min(255, (gray - 128) * contrast + 128));
+        if (mode === 'threshold') g = g >= threshold ? 255 : 0;
         d[i]=d[i+1]=d[i+2]=g;
       }
       ctx.putImageData(image,0,0);
@@ -5018,7 +5046,7 @@
     }
 
     async function passportOcrGetWorker() {
-      if (!window.Tesseract) throw new Error('OCR-библиотека ещё не загрузилась');
+      if (!window.Tesseract) throw new Error('OCR-библиотека ещё не загрузилась. Проверьте интернет и повторите попытку.');
       if (!passportOcrWorkerPromise) {
         passportOcrWorkerPromise = Tesseract.createWorker('rus+eng', 1, {
           logger: m => {
@@ -5026,33 +5054,83 @@
               window.__passportOcrProgress = Math.round(m.progress * 100);
             }
           }
+        }).then(async worker => {
+          try {
+            await worker.setParameters({
+              preserve_interword_spaces: '1',
+              tessedit_pageseg_mode: '6'
+            });
+          } catch (_) {}
+          return worker;
         });
       }
       return passportOcrWorkerPromise;
     }
 
+    function passportOcrMergeResults(results) {
+      const valid = results.filter(Boolean);
+      const pick = key => {
+        const counts = new Map();
+        valid.forEach(r => {
+          const value = r.data?.[key];
+          if (!value) return;
+          const k = String(value).trim();
+          const old = counts.get(k) || { count:0, confidence:0 };
+          old.count++;
+          old.confidence += Number(r.confidence || 0);
+          counts.set(k, old);
+        });
+        return [...counts.entries()].sort((a,b) => {
+          const A=a[1], B=b[1];
+          return (B.count*100+B.confidence) - (A.count*100+A.confidence);
+        })[0]?.[0] || '';
+      };
+      const best = valid.slice().sort((a,b) => (b.score||0)-(a.score||0))[0] || { data:{} };
+      return {
+        fio: pick('fio') || best.data.fio || '',
+        birthDate: pick('birthDate') || best.data.birthDate || '',
+        passport: pick('passport') || best.data.passport || '',
+        rawText: valid.map(r => r.data?.rawText || '').filter(Boolean).join('\n')
+      };
+    }
+
     async function passportOcrRecognize(file, role) {
       const worker = await passportOcrGetWorker();
-      let best = { confidence: -1, text: '', data: null };
-      // Проверяем четыре ориентации — это покрывает перевёрнутый/повёрнутый снимок.
-      for (const rotation of [0,90,180,270]) {
-        passportOcrSetStatus(role, `⏳ Подготовка фото… ${rotation}°`);
-        const canvas = await passportOcrPrepare(file, rotation, 1.15);
-        passportOcrSetStatus(role, `⏳ Распознавание… ${rotation}°`);
+      const results = [];
+      const rotations = [0,90,180,270];
+      // Сначала обычное изображение. Если поля не нашли — дополнительная обработка контраста/порогов.
+      for (const rotation of rotations) {
+        passportOcrSetStatus(role, `⏳ Проверяю ориентацию фото… ${rotation}°`);
+        const canvas = await passportOcrPrepare(file, rotation, 'balanced');
         const result = await worker.recognize(canvas);
         const confidence = Number(result?.data?.confidence || 0);
         const text = result?.data?.text || '';
         const extracted = passportOcrExtract(text);
-        const completeness = (extracted.fio ? 25 : 0) + (extracted.birthDate ? 25 : 0) + (extracted.passport ? 35 : 0);
-        const score = confidence + completeness;
-        if (score > best.score) best = { score, confidence, text, data: extracted };
-        if (extracted.fio && extracted.birthDate && extracted.passport && confidence >= 72) break;
+        const completeness = (extracted.fio ? 35 : 0) + (extracted.birthDate ? 25 : 0) + (extracted.passport ? 40 : 0);
+        results.push({ confidence, text, data: extracted, score: confidence + completeness });
+        if (extracted.fio && extracted.birthDate && extracted.passport && confidence >= 75) break;
       }
-      return best;
+
+      let merged = passportOcrMergeResults(results);
+      if (!(merged.fio && merged.birthDate && merged.passport)) {
+        // Второй проход — более сильный контраст, только для недостающих данных.
+        for (const rotation of rotations) {
+          passportOcrSetStatus(role, `⏳ Улучшаю фото для сложного случая… ${rotation}°`);
+          const canvas = await passportOcrPrepare(file, rotation, 'threshold');
+          const result = await worker.recognize(canvas);
+          const confidence = Number(result?.data?.confidence || 0);
+          const text = result?.data?.text || '';
+          const extracted = passportOcrExtract(text);
+          results.push({ confidence, text, data: extracted, score: confidence + (extracted.fio?35:0) + (extracted.birthDate?25:0) + (extracted.passport?40:0) });
+          merged = passportOcrMergeResults(results);
+          if (merged.fio && merged.birthDate && merged.passport && confidence >= 65) break;
+        }
+      }
+      return { data: merged, results };
     }
 
     async function runPassportOcr(file, role) {
-      if (!file) return;
+      if (!file || passportOcrBusy) return;
       const statusRole = role === 'buyer' ? 'buyer' : 'guarantor';
       passportOcrShowPreview(role, file);
       if (!file.type || !file.type.startsWith('image/')) {
@@ -5065,12 +5143,13 @@
       }
       const input = document.getElementById(role === 'buyer' ? 'buyerPassportPhoto' : 'guarantorPassportPhoto');
       const cameraInput = document.getElementById(role === 'buyer' ? 'buyerPassportCamera' : 'guarantorPassportCamera');
-      const sourceInput = document.getElementById(role === 'buyer' ? 'buyerPassportPhoto' : 'guarantorPassportPhoto');
+      const sourceInput = input;
       const ocrBox = sourceInput?.closest('.passport-ocr-box');
       const buttons = ocrBox ? ocrBox.querySelectorAll('.passport-ocr-btn') : [];
+      passportOcrBusy = true;
       buttons.forEach(b=>b.disabled=true);
       try {
-        passportOcrSetStatus(statusRole, '⏳ Загружаю OCR…');
+        passportOcrSetStatus(statusRole, '⏳ Запускаю распознавание. Для первого запуска браузеру может понадобиться загрузить OCR-модель…');
         const best = await passportOcrRecognize(file, role);
         const data = best.data || {};
         const prefix = role === 'buyer' ? '' : 'guarantor';
@@ -5082,13 +5161,14 @@
         if (data.passport) document.getElementById(passId).value = data.passport;
         passportOcrState[role] = data;
         const found = [data.fio && 'ФИО', data.birthDate && 'дата рождения', data.passport && 'серия/номер'].filter(Boolean);
-        if (found.length === 3) passportOcrSetStatus(statusRole, `✓ Распознано: ${found.join(', ')}. Проверьте поля перед сохранением.`, 'ok');
-        else if (found.length) passportOcrSetStatus(statusRole, `⚠️ Найдено: ${found.join(', ')}. Остальное заполните вручную и проверьте данные.`, 'warn');
-        else passportOcrSetStatus(statusRole, '⚠️ Данные не распознаны уверенно. Попробуйте более ровное, светлое фото без бликов.', 'error');
+        if (found.length === 3) passportOcrSetStatus(statusRole, `✓ Распознано: ${found.join(', ')}. Проверьте цифры и ФИО перед сохранением.`, 'ok');
+        else if (found.length) passportOcrSetStatus(statusRole, `⚠️ Найдено: ${found.join(', ')}. Недостающие поля заполните вручную и проверьте результат.`, 'warn');
+        else passportOcrSetStatus(statusRole, '⚠️ Данные не распознаны. Сделайте фото ровно, без бликов и чтобы весь разворот паспорта был виден.', 'error');
       } catch (e) {
         console.error('Passport OCR:', e);
-        passportOcrSetStatus(statusRole, '⚠️ Не удалось распознать фото. Попробуйте другое фото или заполните поля вручную.', 'error');
+        passportOcrSetStatus(statusRole, '⚠️ Не удалось распознать фото. Проверьте интернет, попробуйте другое фото или заполните поля вручную.', 'error');
       } finally {
+        passportOcrBusy = false;
         buttons.forEach(b=>b.disabled=false);
         if (input) input.value = '';
         if (cameraInput) cameraInput.value = '';
@@ -5155,6 +5235,10 @@
       document.getElementById('guarantorPassport').value = contract.guarantorPassport || '';
       document.getElementById('guarantorExtraPhone').value = contract.guarantorExtraPhone || '';
       document.getElementById('guarantorAddress').value = contract.guarantorAddress || '';
+      passportOcrState.buyer = null;
+      passportOcrState.guarantor = null;
+      ['buyerPassportPreview','guarantorPassportPreview'].forEach(id => document.getElementById(id)?.classList.remove('show'));
+      ['buyerPassportOcrStatus','guarantorPassportOcrStatus'].forEach(id => { const el=document.getElementById(id); if(el){ el.textContent='Можно загрузить фото паспорта.'; el.className='passport-ocr-status'; }});
       document.getElementById('dateWarning').classList.remove('show');
       checkPaymentDateAdjustment();
       validateFinance();
