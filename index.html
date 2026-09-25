@@ -2266,8 +2266,6 @@
     // ================================================================
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-    // PaddleOCR.js — распознавание выполняется непосредственно в браузере.
-    import { PaddleOCR } from "https://esm.sh/@paddleocr/paddleocr-js@0.4.2";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDuPqMwudSodv37VjNCNmVg71ES09AmyW0",
@@ -4872,11 +4870,18 @@
     let passportOcrBusy = false;
     let passportOcrEngine = null;
     let passportOcrEnginePromise = null;
+    let PaddleOCRClass = null;
 
     async function getPassportOcrEngine() {
       if (passportOcrEngine) return passportOcrEngine;
       if (passportOcrEnginePromise) return passportOcrEnginePromise;
-      passportOcrEnginePromise = PaddleOCR.create({
+      passportOcrEnginePromise = (async () => {
+        if (!PaddleOCRClass) {
+          const mod = await import('https://cdn.jsdelivr.net/npm/@paddleocr/paddleocr-js@0.4.2/+esm');
+          PaddleOCRClass = mod.PaddleOCR;
+          if (!PaddleOCRClass) throw new Error('Не удалось загрузить PaddleOCR.js.');
+        }
+        return PaddleOCRClass.create({
         lang: 'ru',
         ocrVersion: 'PP-OCRv5',
         worker: true,
@@ -4886,7 +4891,8 @@
           numThreads: 2,
           simd: true
         }
-      }).then(engine => {
+        });
+      })().then(engine => {
         passportOcrEngine = engine;
         return engine;
       }).catch(err => {
