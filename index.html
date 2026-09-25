@@ -6,8 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Система Учета и Договоров</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- YUSRA: client-side passport OCR. Фото обрабатывается в браузере и не сохраняется в договоре. -->
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <!-- YUSRA: OCR паспортов — загрузка фото с телефона/ПК -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js"></script>
   <style>
     /* === Утилиты === */
     .row-error { background-color: #fee2e2 !important; }
@@ -208,77 +208,37 @@
     .schedule-client-list .month-today { background:#3b82f6; color:#fff; }
     .schedule-client-list .month-three-days { background:#facc15; color:#713f12; }
 
-    /* === Паспорт: OCR + адаптивная форма договора === */
+    /* === OCR паспортов в форме договора === */
     .passport-ocr-box {
-      margin-top: 10px;
-      padding: 10px;
-      border: 1px dashed #93c5fd;
-      border-radius: 10px;
-      background: rgba(239,246,255,.75);
+      margin-top: 9px; padding: 10px; border: 1px dashed #93c5fd;
+      border-radius: 10px; background: #eff6ff;
     }
     .passport-ocr-actions {
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:8px;
-      flex-wrap:wrap;
+      display:flex; flex-wrap:wrap; align-items:center; gap:7px;
     }
     .passport-ocr-btn {
-      min-height:36px;
-      padding:7px 11px;
-      border:1px solid #bfdbfe;
-      border-radius:8px;
-      background:#fff;
-      color:#1d4ed8;
-      font-size:10px;
-      font-weight:900;
-      cursor:pointer;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      gap:6px;
+      min-height:36px; padding:7px 11px; border:1px solid #bfdbfe; border-radius:9px;
+      background:#fff; color:#1d4ed8; font-size:10px; font-weight:900; cursor:pointer;
     }
-    .passport-ocr-btn:hover { background:#eff6ff; }
-    .passport-ocr-btn:disabled { opacity:.55; cursor:wait; }
-    .passport-ocr-status {
-      color:#64748b;
-      font-size:9px;
-      font-weight:700;
-      line-height:1.3;
-      flex:1 1 180px;
+    .passport-ocr-btn:hover { background:#dbeafe; }
+    .passport-ocr-status { font-size:9px; color:#64748b; line-height:1.3; }
+    .passport-ocr-progress {
+      width:100%; height:5px; background:#dbeafe; border-radius:999px; overflow:hidden; display:none;
     }
+    .passport-ocr-progress > span { display:block; height:100%; width:0; background:#2563eb; transition:width .2s; }
+    .passport-ocr-hint { margin-top:5px; font-size:8px; color:#64748b; }
     .passport-ocr-preview {
-      display:none;
-      margin-top:8px;
-      max-width:180px;
-      max-height:120px;
-      object-fit:cover;
-      border-radius:8px;
-      border:1px solid #dbeafe;
+      display:none; margin-top:7px; max-height:90px; max-width:100%; border-radius:7px;
+      border:1px solid #dbe3ee; object-fit:contain; background:#fff;
     }
-    .contract-person-grid {
-      display:grid;
-      grid-template-columns:minmax(0,2fr) minmax(0,1fr);
-      gap:8px;
+    .passport-ocr-modal-note {
+      padding:8px 10px; border-radius:8px; background:#f8fafc; color:#475569;
+      font-size:9px; line-height:1.4; border:1px solid #e2e8f0;
     }
-    .contract-person-grid .full { grid-column:1 / -1; }
     @media (max-width:640px) {
-      .contract-person-grid { grid-template-columns:1fr; }
-      .contract-person-grid .full { grid-column:auto; }
-      #modal > div {
-        width:100%;
-        max-width:none;
-        max-height:96vh;
-        padding:14px !important;
-        border-radius:14px;
-      }
-      #contractForm { gap:10px; }
-      #contractForm input, #contractForm select, #contractForm button {
-        min-height:42px;
-      }
-      #contractForm .bg-slate-50,
-      #contractForm .bg-blue-50,
-      #contractForm .bg-gray-50 { padding:11px !important; }
+      .passport-ocr-box { padding:9px; }
+      .passport-ocr-btn { flex:1 1 145px; min-height:40px; }
+      .passport-ocr-status { width:100%; }
     }
 
     /* === Печать договора / A4 === */
@@ -2023,25 +1983,46 @@
         <input type="hidden" id="editDocId">
 
         <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
-          <h3 class="font-black text-[10px] uppercase text-slate-400 mb-3 tracking-widest">1. Личные данные покупателя</h3>
-          <div class="contract-person-grid">
-            <input type="text" id="fio" placeholder="ФИО Покупателя *" required class="p-2 border rounded-md focus:border-blue-500 outline-none">
-            <input type="date" id="birthDate" title="Дата рождения" class="p-2 border rounded-md outline-none">
-            <input type="text" id="passport" placeholder="Серия и номер паспорта" class="p-2 border rounded-md outline-none">
-            <input type="text" id="phone" placeholder="Телефон *" required class="p-2 border rounded-md outline-none">
-            <input type="text" id="extraPhone" placeholder="Доп. номер" class="p-2 border rounded-md outline-none">
-            <input type="text" id="address" placeholder="Адрес проживания" class="p-2 border rounded-md outline-none full">
+          <h3 class="font-black text-[10px] uppercase text-slate-400 mb-3 tracking-widest">1. Личные данные клиента</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div class="sm:col-span-2 lg:col-span-2">
+              <label class="block text-[9px] font-bold text-slate-500 uppercase mb-1">ФИО покупателя *</label>
+              <input type="text" id="fio" placeholder="ФИО Покупателя *" required class="p-2 border rounded-md w-full focus:border-blue-500 outline-none">
+            </div>
+            <div>
+              <label class="block text-[9px] font-bold text-slate-500 uppercase mb-1">Дата рождения</label>
+              <input type="date" id="birthDate" title="Дата рождения" class="p-2 border rounded-md w-full outline-none">
+            </div>
+            <div class="sm:col-span-2">
+              <label class="block text-[9px] font-bold text-slate-500 uppercase mb-1">Серия и номер</label>
+              <input type="text" id="passport" placeholder="Серия и номер паспорта" class="p-2 border rounded-md w-full outline-none">
+            </div>
+            <div>
+              <label class="block text-[9px] font-bold text-slate-500 uppercase mb-1">Телефон *</label>
+              <input type="text" id="phone" placeholder="Телефон *" required class="p-2 border rounded-md w-full outline-none">
+            </div>
+            <div>
+              <label class="block text-[9px] font-bold text-slate-500 uppercase mb-1">Доп. номер</label>
+              <input type="text" id="extraPhone" placeholder="Доп. номер" class="p-2 border rounded-md w-full outline-none">
+            </div>
+            <div class="sm:col-span-2 lg:col-span-3">
+              <label class="block text-[9px] font-bold text-slate-500 uppercase mb-1">Адрес проживания</label>
+              <input type="text" id="address" placeholder="Адрес проживания" class="p-2 border rounded-md w-full outline-none">
+            </div>
           </div>
+
           <div class="passport-ocr-box">
             <div class="passport-ocr-actions">
               <label class="passport-ocr-btn">
-                📷 Загрузить фото паспорта
-                <input type="file" id="buyerPassportPhoto" accept="image/*" hidden>
+                📷 Загрузить фото паспорта покупателя
+                <input type="file" id="buyerPassportPhoto" accept="image/*" hidden onchange="scanPassportPhoto('buyer', this)">
               </label>
-              <button type="button" class="passport-ocr-btn" id="buyerPassportScanBtn" onclick="scanPassport('buyer')">🔎 Распознать данные</button>
-              <span class="passport-ocr-status" id="buyerPassportStatus">Фото можно выбрать из галереи телефона или с компьютера.</span>
+              <button type="button" class="passport-ocr-btn" onclick="clearPassportScan('buyer')">Очистить фото</button>
+              <span id="buyerPassportOcrStatus" class="passport-ocr-status">Можно выбрать фото из галереи телефона или файл с компьютера.</span>
             </div>
+            <div id="buyerPassportOcrProgress" class="passport-ocr-progress"><span></span></div>
             <img id="buyerPassportPreview" class="passport-ocr-preview" alt="Фото паспорта покупателя">
+            <div class="passport-ocr-hint">Фото можно загрузить повернутым. YUSRA попробует несколько ориентаций и обработок изображения. Перед сохранением обязательно проверьте распознанные данные.</div>
           </div>
         </div>
 
@@ -2091,24 +2072,36 @@
           </div>
           <div class="bg-gray-50 p-4 rounded-lg border">
             <h3 class="font-black text-[10px] uppercase text-gray-400 mb-3 tracking-widest">4. Поручитель</h3>
-            <div class="contract-person-grid">
-              <input type="text" id="guarantorFio" placeholder="ФИО Поручителя" class="p-2 border rounded w-full">
-              <input type="date" id="guarantorBirthDate" title="Дата рождения поручителя" class="p-2 border rounded w-full">
-              <input type="text" id="guarantorPassport" placeholder="Серия и номер паспорта" class="p-2 border rounded w-full">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div>
+                <label class="block text-[9px] font-bold text-slate-500 uppercase mb-1">ФИО поручителя</label>
+                <input type="text" id="guarantorFio" placeholder="ФИО Поручителя" class="p-2 border rounded w-full">
+              </div>
+              <div>
+                <label class="block text-[9px] font-bold text-slate-500 uppercase mb-1">Дата рождения</label>
+                <input type="date" id="guarantorBirthDate" title="Дата рождения поручителя" class="p-2 border rounded w-full">
+              </div>
+              <div class="sm:col-span-2">
+                <label class="block text-[9px] font-bold text-slate-500 uppercase mb-1">Серия и номер</label>
+                <input type="text" id="guarantorPassport" placeholder="Серия и номер паспорта" class="p-2 border rounded w-full">
+              </div>
               <input type="text" id="guarantorPhone" placeholder="Телефон поручителя" class="p-2 border rounded w-full">
               <input type="text" id="guarantorExtraPhone" placeholder="Доп. номер телефона" class="p-2 border rounded w-full">
-              <input type="text" id="guarantorAddress" placeholder="Адрес проживания" class="p-2 border rounded w-full full">
+              <input type="text" id="guarantorAddress" placeholder="Адрес проживания" class="p-2 border rounded w-full sm:col-span-2">
             </div>
+
             <div class="passport-ocr-box">
               <div class="passport-ocr-actions">
                 <label class="passport-ocr-btn">
-                  📷 Загрузить фото паспорта
-                  <input type="file" id="guarantorPassportPhoto" accept="image/*" hidden>
+                  📷 Загрузить фото паспорта поручителя
+                  <input type="file" id="guarantorPassportPhoto" accept="image/*" hidden onchange="scanPassportPhoto('guarantor', this)">
                 </label>
-                <button type="button" class="passport-ocr-btn" id="guarantorPassportScanBtn" onclick="scanPassport('guarantor')">🔎 Распознать данные</button>
-                <span class="passport-ocr-status" id="guarantorPassportStatus">Фото можно выбрать из галереи телефона или с компьютера.</span>
+                <button type="button" class="passport-ocr-btn" onclick="clearPassportScan('guarantor')">Очистить фото</button>
+                <span id="guarantorPassportOcrStatus" class="passport-ocr-status">Можно выбрать фото из галереи телефона или файл с компьютера.</span>
               </div>
+              <div id="guarantorPassportOcrProgress" class="passport-ocr-progress"><span></span></div>
               <img id="guarantorPassportPreview" class="passport-ocr-preview" alt="Фото паспорта поручителя">
+              <div class="passport-ocr-hint">YUSRA попробует несколько ориентаций и вариантов обработки. Перед сохранением обязательно проверьте ФИО, дату и серию/номер.</div>
             </div>
           </div>
         </div>
@@ -4854,6 +4847,8 @@
       document.getElementById('editDocId').value = '';
       document.getElementById('modalTitle').innerText = 'Оформление нового договора';
       document.getElementById('downPayment').value = 0;
+      clearPassportScan('buyer');
+      clearPassportScan('guarantor');
       document.getElementById('dateWarning').classList.remove('show');
       validateFinance();
       modal.classList.remove('hidden');
@@ -4861,221 +4856,243 @@
     window.closeModal = function() { modal.classList.add('hidden'); };
     window.closePayModal = function() { document.getElementById('payModal').classList.add('hidden'); };
 
-    window.openPayModal = function(id) {
-      document.getElementById('payContractId').value = id;
-      document.getElementById('payDateVal').valueAsDate = new Date();
-      document.getElementById('payModal').classList.remove('hidden');
-    };
-
     // ================================================================
-    // ПАСПОРТ: загрузка фото + OCR
-    // Данные распознаются в браузере и сразу подставляются в поля договора.
-    // Фото не записывается в объект договора/базу данных.
+    // OCR ПАСПОРТА — фото с телефона/ПК, поворот и предварительная обработка
     // ================================================================
     const passportOcrState = { buyer: null, guarantor: null };
 
-    function passportOcrSetStatus(role, text, isError = false) {
-      const el = document.getElementById(role + 'PassportStatus');
-      if (!el) return;
-      el.textContent = text;
-      el.style.color = isError ? '#b91c1c' : '#64748b';
+    function passportOcrSetStatus(role, text, busy=false) {
+      const el = document.getElementById(role + 'PassportOcrStatus');
+      if (el) el.textContent = text;
+      const bar = document.getElementById(role + 'PassportOcrProgress');
+      if (bar) bar.style.display = busy ? 'block' : 'none';
     }
 
-    function passportOcrNormalize(text) {
+    function passportOcrSetProgress(role, value) {
+      const bar = document.getElementById(role + 'PassportOcrProgress');
+      const fill = bar ? bar.querySelector('span') : null;
+      if (fill) fill.style.width = Math.max(0, Math.min(100, value)) + '%';
+    }
+
+    function passportOcrNormalizeText(text) {
       return String(text || '')
-        .replace(/\u00A0/g, ' ')
+        .replace(/\r/g, '\n')
         .replace(/[|]/g, 'I')
-        .replace(/\s{2,}/g, ' ')
-        .replace(/[“”«»]/g, '"')
-        .trim();
+        .replace(/[«»]/g, '"')
+        .replace(/[^\S\n]+/g, ' ')
+        .split('\n').map(x => x.trim()).filter(Boolean).join('\n');
     }
 
-    function passportOcrLines(text) {
-      return passportOcrNormalize(text).split(/\r?\n/)
-        .map(x => x.trim())
-        .filter(x => x.length >= 2);
-    }
-
-    function passportOcrDateToInput(value) {
-      const m = String(value || '').match(/\b(\d{1,2})[.\-/](\d{1,2})[.\-/](\d{4})\b/);
-      if (!m) return '';
-      const d = m[1].padStart(2,'0'), mo = m[2].padStart(2,'0'), y = m[3];
-      const year = Number(y);
-      if (year < 1900 || year > new Date().getFullYear()) return '';
-      return `${y}-${mo}-${d}`;
-    }
-
-    function passportOcrExtractPassport(text) {
-      const t = passportOcrNormalize(text);
-      const candidates = [
-        // стандартный вид: 1234 567890
-        t.match(/\b(\d{4})\s*[- ]?\s*(\d{6})\b/),
-        // OCR иногда путает пробелы
-        t.match(/\b(\d{4})\D{0,4}(\d{6})\b/)
-      ];
-      for (const m of candidates) {
-        if (m) return `${m[1]} ${m[2]}`;
-      }
+    function passportOcrDateToInput(raw) {
+      const x = String(raw || '').replace(/\s/g,'').replace(/[OoОо]/g,'0');
+      let m = x.match(/\b(19\d{2}|20\d{2})[-./](\d{1,2})[-./](\d{1,2})\b/);
+      if (m) return `${m[1]}-${String(m[2]).padStart(2,'0')}-${String(m[3]).padStart(2,'0')}`;
+      m = x.match(/\b(\d{1,2})[./-](\d{1,2})[./-](19\d{2}|20\d{2})\b/);
+      if (m) return `${m[3]}-${String(m[2]).padStart(2,'0')}-${String(m[1]).padStart(2,'0')}`;
       return '';
     }
 
-    function passportOcrExtractDate(text) {
-      const lines = passportOcrLines(text);
-      const priority = lines.filter(line => /рожд|дата/i.test(line));
-      for (const line of [...priority, ...lines]) {
-        const d = passportOcrDateToInput(line);
-        if (d) return d;
-      }
-      return '';
+    function passportOcrCleanName(text) {
+      return String(text || '')
+        .replace(/[^A-Za-zА-Яа-яЁё\- ]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .replace(/^(ФАМИЛИЯ|ИМЯ|ОТЧЕСТВО)\s+/i, '');
     }
 
-    function passportOcrCleanName(value) {
-      return String(value || '')
-        .replace(/[^А-Яа-яЁёA-Za-z\s-]/g, ' ')
-        .replace(/\s{2,}/g, ' ')
-        .trim();
-    }
+    function passportOcrExtract(text) {
+      const lines = passportOcrNormalizeText(text).split('\n');
+      const joined = lines.join(' ');
+      let fio = '';
+      let birthDate = '';
+      let passport = '';
 
-    function passportOcrExtractFio(text) {
-      const lines = passportOcrLines(text);
-      const explicit = [];
-      for (let i = 0; i < lines.length; i++) {
-        const line = lines[i];
-        if (/фамил/i.test(line) || /имя/i.test(line) || /отчеств/i.test(line)) {
-          const cleaned = passportOcrCleanName(line.replace(/^(.*?(фамилия|имя|отчество)\s*[:№-]?\s*)/i,''));
-          if (cleaned && cleaned.split(/\s+/).length >= 1) explicit.push(cleaned);
+      // Дата: сначала ищем строку рядом с "дата рождения", затем любую уверенную дату.
+      const dateLabel = /(дата\s*рожд|date\s*of\s*birth|birth)/i;
+      for (let i=0; i<lines.length; i++) {
+        if (dateLabel.test(lines[i])) {
+          birthDate = passportOcrDateToInput(lines[i]) || passportOcrDateToInput(lines[i+1] || '');
+          if (birthDate) break;
         }
       }
-      // Частый формат российского паспорта: ФАМИЛИЯ ИМЯ ОТЧЕСТВО отдельной строкой.
-      const nameLike = lines.map(passportOcrCleanName).filter(line => {
-        const words = line.split(/\s+/).filter(Boolean);
-        return words.length >= 2 && words.length <= 4 &&
-          words.every(w => w.length >= 2) &&
-          !/\d/.test(line) &&
-          !/паспорт|россия|федерац|граждан|рожд|код|выдан|подраздел|место|регистрац|муж|жен/i.test(line);
-      });
-      if (explicit.length >= 3) return explicit.slice(0,3).join(' ');
-      // Если есть строка с 3 словами — обычно это ФИО.
-      const three = nameLike.find(x => x.split(/\s+/).length === 3);
-      if (three) return three;
-      return explicit.join(' ').trim() || nameLike[0] || '';
+      if (!birthDate) {
+        const dates = joined.match(/\b(?:\d{1,2}[./-]){2}(?:19\d{2}|20\d{2})\b/g) || [];
+        for (const d of dates) { birthDate = passportOcrDateToInput(d); if (birthDate) break; }
+      }
+
+      // Серия/номер: приоритет строк с явными словами, затем 4+6 цифр.
+      const passPatterns = [
+        /(?:серия|series)[^\d]{0,15}(\d{4})[^\d]{0,12}(?:номер|no|number)?[^\d]{0,12}(\d{6})/i,
+        /\b(\d{4})\s+(\d{6})\b/,
+        /\b(\d{4})[^\d]{1,5}(\d{6})\b/
+      ];
+      for (const re of passPatterns) {
+        const m = joined.match(re);
+        if (m) { passport = `${m[1]} ${m[2]}`; break; }
+      }
+
+      // ФИО: ищем блоки после ФАМИЛИЯ/ИМЯ/ОТЧЕСТВО.
+      let fam='', name='', otch='';
+      for (let i=0; i<lines.length; i++) {
+        const line = lines[i];
+        let m = line.match(/фамилия\s*[:\-]?\s*([А-ЯЁA-Z][А-ЯЁA-ZЁёA-Z\- ]{1,40})/i);
+        if (m && !fam) fam = passportOcrCleanName(m[1]);
+        m = line.match(/имя\s*[:\-]?\s*([А-ЯЁA-Z][А-ЯЁA-ZЁёA-Z\- ]{1,30})/i);
+        if (m && !name) name = passportOcrCleanName(m[1]);
+        m = line.match(/отчество\s*[:\-]?\s*([А-ЯЁA-Z][А-ЯЁA-ZЁёA-Z\- ]{1,40})/i);
+        if (m && !otch) otch = passportOcrCleanName(m[1]);
+      }
+      if (fam && name) fio = [fam,name,otch].filter(Boolean).join(' ');
+
+      // Запасной вариант: строка с 2–3 словами только буквами рядом с паспортными полями.
+      if (!fio) {
+        const candidates = lines.map(x => passportOcrCleanName(x))
+          .filter(x => {
+            const words=x.split(' ').filter(Boolean);
+            return words.length >= 2 && words.length <= 4 &&
+              words.every(w => w.length >= 2) &&
+              !/(паспорт|росси|рожд|место|выдан|код|дата|серия|номер|граждан|пол|федерац)/i.test(x);
+          });
+        if (candidates.length) fio = candidates[0];
+      }
+
+      return { fio, birthDate, passport, raw: text };
     }
 
-    function passportOcrApply(role, text) {
-      const prefix = role === 'buyer' ? '' : 'guarantor';
-      const fioId = prefix ? 'guarantorFio' : 'fio';
-      const dateId = prefix ? 'guarantorBirthDate' : 'birthDate';
-      const passportId = prefix ? 'guarantorPassport' : 'passport';
-
-      const fio = passportOcrExtractFio(text);
-      const birthDate = passportOcrExtractDate(text);
-      const passport = passportOcrExtractPassport(text);
-
-      if (fio) document.getElementById(fioId).value = fio;
-      if (birthDate) document.getElementById(dateId).value = birthDate;
-      if (passport) document.getElementById(passportId).value = passport;
-
-      const found = [
-        fio ? 'ФИО' : '',
-        birthDate ? 'дата рождения' : '',
-        passport ? 'серия и номер' : ''
-      ].filter(Boolean);
-
-      if (found.length) {
-        passportOcrSetStatus(role, `Готово: заполнено — ${found.join(', ')}. Проверьте данные перед сохранением.`);
-      } else {
-        passportOcrSetStatus(role, 'Не удалось уверенно распознать данные. Сделайте более чёткое фото без бликов и нажмите «Распознать данные» ещё раз.', true);
+    async function passportOcrLoadImage(file) {
+      const url = URL.createObjectURL(file);
+      try {
+        const img = new Image();
+        img.decoding = 'async';
+        img.src = url;
+        await new Promise((resolve,reject) => { img.onload=resolve; img.onerror=reject; });
+        return img;
+      } finally {
+        // URL remains valid until image decoding completes; caller only uses the loaded Image.
       }
     }
 
-    function passportOcrPreprocess(file) {
-      return new Promise((resolve, reject) => {
-        const img = new Image();
-        const url = URL.createObjectURL(file);
-        img.onload = () => {
-          try {
-            const maxSide = 2200;
-            const scale = Math.min(1, maxSide / Math.max(img.naturalWidth, img.naturalHeight));
-            const canvas = document.createElement('canvas');
-            canvas.width = Math.max(1, Math.round(img.naturalWidth * scale));
-            canvas.height = Math.max(1, Math.round(img.naturalHeight * scale));
-            const ctx = canvas.getContext('2d', { willReadFrequently: true });
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            const image = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            for (let i = 0; i < image.data.length; i += 4) {
-              const r=image.data[i], g=image.data[i+1], b=image.data[i+2];
-              const gray = 0.299*r + 0.587*g + 0.114*b;
-              const contrast = Math.max(0, Math.min(255, (gray - 128) * 1.35 + 128));
-              image.data[i]=image.data[i+1]=image.data[i+2]=contrast;
-            }
-            ctx.putImageData(image, 0, 0);
-            URL.revokeObjectURL(url);
-            resolve(canvas);
-          } catch (e) {
-            URL.revokeObjectURL(url);
-            reject(e);
-          }
-        };
-        img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Не удалось открыть изображение')); };
-        img.src = url;
-      });
+    function passportOcrCanvas(img, rotation=0, variant=0) {
+      const maxSide = 2400;
+      const scale = Math.min(1, maxSide / Math.max(img.naturalWidth || img.width, img.naturalHeight || img.height));
+      const w0 = Math.max(1, Math.round((img.naturalWidth || img.width) * scale));
+      const h0 = Math.max(1, Math.round((img.naturalHeight || img.height) * scale));
+      const swap = rotation % 180 !== 0;
+      const c = document.createElement('canvas');
+      c.width = swap ? h0 : w0; c.height = swap ? w0 : h0;
+      const ctx = c.getContext('2d', {willReadFrequently:true});
+      ctx.save();
+      ctx.translate(c.width/2, c.height/2);
+      ctx.rotate(rotation*Math.PI/180);
+      ctx.drawImage(img, -w0/2, -h0/2, w0, h0);
+      ctx.restore();
+
+      if (variant === 0) return c;
+      const image = ctx.getImageData(0,0,c.width,c.height);
+      const d=image.data;
+      // Grayscale + контраст; вариант 2 дополнительно делает мягкий порог.
+      for(let i=0;i<d.length;i+=4){
+        const g = 0.299*d[i] + 0.587*d[i+1] + 0.114*d[i+2];
+        let v = variant === 2 ? (g > 155 ? 255 : 0) : Math.max(0, Math.min(255, (g-128)*1.45+128));
+        d[i]=d[i+1]=d[i+2]=v;
+      }
+      ctx.putImageData(image,0,0);
+      return c;
     }
 
-    window.handlePassportPhoto = function(role, input) {
-      const file = input?.files?.[0];
-      if (!file) return;
-      passportOcrState[role] = file;
+    async function passportOcrRun(file, role) {
+      if (!window.Tesseract) throw new Error('OCR-библиотека не загрузилась. Проверьте интернет-соединение.');
+      const img = await passportOcrLoadImage(file);
 
       const preview = document.getElementById(role + 'PassportPreview');
       if (preview) {
         preview.src = URL.createObjectURL(file);
         preview.style.display = 'block';
       }
-      passportOcrSetStatus(role, 'Фото загружено. Нажмите «Распознать данные».');
-    };
 
-    window.scanPassport = async function(role) {
-      const file = passportOcrState[role];
-      if (!file) {
-        document.getElementById(role + 'PassportPhoto')?.click();
-        passportOcrSetStatus(role, 'Сначала выберите фото паспорта.');
-        return;
-      }
-      if (!window.Tesseract) {
-        passportOcrSetStatus(role, 'Модуль распознавания ещё не загрузился. Проверьте интернет и повторите.', true);
-        return;
-      }
+      passportOcrSetStatus(role, 'Подготовка фото и распознавания…', true);
+      passportOcrSetProgress(role, 3);
 
-      const btn = document.getElementById(role + 'PassportScanBtn');
-      if (btn) btn.disabled = true;
-      passportOcrSetStatus(role, 'Подготавливаю фото…');
+      const worker = await Tesseract.createWorker('rus+eng', 1, {
+        logger: m => {
+          if (m && typeof m.progress === 'number') {
+            passportOcrSetProgress(role, Math.min(96, Math.round(m.progress*100)));
+            if (m.status) passportOcrSetStatus(role, `Распознавание: ${m.status}`, true);
+          }
+        }
+      });
 
       try {
-        const image = await passportOcrPreprocess(file);
-        passportOcrSetStatus(role, 'Распознаю текст паспорта… это может занять немного времени.');
-        const result = await Tesseract.recognize(image, 'rus+eng', {
-          logger: m => {
-            if (m && m.status === 'recognizing text' && typeof m.progress === 'number') {
-              passportOcrSetStatus(role, `Распознаю текст… ${Math.round(m.progress * 100)}%`);
-            }
+        let best = { score:-1, data:null };
+        const rotations = [0,90,180,270];
+        const variants = [0,1,2];
+
+        for (const rotation of rotations) {
+          for (const variant of variants) {
+            const canvas = passportOcrCanvas(img, rotation, variant);
+            const result = await worker.recognize(canvas);
+            const text = result?.data?.text || '';
+            const confidence = Number(result?.data?.confidence || 0);
+            const fields = passportOcrExtract(text);
+            const fieldScore = (fields.fio?35:0) + (fields.birthDate?25:0) + (fields.passport?35:0);
+            const score = fieldScore + confidence * 0.08 + Math.min(text.length,1000)/1000;
+            if (score > best.score) best = {score, data:fields};
+            if (fieldScore >= 95) break;
           }
-        });
-        const text = result?.data?.text || '';
-        passportOcrApply(role, text);
-      } catch (e) {
-        console.error('Passport OCR error:', e);
-        passportOcrSetStatus(role, 'Ошибка распознавания. Попробуйте другое фото: ровно, ближе, без бликов.', true);
+          if (best.data && best.data.fio && best.data.birthDate && best.data.passport) break;
+        }
+
+        if (!best.data) throw new Error('Не удалось распознать данные.');
+        return best.data;
       } finally {
-        if (btn) btn.disabled = false;
+        await worker.terminate();
+        passportOcrSetProgress(role, 100);
+      }
+    }
+
+    window.scanPassportPhoto = async function(role, input) {
+      const file = input?.files?.[0];
+      if (!file) return;
+      if (!file.type.startsWith('image/')) {
+        passportOcrSetStatus(role, 'Нужно выбрать изображение паспорта.', false);
+        return;
+      }
+      try {
+        passportOcrState[role] = file;
+        const fields = await passportOcrRun(file, role);
+        const prefix = role === 'buyer' ? '' : 'guarantor';
+
+        if (fields.fio) document.getElementById(prefix ? prefix+'Fio' : 'fio').value = fields.fio;
+        if (fields.birthDate) document.getElementById(prefix ? prefix+'BirthDate' : 'birthDate').value = fields.birthDate;
+        if (fields.passport) document.getElementById(prefix ? prefix+'Passport' : 'passport').value = fields.passport;
+
+        const filled = [fields.fio, fields.birthDate, fields.passport].filter(Boolean).length;
+        passportOcrSetStatus(role,
+          filled === 3
+            ? '✓ ФИО, дата рождения и серия/номер распознаны. Проверьте поля перед сохранением.'
+            : `Распознано полей: ${filled}/3. Проверьте и при необходимости исправьте вручную.`,
+          false
+        );
+      } catch (err) {
+        console.error('YUSRA OCR:', err);
+        passportOcrSetStatus(role, 'Не удалось надёжно распознать фото. Попробуйте более чёткое фото без бликов или введите данные вручную.', false);
       }
     };
 
-    document.getElementById('buyerPassportPhoto')?.addEventListener('change', function() {
-      handlePassportPhoto('buyer', this);
-    });
-    document.getElementById('guarantorPassportPhoto')?.addEventListener('change', function() {
-      handlePassportPhoto('guarantor', this);
-    });
+    window.clearPassportScan = function(role) {
+      const input = document.getElementById(role + 'PassportPhoto');
+      const preview = document.getElementById(role + 'PassportPreview');
+      if (input) input.value = '';
+      if (preview) { preview.src=''; preview.style.display='none'; }
+      passportOcrState[role] = null;
+      passportOcrSetStatus(role, 'Можно выбрать фото из галереи телефона или файл с компьютера.', false);
+    };
+
+        window.openPayModal = function(id) {
+      document.getElementById('payContractId').value = id;
+      document.getElementById('payDateVal').valueAsDate = new Date();
+      document.getElementById('payModal').classList.remove('hidden');
+    };
 
     window.openEditModal = function(id) {
       const contract = allContracts.find(c => c.id === id);
