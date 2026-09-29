@@ -2593,6 +2593,7 @@
             investors: initInvestors,
             monthlyReports: initMonthlyReports,
             fieldVisitRecords: fieldVisitRecords,
+            debtorsTransfers: debtorsTransfers,
             partners: allPartners,
             updatedAt: Date.now()
           });
@@ -4454,7 +4455,7 @@
             </div>
             <div class="schedule-contract-segment">
               <a href="${waHref}" ${waAttrs} class="schedule-contract-action" title="Открыть WhatsApp">💬 WhatsApp</a>
-              ${isDebtors ? `<button type="button" class="debtors-transfer-action" onclick="openDebtorTransfer(${JSON.stringify(debtorTransferKey(client))})" title="Перенести">↪ Перенести</button>` : ''}
+              ${isDebtors ? `<button type="button" class="debtors-transfer-action" onclick="openDebtorTransfer(this.dataset.transferKey)" data-transfer-key="${escapeHtml(debtorTransferKey(client))}" title="Перенести">↪ Перенести</button>` : ''}
             </div>
           </div>`;
       });
@@ -5042,6 +5043,7 @@
     };
 
     window.openDebtorTransfer = function(key) {
+      key = String(key || '');
       const client = debtorFindContractByKey(key);
       if (!client) return;
       const current = debtorsTransfers[key] || {};
