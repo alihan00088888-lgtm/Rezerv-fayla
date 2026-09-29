@@ -1218,7 +1218,122 @@
       .menu-toggle { box-shadow:0 3px 10px rgba(15,23,42,.08); }
     }
 
-  </style>
+  
+    /* === YUSRA V2: визуальное обновление без изменения бизнес-логики === */
+    :root {
+      --y-bg:#f3f6fb; --y-panel:#fff; --y-line:#e5eaf1; --y-text:#0f172a;
+    }
+    body { background:var(--y-bg) !important; color:var(--y-text); }
+    .yusra-topbar {
+      background:rgba(255,255,255,.94); border-bottom:1px solid #e2e8f0;
+      box-shadow:0 4px 22px rgba(15,23,42,.07); backdrop-filter:blur(14px);
+      -webkit-backdrop-filter:blur(14px);
+    }
+    .yusra-topbar-inner {
+      max-width:1600px; margin:0 auto; min-height:68px; padding:9px 14px;
+      display:grid; grid-template-columns:auto minmax(260px,1fr) auto;
+      align-items:center; gap:14px;
+    }
+    .yusra-brand-group,.yusra-topbar-tools,.yusra-primary-action { display:flex; align-items:center; gap:9px; min-width:0; }
+    .yusra-brand { min-width:130px; line-height:1; }
+    .yusra-brand-name { font-size:18px; font-weight:950; letter-spacing:.12em; color:#0f172a; }
+    .yusra-brand-caption { margin-top:5px; font-size:8px; font-weight:800; letter-spacing:.08em; color:#94a3b8; text-transform:uppercase; }
+    .yusra-history { display:flex; padding:3px; border:1px solid #e5e7eb; background:#f8fafc; border-radius:10px; }
+    .yusra-history button { width:30px; height:28px; border:0; border-radius:7px; font-size:17px; font-weight:900; color:#475569; background:transparent; }
+    .yusra-history button:not(:disabled):hover { background:#fff; color:#2563eb; }
+    .yusra-history button:disabled { opacity:.35; }
+    .yusra-search {
+      height:42px; min-width:0; width:min(100%,460px); margin:0 auto;
+      display:flex; align-items:center; gap:8px; padding:0 11px;
+      background:#f8fafc; border:1px solid #dbe3ee; border-radius:12px; color:#94a3b8;
+      transition:.15s;
+    }
+    .yusra-search:focus-within { background:#fff; border-color:#93c5fd; box-shadow:0 0 0 3px rgba(59,130,246,.10); }
+    .yusra-search > span { font-size:20px; line-height:1; }
+    .yusra-search input { min-width:0; width:100%; border:0; outline:0; background:transparent; color:#0f172a; font-size:11px; font-weight:700; }
+    .yusra-search kbd { flex:0 0 auto; padding:3px 6px; border:1px solid #dbe3ee; border-bottom-width:2px; border-radius:6px; background:#fff; color:#94a3b8; font-size:8px; font-weight:900; }
+    .yusra-sync { white-space:nowrap; }
+    .yusra-data-actions { display:flex; gap:4px; padding:3px; border:1px solid #e5e7eb; border-radius:10px; background:#f8fafc; }
+    .yusra-data-actions button { width:30px; height:28px; border:0; border-radius:7px; background:transparent; color:#475569; font-weight:900; cursor:pointer; }
+    .yusra-data-actions button:hover { background:#fff; color:#2563eb; }
+    .yusra-primary-action { justify-content:flex-end; }
+    .yusra-primary-action > button:not(.hidden) {
+      min-height:42px; padding:0 14px; border:0; border-radius:11px; background:#2563eb; color:#fff;
+      font-size:10px; font-weight:900; box-shadow:0 5px 14px rgba(37,99,235,.22); cursor:pointer;
+    }
+    .yusra-primary-action > button:not(.hidden):hover { filter:brightness(.96); transform:translateY(-1px); }
+    .yusra-primary-action > #addAccIncomeBtn:not(.hidden) { background:#16a34a; }
+    .yusra-primary-action > #addAccExpenseBtn:not(.hidden) { background:#dc2626; }
+    .yusra-primary-action > #addTakenBtn:not(.hidden) { background:#d97706; }
+    .yusra-primary-action > #addIncomeExpBtn:not(.hidden) { background:#0d9488; }
+
+    .dashboard-shell { max-width:1600px; margin:0 auto; }
+    .dashboard-hero { border-radius:20px !important; box-shadow:0 12px 32px rgba(15,23,42,.09) !important; }
+    .dashboard-grid { gap:10px !important; }
+    .dashboard-metric {
+      min-height:122px; border-radius:15px !important; border:1px solid #e5eaf1 !important;
+      background:#fff !important; box-shadow:0 5px 18px rgba(15,23,42,.045) !important;
+      position:relative; overflow:hidden;
+    }
+    .dashboard-metric:before { content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:#cbd5e1; }
+    .dashboard-metric:nth-child(1):before { background:#dc2626; }
+    .dashboard-metric:nth-child(2):before { background:#2563eb; }
+    .dashboard-metric:nth-child(3):before { background:#f59e0b; }
+    .dashboard-metric:nth-child(4):before { background:#16a34a; }
+    .dashboard-metric:nth-child(5):before { background:#ef4444; }
+    .dashboard-metric:nth-child(6):before { background:#8b5cf6; }
+    .dashboard-card,.contracts-toolbar,.contracts-table-shell {
+      border-color:#e5eaf1 !important; border-radius:16px !important; box-shadow:0 6px 22px rgba(15,23,42,.045) !important;
+    }
+    .dashboard-section-title { font-size:12px !important; }
+    .dashboard-big-box {
+      border:1px solid #e5eaf1 !important; background:linear-gradient(180deg,#fff,#f8fafc) !important;
+      border-radius:13px !important; min-height:94px;
+    }
+    .dashboard-big-value { font-weight:950 !important; }
+    .dashboard-row { border-bottom:1px solid #f0f3f7 !important; }
+    .dashboard-quick-btn { min-height:48px; border-radius:12px !important; background:#f8fafc !important; }
+
+    .contracts-toolbar { padding:16px !important; }
+    .contracts-page-title { font-size:22px !important; }
+    .contracts-table thead th { background:#111827 !important; }
+    .contracts-table tbody tr:nth-child(even) { background:#fbfdff; }
+    .contracts-table tbody tr:hover { background:#f0f7ff !important; }
+
+    .app-sidebar {
+      width:300px !important; background:rgba(255,255,255,.97) !important;
+      backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+      box-shadow:14px 0 40px rgba(15,23,42,.16) !important;
+    }
+    .app-sidebar .tab-btn { min-height:44px !important; border-radius:11px !important; }
+    .app-sidebar .tab-btn.active { box-shadow:inset 4px 0 0 #2563eb !important; }
+
+    #partnersTabContent > div,#incomeTabContent > div,#initTabContent > div,
+    #accountingTabContent > div,#takenTabContent > div:first-child,#printTabContent > div {
+      border-radius:16px !important; border-color:#e5eaf1 !important;
+      box-shadow:0 6px 22px rgba(15,23,42,.045) !important;
+    }
+    .client-card,.fieldwork-card { box-shadow:0 5px 18px rgba(15,23,42,.045) !important; }
+
+    @media (max-width:900px) {
+      .yusra-topbar-inner { grid-template-columns:1fr auto; }
+      .yusra-topbar-tools { grid-column:1 / -1; grid-row:2; }
+      .yusra-search { width:100%; }
+      .yusra-primary-action { grid-column:2; grid-row:1; }
+      .yusra-sync { display:none; }
+    }
+    @media (max-width:640px) {
+      .yusra-topbar-inner { padding:8px; gap:7px; min-height:60px; }
+      .yusra-brand-caption,.yusra-history,.yusra-data-actions { display:none; }
+      .yusra-brand-name { font-size:16px; }
+      .yusra-primary-action > button:not(.hidden) { min-height:40px; padding:0 10px; font-size:9px; }
+      .yusra-search { height:40px; }
+      .dashboard-grid { grid-template-columns:repeat(2,minmax(0,1fr)) !important; }
+      .dashboard-metric { min-height:108px; }
+      .dashboard-metric-note { font-size:8px !important; }
+      .contracts-page-title { font-size:19px !important; }
+    }
+</style>
 </head>
 <body class="bg-slate-100 text-gray-800 text-xs min-h-screen">
 
@@ -1230,56 +1345,44 @@
   </div>
 
   <!-- ВЕРХНЯЯ ПАНЕЛЬ -->
-  <div class="sticky top-0 z-40 bg-white shadow-md border-b no-print">
-    <div class="p-3 max-w-[100vw] flex flex-wrap justify-between items-center gap-4">
-      
-      <div class="flex items-center gap-2 flex-wrap">
+  <div class="yusra-topbar sticky top-0 z-40 no-print">
+    <div class="yusra-topbar-inner">
+      <div class="yusra-brand-group">
         <button type="button" id="menuToggle" class="menu-toggle no-print" onclick="toggleSidebar()" aria-label="Открыть меню" aria-expanded="false">☰</button>
-        <div class="flex bg-slate-200 rounded-lg p-1 gap-1">
-          <button type="button" id="undoBtn" onclick="undo()" disabled title="Шаг назад (Ctrl+Z)" 
-            class="px-3 py-1.5 rounded text-xs font-bold text-gray-400 bg-gray-100 cursor-not-allowed transition">
-            ↺ Назад
-          </button>
-          <button type="button" id="redoBtn" onclick="redo()" disabled title="Шаг вперед (Ctrl+Y)" 
-            class="px-3 py-1.5 rounded text-xs font-bold text-gray-400 bg-gray-100 cursor-not-allowed transition">
-            ↻ Вперед
-          </button>
+        <div class="yusra-brand">
+          <div class="yusra-brand-name">YUSRA</div>
+          <div class="yusra-brand-caption">учёт · договоры · финансы</div>
         </div>
+        <div class="yusra-history">
+          <button type="button" id="undoBtn" onclick="undo()" disabled title="Шаг назад (Ctrl+Z)" aria-label="Шаг назад">↶</button>
+          <button type="button" id="redoBtn" onclick="redo()" disabled title="Шаг вперед (Ctrl+Y)" aria-label="Шаг вперед">↷</button>
+        </div>
+      </div>
 
-        <button type="button" onclick="exportData()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-3 py-1.5 rounded-lg text-xs transition shadow-sm">
-          💾 Скачать базу
-        </button>
-        <input type="file" id="importFile" onchange="importData(event)" class="hidden" accept=".json">
-        <button type="button" onclick="document.getElementById('importFile').click()" class="bg-slate-600 hover:bg-slate-700 text-white font-medium px-3 py-1.5 rounded-lg text-xs transition shadow-sm">
-          📂 Загрузить базу
-        </button>
-
-        <div id="syncIndicator" class="sync-indicator synced" title="Статус синхронизации с облаком">
+      <div class="yusra-topbar-tools">
+        <label class="yusra-search" for="searchInput">
+          <span>⌕</span>
+          <input type="text" id="searchInput" oninput="handleSearch()" placeholder="Поиск по YUSRA…" autocomplete="off">
+          <kbd>Ctrl K</kbd>
+        </label>
+        <div id="syncIndicator" class="sync-indicator synced yusra-sync" title="Статус синхронизации с облаком">
           <span class="sync-dot"></span>
           <span id="syncText">Синхронизировано</span>
         </div>
-
-        <input type="text" id="searchInput" oninput="handleSearch()" placeholder="Поиск..." class="p-1.5 border rounded-lg w-40 focus:ring-2 focus:ring-blue-400 outline-none">
+        <div class="yusra-data-actions">
+          <button type="button" onclick="exportData()" title="Скачать базу" aria-label="Скачать базу">⇩</button>
+          <input type="file" id="importFile" onchange="importData(event)" class="hidden" accept=".json">
+          <button type="button" onclick="document.getElementById('importFile').click()" title="Загрузить базу" aria-label="Загрузить базу">⇧</button>
+        </div>
       </div>
 
-      <div class="flex items-center gap-2">
-        <button type="button" id="addContractBtn" onclick="openCreateModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-1.5 rounded-lg shadow transition">
-          + Новый Договор
-        </button>
-        <button type="button" id="addAccIncomeBtn" onclick="openAccModal('income')" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-lg shadow transition">
-          ＋ Поступление
-        </button>
-        <button type="button" id="addAccExpenseBtn" onclick="openAccModal('expense')" class="hidden bg-red-600 hover:bg-red-700 text-white font-bold px-3 py-1.5 rounded-lg shadow transition">
-          − Расход
-        </button>
-        <button type="button" id="addTakenBtn" onclick="openTakenModal()" class="hidden bg-amber-600 hover:bg-amber-700 text-white font-bold px-3 py-1.5 rounded-lg shadow transition">
-          + Запись Взяли / Положили
-        </button>
-        <button type="button" id="addIncomeExpBtn" onclick="openIncomeExpModal()" class="hidden bg-teal-600 hover:bg-teal-700 text-white font-bold px-3 py-1.5 rounded-lg shadow transition">
-          + Добавить расход
-        </button>
+      <div class="yusra-primary-action">
+        <button type="button" id="addContractBtn" onclick="openCreateModal()">＋ Новый договор</button>
+        <button type="button" id="addAccIncomeBtn" onclick="openAccModal('income')" class="hidden">＋ Поступление</button>
+        <button type="button" id="addAccExpenseBtn" onclick="openAccModal('expense')" class="hidden">− Расход</button>
+        <button type="button" id="addTakenBtn" onclick="openTakenModal()" class="hidden">＋ Взяли / Положили</button>
+        <button type="button" id="addIncomeExpBtn" onclick="openIncomeExpModal()" class="hidden">＋ Добавить расход</button>
       </div>
-
     </div>
   </div>
 
@@ -7038,6 +7141,14 @@
     }
 
     initSync();
-  </script>
+  
+    document.addEventListener('keydown', function(e) {
+      if (e.key === '/' && !['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName)) {
+        e.preventDefault();
+        const input = document.getElementById('searchInput');
+        if (input) input.focus();
+      }
+    });
+</script>
 </body>
   </html>
