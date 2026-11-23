@@ -70,7 +70,7 @@
     <div class="form-group" id="vznosGroup">
       <label for="vznos">Первоначальный взнос (₽)</label>
       <input type="number" id="vznos" min="0" step="1" value="25000" inputmode="decimal">
-      <div class="hint">Стандартный взнос — 25% и более. Можно указать любую сумму: при взносе меньше 25% применяется отдельная логика расчёта.</div>
+      <div class="hint">Стандартный первоначальный взнос — 25%. Можно указать любую другую сумму.</div>
     </div>
 
     <div class="form-group">
@@ -90,8 +90,7 @@
       <div class="result-row" id="resVznosRow"><span>Первоначальный взнос:</span><span id="resVznos">25 000 ₽</span></div>
       <div class="result-row"><span>Остаток себестоимости:</span><span id="resRemaining">75 000 ₽</span></div>
       <div class="result-row"><span>Срок:</span><span id="resMonths">3 месяца</span></div>
-      <div class="result-row"><span>Итоговый процент:</span><span id="resRate">18%</span></div>
-      <div class="result-row"><span>Тип расчёта:</span><span id="resType">Стандартный взнос</span></div>
+      <div class="result-row"><span>Итоговый процент:</span><span id="resRate">19%</span></div>
       <div class="result-row"><span>Наценка:</span><span id="resOverpay">9 000 ₽</span></div>
       <div class="result-row monthly"><span>Ежемесячный платёж:</span><span id="resMonthly">28 000 ₽</span></div>
       <div class="result-row total"><span>Итоговая сумма:</span><span id="resTotal">109 000 ₽</span></div>
@@ -106,8 +105,9 @@
   </main>
 
   <script>
-    // Тарифы: значения в процентах. Для расчёта с любым взносом
-    // процент применяется к оставшейся себестоимости по таблице «Без взноса».
+    // Тарифы Даруль-Финанс.
+    // «withV» — итоговый процент от себестоимости при стандартном взносе 25%.
+    // «noV» — процент, применяемый к остатку себестоимости.
     const rates = {
       3:  { withV: 9,  noV: 12 },
       4:  { withV: 12, noV: 16 },
@@ -147,36 +147,33 @@
       const requestedDeposit = withVznos && Number.isFinite(rawDeposit) && rawDeposit > 0 ? rawDeposit : 0;
       const deposit = Math.min(requestedDeposit, cost);
       const remaining = Math.max(cost - deposit, 0);
-      // Стандартный взнос — 25% и более от себестоимости:
-      // применяем тариф «С первоначальным взносом» ко всей себестоимости,
-      // затем вычитаем внесённый аванс из общей суммы.
-      // Нестандартный взнос меньше 25%:
-      // вычитаем его из себестоимости и применяем тариф «Без взноса»
-      // только к оставшейся части.
-      const isStandardDeposit = withVznos && cost > 0 && deposit >= cost * 0.25;
-      const rate = isStandardDeposit ? rates[months].withV : rates[months].noV;
-      const markup = isStandardDeposit
-        ? cost * rate / 100
-        : remaining * rates[months].noV / 100;
-      const financedAmount = isStandardDeposit
-        ? Math.max(cost + markup - deposit, 0)
-        : remaining + markup;
+      const noDepositRate = rates[months].noV;
+      const standardDeposit = cost > 0 && Math.abs(deposit - cost * 0.25) < 0.01;
+
+      // При стандартном взносе ровно 25% используем отдельный тариф «С первоначальным взносом».
+      // При любом другом размере взноса применяем тариф «Без первого взноса» к остатку себестоимости.
+      const markup = standardDeposit
+        ? cost * rates[months].withV / 100
+        : remaining * noDepositRate / 100;
+      const financedAmount = remaining + markup;
+      const rate = standardDeposit ? rates[months].withV : noDepositRate;
       const monthly = round100(financedAmount / months);
       const total = deposit + monthly * months;
       const actualOverpay = total - cost;
-      // Процент для показа отражает тарифную наценку до округления платежей.
       const effectivePercent = cost > 0 ? markup / cost * 100 : 0;
 
-      lastCalcData = {
-        cost, deposit, remaining, months, rate, markup, monthly, total,
-        actualOverpay, effectivePercent, isStandardDeposit
-      };
+      lastCalcData = { cost, deposit, remaining, months, rate, markup, monthly, total, actualOverpay, effectivePercent };
       byId('resCost').textContent = money(cost);
       byId('resVznos').textContent = money(deposit);
       byId('resRemaining').textContent = money(remaining);
       byId('resMonths').textContent = months + ' ' + monthWord(months);
-      byId('resRate').textContent = Math.round(effectivePercent) + '%';
-      byId('resType').textContent = isStandardDeposit ? 'Стандартный взнос (от 25%)' : (withVznos && deposit > 0 ? 'Нестандартный взнос' : 'Без взноса');
+      // Фактический процент от исходной себестоимости: точность до 0,1%.
+      // Целые проценты показываются без .0, дробные — например 23,5%.
+      const shownPercent = Number(effectivePercent.toFixed(1)).toLocaleString('ru-RU', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 1
+      });
+      byId('resRate').textContent = shownPercent + '%';
       byId('resOverpay').textContent = money(actualOverpay);
       byId('resMonthly').textContent = money(monthly);
       byId('resTotal').textContent = money(total);
@@ -194,8 +191,10 @@
       lines.push(
         '📉 Остаток себестоимости: ' + money(d.remaining),
         '⏳ Срок: ' + d.months + ' ' + monthWord(d.months),
-        '📊 Итоговый процент: ' + Math.round(d.effectivePercent) + '%',
-        '🧾 Тип расчёта: ' + (d.isStandardDeposit ? 'Стандартный взнос (от 25%)' : (withVznos && d.deposit > 0 ? 'Нестандартный взнос' : 'Без взноса')),
+        '📊 Итоговый процент: ' + Number(d.effectivePercent.toFixed(1)).toLocaleString('ru-RU', {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 1
+        }) + '%',
         '💳 Ежемесячный платёж: ' + money(d.monthly), '',
         '📈 Переплата: ' + money(d.actualOverpay),
         '✅ Итого к оплате: ' + money(d.total)
