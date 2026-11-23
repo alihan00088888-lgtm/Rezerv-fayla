@@ -70,7 +70,7 @@
     <div class="form-group" id="vznosGroup">
       <label for="vznos">Первоначальный взнос (₽)</label>
       <input type="number" id="vznos" min="0" step="1" value="25000" inputmode="decimal">
-      <div class="hint">25% — стандартный ориентир. Можно указать любую сумму, в том числе 0 ₽.</div>
+      <div class="hint">Стандартный взнос — 25% и более. Можно указать любую сумму: при взносе меньше 25% применяется отдельная логика расчёта.</div>
     </div>
 
     <div class="form-group">
@@ -90,7 +90,8 @@
       <div class="result-row" id="resVznosRow"><span>Первоначальный взнос:</span><span id="resVznos">25 000 ₽</span></div>
       <div class="result-row"><span>Остаток себестоимости:</span><span id="resRemaining">75 000 ₽</span></div>
       <div class="result-row"><span>Срок:</span><span id="resMonths">3 месяца</span></div>
-      <div class="result-row"><span>Итоговый процент:</span><span id="resRate">19%</span></div>
+      <div class="result-row"><span>Итоговый процент:</span><span id="resRate">18%</span></div>
+      <div class="result-row"><span>Тип расчёта:</span><span id="resType">Стандартный взнос</span></div>
       <div class="result-row"><span>Наценка:</span><span id="resOverpay">9 000 ₽</span></div>
       <div class="result-row monthly"><span>Ежемесячный платёж:</span><span id="resMonthly">28 000 ₽</span></div>
       <div class="result-row total"><span>Итоговая сумма:</span><span id="resTotal">109 000 ₽</span></div>
@@ -146,20 +147,36 @@
       const requestedDeposit = withVznos && Number.isFinite(rawDeposit) && rawDeposit > 0 ? rawDeposit : 0;
       const deposit = Math.min(requestedDeposit, cost);
       const remaining = Math.max(cost - deposit, 0);
-      const rate = withVznos ? rates[months].noV : rates[months].noV;
-      const markup = remaining * rate / 100;
-      const financedAmount = remaining + markup;
+      // Стандартный взнос — 25% и более от себестоимости:
+      // применяем тариф «С первоначальным взносом» ко всей себестоимости,
+      // затем вычитаем внесённый аванс из общей суммы.
+      // Нестандартный взнос меньше 25%:
+      // вычитаем его из себестоимости и применяем тариф «Без взноса»
+      // только к оставшейся части.
+      const isStandardDeposit = withVznos && cost > 0 && deposit >= cost * 0.25;
+      const rate = isStandardDeposit ? rates[months].withV : rates[months].noV;
+      const markup = isStandardDeposit
+        ? cost * rate / 100
+        : remaining * rates[months].noV / 100;
+      const financedAmount = isStandardDeposit
+        ? Math.max(cost + markup - deposit, 0)
+        : remaining + markup;
       const monthly = round100(financedAmount / months);
       const total = deposit + monthly * months;
       const actualOverpay = total - cost;
+      // Процент для показа отражает тарифную наценку до округления платежей.
       const effectivePercent = cost > 0 ? markup / cost * 100 : 0;
 
-      lastCalcData = { cost, deposit, remaining, months, rate, markup, monthly, total, actualOverpay, effectivePercent };
+      lastCalcData = {
+        cost, deposit, remaining, months, rate, markup, monthly, total,
+        actualOverpay, effectivePercent, isStandardDeposit
+      };
       byId('resCost').textContent = money(cost);
       byId('resVznos').textContent = money(deposit);
       byId('resRemaining').textContent = money(remaining);
       byId('resMonths').textContent = months + ' ' + monthWord(months);
       byId('resRate').textContent = Math.round(effectivePercent) + '%';
+      byId('resType').textContent = isStandardDeposit ? 'Стандартный взнос (от 25%)' : (withVznos && deposit > 0 ? 'Нестандартный взнос' : 'Без взноса');
       byId('resOverpay').textContent = money(actualOverpay);
       byId('resMonthly').textContent = money(monthly);
       byId('resTotal').textContent = money(total);
@@ -178,6 +195,7 @@
         '📉 Остаток себестоимости: ' + money(d.remaining),
         '⏳ Срок: ' + d.months + ' ' + monthWord(d.months),
         '📊 Итоговый процент: ' + Math.round(d.effectivePercent) + '%',
+        '🧾 Тип расчёта: ' + (d.isStandardDeposit ? 'Стандартный взнос (от 25%)' : (withVznos && d.deposit > 0 ? 'Нестандартный взнос' : 'Без взноса')),
         '💳 Ежемесячный платёж: ' + money(d.monthly), '',
         '📈 Переплата: ' + money(d.actualOverpay),
         '✅ Итого к оплате: ' + money(d.total)
