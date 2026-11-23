@@ -90,7 +90,7 @@
       <div class="result-row" id="resVznosRow"><span>Первоначальный взнос:</span><span id="resVznos">25 000 ₽</span></div>
       <div class="result-row"><span>Остаток себестоимости:</span><span id="resRemaining">75 000 ₽</span></div>
       <div class="result-row"><span>Срок:</span><span id="resMonths">3 месяца</span></div>
-      <div class="result-row"><span>Применённый процент:</span><span id="resRate">12%</span></div>
+      <div class="result-row"><span>Итоговый процент:</span><span id="resRate">19%</span></div>
       <div class="result-row"><span>Наценка:</span><span id="resOverpay">9 000 ₽</span></div>
       <div class="result-row monthly"><span>Ежемесячный платёж:</span><span id="resMonthly">28 000 ₽</span></div>
       <div class="result-row total"><span>Итоговая сумма:</span><span id="resTotal">109 000 ₽</span></div>
@@ -152,14 +152,14 @@
       const monthly = round100(financedAmount / months);
       const total = deposit + monthly * months;
       const actualOverpay = total - cost;
-      const effectivePercent = cost > 0 ? actualOverpay / cost * 100 : 0;
+      const effectivePercent = cost > 0 ? markup / cost * 100 : 0;
 
       lastCalcData = { cost, deposit, remaining, months, rate, markup, monthly, total, actualOverpay, effectivePercent };
       byId('resCost').textContent = money(cost);
       byId('resVznos').textContent = money(deposit);
       byId('resRemaining').textContent = money(remaining);
       byId('resMonths').textContent = months + ' ' + monthWord(months);
-      byId('resRate').textContent = String(rate).replace('.', ',') + '%';
+      byId('resRate').textContent = Math.round(effectivePercent) + '%';
       byId('resOverpay').textContent = money(actualOverpay);
       byId('resMonthly').textContent = money(monthly);
       byId('resTotal').textContent = money(total);
@@ -177,9 +177,9 @@
       lines.push(
         '📉 Остаток себестоимости: ' + money(d.remaining),
         '⏳ Срок: ' + d.months + ' ' + monthWord(d.months),
-        '📊 Применённый процент: ' + String(d.rate).replace('.', ',') + '%',
+        '📊 Итоговый процент: ' + Math.round(d.effectivePercent) + '%',
         '💳 Ежемесячный платёж: ' + money(d.monthly), '',
-        '📈 Переплата: ' + money(d.actualOverpay) + ' (' + d.effectivePercent.toFixed(1).replace('.', ',') + '%)',
+        '📈 Переплата: ' + money(d.actualOverpay),
         '✅ Итого к оплате: ' + money(d.total)
       );
       return lines.join('\n');
